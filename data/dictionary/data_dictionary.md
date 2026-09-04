@@ -189,4 +189,6 @@ single place these are computed; no analysis module recomputes them.
 | is_top_decile | bool | `Outputs in Top Citation Percentiles <= TOP_DECILE_PERCENTILE_MAX` (10) | derived | `<=` comparison; column has no nulls | No |
 | is_top_1_percent | bool | `Outputs in Top Citation Percentiles <= TOP_1_PERCENT_PERCENTILE_MAX` (1) | derived | `<=` comparison | No |
 | is_international | bool | `Number of Countries/Regions >= INTERNATIONAL_COLLABORATION_MIN_COUNTRIES` (2) | derived | `>=` comparison | No |
+| is_multi_institution | bool | `Number of Institutions >= INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS` (2) | derived | `>=` comparison | No |
 | is_uncited | bool | `Citations == 0` | derived | direct comparison | No |
+| is_open_access | bool | `Open Access` is non-null. **PROVISIONAL** — assumes null means "not open access", not "status unknown"; see methodology.md, Open access status | derived | `.notna()` | No |

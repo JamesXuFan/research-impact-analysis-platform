@@ -28,8 +28,9 @@ theme.question_panel(
         ("Document Type → Citation Impact", "done"),
         ("Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?", "partial"),
         ("Institutional Collaboration → Journal Choice → Citation Impact", "partial"),
-        ("Are some drivers particularly important only in particular disciplines? Are there interactions between journal quality and collaboration?", "open"),
-        ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "open"),
+        ("Is there an interaction between journal quality and international collaboration?", "done"),
+        ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "done"),
+        ("Are some drivers particularly important only in particular disciplines?", "elsewhere"),
     ]
 )
 st.caption(
@@ -40,10 +41,11 @@ st.caption(
     "its effect running *through* Q1 placement — see the International Collaboration page's "
     "breadth section for that comparison. 'Institutional collaboration → journal choice' has "
     "no journal-choice mediator variable defined; log_institutions below is its direct effect "
-    "on impact only, not routed through journal tier. The two 'open' items — field-specific "
-    "interaction effects, and a combination/pattern-mining view of what co-occurs in "
-    "high/low-impact publications — are not implemented: this model estimates one global "
-    "linear effect per predictor, not per-field interactions or combinations."
+    "on impact only, not routed through journal tier. 'Field-specific importance' is answered "
+    "per-predictor on other pages, not as a single interaction here — the Journal Tier page's "
+    "'Q1 advantage by field' and the International Collaboration page's 'gap by field' sections "
+    "— rather than fitting per-field interaction terms for every predictor in this model, which "
+    "would need dozens of extra terms and enough rows per field to estimate them precisely."
 )
 
 st.error(
@@ -60,6 +62,16 @@ def get_fit():
     model_df = impact_drivers.build_driver_dataset(dedup)
     fit = impact_drivers.fit_impact_driver_model(model_df)
     return fit, len(dedup), len(model_df), model_df
+
+
+@st.cache_resource(show_spinner="Fitting the Q1 × international interaction model…")
+def get_interaction_fit(_model_df):
+    return impact_drivers.fit_interaction_model(_model_df)
+
+
+@st.cache_data(show_spinner="Building the factor-combination table…")
+def get_combination_summary():
+    return impact_drivers.combination_summary(load_deduplicated())
 
 
 fit, n_input, n_model, model_df_full = get_fit()
@@ -184,6 +196,84 @@ st.markdown(
     "journal-level metric that mostly doesn't apply to books) and get dropped before "
     "fitting — treat these four coefficients as describing that small, non-random "
     "surviving slice, not document-type publishing as a whole."
+)
+
+theme.rule(theme.YELLOW)
+
+st.subheader("Interaction: journal quality × international collaboration")
+st.caption(
+    "A separate model from the main one above, not the main model with a term added — "
+    "adding an interaction changes what is_q1 and is_international mean on their own "
+    "(each becomes 'the effect when the other is False'), which is a different question "
+    "from the main model's 'holding everything else constant' reading. Same predictors, "
+    "same HC3 robust SE, plus one `is_q1 : is_international` term."
+)
+interaction_fit = get_interaction_fit(model_df_full)
+inter_table = impact_drivers.interaction_summary_table(interaction_fit)
+st.dataframe(
+    inter_table.style.format({"coefficient": "{:.4f}", "std_err": "{:.4f}", "p_value": "{:.4f}", "ci_low": "{:.4f}", "ci_high": "{:.4f}"}),
+    width="stretch",
+)
+inter_row = inter_table.loc["is_international[T.True]:is_q1[T.True]"]
+q1_row = inter_table.loc["is_q1[T.True]"]
+intl_row = inter_table.loc["is_international[T.True]"]
+inter_sig = "statistically significant" if inter_row["p_value"] < 0.05 else "not statistically significant"
+st.markdown(
+    f"With the interaction term included, **is_international** on its own reads "
+    f"**{intl_row['coefficient']:+.3f}** (its effect specifically for *non*-Q1 publications), "
+    f"**is_q1** on its own reads **{q1_row['coefficient']:+.3f}** (its effect specifically for "
+    f"*domestic* publications), and the interaction term is **{inter_row['coefficient']:+.3f}** "
+    f"({inter_sig}, p = {inter_row['p_value']:.4f}) — the *extra* Q1 boost that international "
+    "publications get on top of both main effects. "
+    + (
+        "Read together: international collaboration's benefit in this dataset is concentrated "
+        "among Q1 publications, not a flat effect that applies equally regardless of journal "
+        "tier — for non-Q1 publications specifically, being international is associated with "
+        "*lower* mean FWCI once field, year, and the other predictors are held constant."
+        if intl_row["coefficient"] < 0 < inter_row["coefficient"]
+        else "Read the three rows together, not the interaction term alone, to describe how the "
+        "two factors combine."
+    )
+)
+
+theme.rule(theme.YELLOW)
+
+st.subheader("Which combination of factors goes with high vs. low impact?")
+st.caption(
+    "Descriptive group means on the full dataset, not a regression — every combination of "
+    "is_q1 / is_international / is_open_access, sorted by mean FWCI. Confounding and all "
+    "(unlike the coefficient tables above, nothing here is held constant) — pair with the "
+    "main model for the 'holding everything else constant' version of the same question."
+)
+combo = get_combination_summary().reset_index()
+combo["combination"] = combo.apply(
+    lambda r: " + ".join(
+        filter(None, [
+            "Q1" if r["is_q1"] else None,
+            "Intl" if r["is_international"] else None,
+            "OA" if r["is_open_access"] else None,
+        ])
+    ) or "None of Q1 / Intl / OA",
+    axis=1,
+)
+combo_chart = (
+    alt.Chart(combo)
+    .mark_bar()
+    .encode(
+        y=alt.Y("combination:N", title="", sort="-x"),
+        x=alt.X("mean_fwci:Q", title="Mean FWCI"),
+        color=alt.Color("mean_fwci:Q", legend=None, scale=alt.Scale(range=theme.SEQUENTIAL_RANGE)),
+        tooltip=["combination", "publications", alt.Tooltip("mean_fwci:Q", format=".3f"), alt.Tooltip("top_decile_share:Q", format=".1%"), alt.Tooltip("uncited_share:Q", format=".1%")],
+    )
+)
+st.altair_chart(theme.style(combo_chart, height=280), use_container_width=True)
+top_combo = combo.iloc[0]
+bottom_combo = combo.iloc[-1]
+st.markdown(
+    f"**Highest:** {top_combo['combination']} — {top_combo['mean_fwci']:.2f} mean FWCI, "
+    f"{top_combo['top_decile_share']:.1%} highly cited, {top_combo['publications']:,} publications. "
+    f"**Lowest:** {bottom_combo['combination']} — {bottom_combo['mean_fwci']:.2f} mean FWCI, "
+    f"{bottom_combo['uncited_share']:.1%} uncited, {bottom_combo['publications']:,} publications."
 )
 
 theme.rule(theme.YELLOW)

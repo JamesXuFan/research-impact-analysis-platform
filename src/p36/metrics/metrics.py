@@ -14,6 +14,7 @@ from p36.config import (
     CITESCORE_QUARTILE_BOUNDS,
     CITESCORE_QUARTILE_LABELS,
     EXCLUDE_RETRACTED,
+    INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS,
     INTERNATIONAL_COLLABORATION_MIN_COUNTRIES,
     OPEN_ACCESS_NULL_MEANS_NOT_OA,
     Q1_CITESCORE_PERCENTILE_MAX,
@@ -24,6 +25,7 @@ from p36.config import (
 CITESCORE_PERCENTILE_COL = "CiteScore percentile (publication year) *"
 TOP_CITATION_PERCENTILE_COL = "Outputs in Top Citation Percentiles, per percentile"
 COUNTRIES_COL = "Number of Countries/Regions"
+INSTITUTIONS_COL = "Number of Institutions"
 
 
 def add_derived_flags(df: pd.DataFrame) -> pd.DataFrame:
@@ -38,6 +40,10 @@ def add_derived_flags(df: pd.DataFrame) -> pd.DataFrame:
     - ``is_top_decile``       Outputs in Top Citation Percentiles <= TOP_DECILE_PERCENTILE_MAX
     - ``is_top_1_percent``    Outputs in Top Citation Percentiles <= TOP_1_PERCENT_PERCENTILE_MAX
     - ``is_international``    Number of Countries/Regions >= INTERNATIONAL_COLLABORATION_MIN_COUNTRIES
+    - ``is_multi_institution`` Number of Institutions >= INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS
+                               (used by field_analysis.add_collaboration_approach's
+                               "publication strategy" stand-in, README item 6 — see
+                               p36.config, "Institutional collaboration")
     - ``is_uncited``          Citations == 0
     - ``is_open_access``      Open Access is non-null, i.e. OPEN_ACCESS_NULL_MEANS_NOT_OA is
                                assumed True — **PROVISIONAL**, not confirmed by the client (see
@@ -60,6 +66,7 @@ def add_derived_flags(df: pd.DataFrame) -> pd.DataFrame:
     df["is_top_decile"] = (df[TOP_CITATION_PERCENTILE_COL] <= TOP_DECILE_PERCENTILE_MAX).astype(bool)
     df["is_top_1_percent"] = (df[TOP_CITATION_PERCENTILE_COL] <= TOP_1_PERCENT_PERCENTILE_MAX).astype(bool)
     df["is_international"] = (df[COUNTRIES_COL] >= INTERNATIONAL_COLLABORATION_MIN_COUNTRIES).astype(bool)
+    df["is_multi_institution"] = (df[INSTITUTIONS_COL] >= INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS).astype(bool)
     df["is_uncited"] = (df["Citations"] == 0).astype(bool)
     if OPEN_ACCESS_NULL_MEANS_NOT_OA:
         df["is_open_access"] = df["Open Access"].notna()

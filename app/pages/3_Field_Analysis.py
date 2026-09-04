@@ -2,7 +2,15 @@ import altair as alt
 import streamlit as st
 
 import theme
-from lib import caveat, get_field_growth, get_field_summary, get_field_trend, get_fwci_by_field, load_exploded_deduplicated
+from lib import (
+    caveat,
+    get_collaboration_approach_by_field,
+    get_field_growth,
+    get_field_summary,
+    get_field_trend,
+    get_fwci_by_field,
+    load_exploded_deduplicated,
+)
 from p36.analysis import field_analysis
 from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
 from p36.config import FRACTIONAL_FIELD_COUNTING
@@ -27,14 +35,15 @@ theme.question_panel(
         ("Which fields produce the highest proportion of overperforming (top-decile) publications?", "done"),
         ("Which fields produce the largest number of highly cited publications?", "done"),
         ("Which fields appear to represent existing strengths, and where is the greatest potential for improvement?", "partial"),
-        ("Are particular publication strategies more successful in some fields than others?", "open"),
+        ("Are particular publication strategies more successful in some fields than others?", "done"),
     ]
 )
 st.caption(
     "'Strengths / potential' is a synthesis of the volume, impact, Q1-share and growth "
-    "sections below, not one chart on its own. 'Publication strategy' isn't operationalised "
-    "in this dataset/metric set yet — it would need a defined strategy variable (e.g. venue "
-    "type, collaboration size, open-access route) crossed with field, which is not built here."
+    "sections below, not one chart on its own. 'Publication strategy' has no client-confirmed "
+    "definition — answered below via the closest concrete stand-in this dataset supports "
+    "(domestic-single-institution / domestic-multi-institution / international), not a "
+    "broader notion of strategy (venue choice, career stage, etc.) this data can't speak to."
 )
 
 _, dropped = load_exploded_deduplicated()
@@ -214,6 +223,48 @@ with col_b:
         )
     )
     st.altair_chart(theme.style(heatmap), use_container_width=True)
+
+theme.rule(theme.YELLOW)
+
+st.subheader("Are particular collaboration approaches more successful in some fields?")
+st.caption(
+    "'Publication strategy' has no client-confirmed definition, so this uses the closest "
+    "concrete stand-in this dataset supports — domestic/single-institution vs. "
+    "domestic/multi-institution vs. international authorship — crossed with field. "
+    "Descriptive group means, not a regression: a field where international shows the "
+    "highest mean FWCI is consistent with, not proof of, international collaboration being "
+    "the more effective approach specifically in that field."
+)
+approach_df = get_collaboration_approach_by_field().reset_index()
+approach_chart = (
+    alt.Chart(approach_df)
+    .mark_bar()
+    .encode(
+        y=alt.Y(f"{FIELD_COLUMN_EXPLODED}:N", title="", sort="-x"),
+        x=alt.X("mean_fwci:Q", title="Mean FWCI"),
+        color=alt.Color(
+            "collaboration_approach:N", title="",
+            scale=alt.Scale(
+                domain=["International", "Domestic, multi-institution", "Domestic, single institution"],
+                range=[theme.RED, theme.BLUE, theme.GREY],
+            ),
+        ),
+        xOffset="collaboration_approach:N",
+        tooltip=[FIELD_COLUMN_EXPLODED, "collaboration_approach", "publications", alt.Tooltip("mean_fwci:Q", format=".3f")],
+    )
+)
+st.altair_chart(theme.style(approach_chart, height=max(280, 26 * approach_df[FIELD_COLUMN_EXPLODED].nunique())), use_container_width=True)
+gap_by_field = (
+    approach_df.pivot(index=FIELD_COLUMN_EXPLODED, columns="collaboration_approach", values="mean_fwci")
+    .assign(intl_gap=lambda d: d["International"] - d[["Domestic, multi-institution", "Domestic, single institution"]].mean(axis=1))
+    .sort_values("intl_gap", ascending=False)
+)
+st.caption(
+    f"International's advantage over the two domestic approaches (averaged) is largest in "
+    f"**{gap_by_field.index[0]}** (+{gap_by_field['intl_gap'].iloc[0]:.2f} FWCI) and smallest in "
+    f"**{gap_by_field.index[-1]}** ({gap_by_field['intl_gap'].iloc[-1]:+.2f} FWCI) — international "
+    "shows the highest mean FWCI in every field here, but by a very different margin field to field."
+)
 
 caveat(
     "Cross-field comparisons above use Field-Weighted Citation Impact and SciVal's "

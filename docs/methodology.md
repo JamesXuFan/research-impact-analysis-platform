@@ -66,6 +66,15 @@ paper can't make a small source look like an outlier. Descriptive only — a sou
 gap can reflect genuine editorial quality, a narrow high-citation-culture sub-field,
 or a handful of outliers even past the publication floor.
 
+`journal_tier.source_performance_flag` turns the same table into a per-publication
+nullable boolean (`is_source_overperforming`) — True if the publication's source has
+a positive gap, False if negative, NaN if the source doesn't meet
+`OVERPERFORMING_SOURCE_MIN_PUBLICATIONS` in its quartile (~26% of the deduplicated
+dataset, verified 2026-09-04). Feeds the item 17 "shift toward strong-opportunity
+journals" scenario via `scenario_analysis.estimate_uplift_from_share_shift` — the
+first item 3 -> item 17 link in this codebase; previously the over-performing-sources
+table was a shortlist to investigate manually, not wired into a projection.
+
 ### International collaboration share
 
 Share of publications with `Number of Countries/Regions >=
@@ -177,6 +186,24 @@ Whether a publication spanning multiple research fields is counted whole in each
 or fractionally (split to sum to 1 across fields) is not yet confirmed by the client.
 See `FRACTIONAL_FIELD_COUNTING` in `src/p36/config.py`.
 
+### Collaboration approach — a "publication strategy" stand-in (added 2026-09-04)
+
+README item 6 asks whether "particular publication strategies" are more successful in
+some fields than others, but "strategy" has no client-confirmed definition anywhere in
+this project. `field_analysis.add_collaboration_approach` builds the closest concrete
+stand-in this dataset supports — three categories from two flags in
+`p36.metrics.add_derived_flags`: `is_international` and `is_multi_institution`
+(`Number of Institutions >= INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS`, same
+>=-not-> convention as `INTERNATIONAL_COLLABORATION_MIN_COUNTRIES` — see
+p36.config, "Institutional collaboration"): "International", "Domestic,
+multi-institution", "Domestic, single institution". Not a general theory of publication
+strategy (venue choice, career stage, etc. aren't in this data) — a named,
+documented substitute for one undefined term, not a silent redefinition of it.
+`field_analysis.collaboration_approach_by_field` crosses it with field: descriptive
+group means, not a regression — a field where International shows the highest mean FWCI
+is consistent with, not proof of, international collaboration being more effective
+specifically in that field.
+
 ### Data limitations
 
 The dataset does not include faculty headcount. Any statement about a change in QS
@@ -238,3 +265,25 @@ document types' coefficients as describing that non-random surviving slice, not
 document-type publishing as a whole. Report the significant terms as an actual finding —
 FWCI's normalisation does not fully equalise mean impact across document types in this
 dataset — not assume they must be near-zero. See `impact_drivers.document_type_summary_table`.
+
+**Q1 × international interaction (added 2026-09-04, README item 14's "interactions
+between journal quality and collaboration"):** `impact_drivers.fit_interaction_model` is
+a *separate* fit from the main model — same predictors plus one
+`is_q1 : is_international` term — kept separate because adding an interaction changes
+what the two main-effect coefficients mean (each becomes "the effect when the other
+predictor is False"), not a refinement of the main model's "holding everything else
+constant" reading. Verified 2026-09-04: `is_international` alone is *negative*
+(-0.207, p<0.001) once the interaction is in the model, `is_q1` alone is +0.721
+(p<0.001), and the interaction term is +0.450 (p<0.001) — international collaboration's
+association with impact in this dataset is concentrated among Q1 publications; for
+non-Q1 publications specifically, international is associated with *lower* mean FWCI
+holding field/year/the other predictors constant. Report all three coefficients
+together, never the interaction term alone.
+
+**Factor-combination table (added 2026-09-04, README item 14's "what combination of
+factors is most commonly associated with high- vs. low-impact publications"):**
+`impact_drivers.combination_summary` — descriptive (not model-based) group means for
+every combination of is_q1/is_international/is_open_access. Deliberately not a
+regression: shows the combinations as they actually co-occur, confounding included,
+which is a different and equally legitimate thing to show alongside the "holding
+everything else constant" coefficients above, not a replacement for them.

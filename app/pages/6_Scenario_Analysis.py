@@ -24,7 +24,7 @@ theme.question_panel(
         ("Reduce the proportion of low-impact publications.", "partial"),
         ("Improve publication performance within selected research areas.", "elsewhere"),
         ("Increase collaboration with selected high-performing institutions.", "open"),
-        ("Shift some publications toward journals identified as strong opportunities.", "open"),
+        ("Shift some publications toward journals identified as strong opportunities.", "done"),
     ]
 )
 st.caption(
@@ -32,11 +32,11 @@ st.caption(
     "binary flag this dataset has — 'low-impact' itself is undefined by the client and is "
     "not the same claim as 'uncited'. 'Research areas' is the Go8 Benchmarking page's "
     "field-gap-vs-peers chart, which shows *where* Sydney trails, but is not turned into "
-    "its own FWCI projection here. The two 'open' items have no data support yet: "
-    "'high-performing institutions' would need partner-institution-level performance data "
-    "not built into this platform, and 'strong-opportunity journals' would need the Journal "
-    "Tier page's over-performing-sources table wired into a projection rather than left as "
-    "a shortlist."
+    "its own FWCI projection here. 'Strong-opportunity journals' now uses the Journal Tier "
+    "page's over-performing-sources table directly (last scenario below) — restricted to "
+    "publications whose source has enough volume in its tier to have a defined gap (see "
+    "that scenario's own note). 'High-performing institutions' still has no data support — "
+    "would need partner-institution-level performance data this platform doesn't have."
 )
 
 st.error(
@@ -64,6 +64,7 @@ label_map = {
     "is_international": "↑ International collaboration",
     "is_open_access": "↑ Open access (PROVISIONAL null-handling)",
     "is_uncited": "↓ Uncited-publication share",
+    "is_source_overperforming": "↑ Publishing in stronger-tier journals",
 }
 table.index = table.index.map(label_map)
 
@@ -92,14 +93,20 @@ st.altair_chart(grouped_bar, use_container_width=False)
 
 theme.rule(theme.YELLOW)
 
-st.subheader("What if all four scenarios happened at once?")
+st.subheader("What if all five scenarios happened at once?")
 st.caption(
     "Waterfall of each scenario's own delta stacked onto one baseline. This "
-    "**additionally assumes the four shifts don't interact** — e.g. that the "
+    "**additionally assumes the five shifts don't interact** — e.g. that the "
     "uplift from more Q1 publishing is the same whether or not international "
     "collaboration also rose — which is a stronger, less-tested assumption than "
     "any single scenario above on its own. Treat the 'combined' bar as the most "
-    "speculative number on this page, not the headline one."
+    "speculative number on this page, not the headline one. It's more speculative "
+    "still as of this scenario set: 'publishing in stronger-tier journals' is scoped "
+    "to the ~74% of publications whose source has enough volume in its tier to have "
+    "a defined over/under-performer classification, while the other four scenarios "
+    "cover nearly the full dataset — stacking a smaller-population delta onto a "
+    "full-population baseline is an extra approximation on top of the non-interaction "
+    "assumption already flagged above."
 )
 baseline = table.loc["↑ International collaboration", "current_mean_metric"]
 deltas = table["projected_mean_metric"] - table["current_mean_metric"]

@@ -70,21 +70,33 @@ def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP
       (is_uncited — note the sign: this scenario *reduces* a share, so pass
       delta_pp as negative when calling estimate_uplift_from_share_shift
       directly if you want the "reduce by" framing instead of "increase by")
+    - Shift publications toward journals identified as strong opportunities
+      by `delta_pp` (`is_source_overperforming` — README item 3's
+      over-performing-sources table, from
+      `p36.analysis.journal_tier.source_performance_flag`, wired into a
+      projection instead of left as a shortlist to investigate manually)
 
-    The remaining README scenarios — shifting toward specific high-performing
-    institutions, or toward journals identified as strong opportunities — need
-    institution- or journal-level targets identified first (see
-    p36.analysis.go8_benchmarking.top_countries_by_university for the closest
-    existing building block) and are not implemented here yet.
+    "Increase collaboration with selected high-performing institutions" is
+    still not implemented — it needs partner-institution-level performance
+    data this dataset doesn't have (see
+    p36.analysis.go8_benchmarking.top_countries_by_university for the
+    closest existing building block, which is country-level, not
+    institution-level).
 
     Expects `df` to already carry `is_q1`, `is_international`, `is_open_access`,
-    and `is_uncited` from p36.metrics.add_derived_flags — this function does not
-    recompute them (see .claude/agents/metrics-consistency.md).
+    `is_uncited`, and `is_source_overperforming` — this function does not
+    recompute them (see .claude/agents/metrics-consistency.md). The last one
+    isn't part of `p36.metrics.add_derived_flags` (it needs the CiteScore-
+    quartile/source-title machinery in journal_tier.py, not a simple
+    threshold); merge it in with
+    `df.assign(is_source_overperforming=journal_tier.source_performance_flag(df))`
+    before calling this function.
     """
     rows = [
         estimate_uplift_from_share_shift(df, "is_q1", delta_pp),
         estimate_uplift_from_share_shift(df, "is_international", delta_pp),
         estimate_uplift_from_share_shift(df, "is_open_access", delta_pp),
         estimate_uplift_from_share_shift(df, "is_uncited", -abs(delta_pp)),
+        estimate_uplift_from_share_shift(df, "is_source_overperforming", delta_pp),
     ]
     return pd.DataFrame(rows).set_index("flag")
