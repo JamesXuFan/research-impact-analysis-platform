@@ -77,11 +77,12 @@ def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP
       projection instead of left as a shortlist to investigate manually)
 
     "Increase collaboration with selected high-performing institutions" is
-    still not implemented — it needs partner-institution-level performance
-    data this dataset doesn't have (see
-    p36.analysis.go8_benchmarking.top_countries_by_university for the
-    closest existing building block, which is country-level, not
-    institution-level).
+    a *separate* function, `client_institution_scenario` below, not a row in
+    this table — it needs the raw (not deduplicated) dataframe scoped to one
+    university, a fundamentally different population from the other five
+    scenarios here (which all run on the Go8-wide deduplicated set), so
+    forcing it into one shared table/baseline would silently mix two
+    different denominators.
 
     Expects `df` to already carry `is_q1`, `is_international`, `is_open_access`,
     `is_uncited`, and `is_source_overperforming` — this function does not
@@ -100,3 +101,33 @@ def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP
         estimate_uplift_from_share_shift(df, "is_source_overperforming", delta_pp),
     ]
     return pd.DataFrame(rows).set_index("flag")
+
+
+def client_institution_scenario(
+    raw_df: pd.DataFrame,
+    university: str,
+    delta_pp: float = SCENARIO_DEFAULT_DELTA_PP,
+) -> dict:
+    """README item 17's "increase collaboration with selected high-performing
+    institutions" — the one scenario that needs `university`'s own raw
+    (not deduplicated) publications, not the Go8-wide deduplicated set
+    `scenario_table` uses, because "which institutions should *this*
+    university work with more" is inherently a single-university question.
+
+    Runs the same `estimate_uplift_from_share_shift` mechanism as every
+    other scenario, on `p36.analysis.go8_benchmarking.institution_partner_flag`
+    computed fresh for `university` (not merged in ahead of time, since it's
+    a `university`-specific flag rather than a dataset-wide column like the
+    ones `scenario_table` expects). The `current_share`/`mean_when_true`/
+    `mean_when_false` in the result are over the subset of `university`'s
+    publications that have at least one partner institution meeting
+    `p36.config.HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS` — smaller than
+    `university`'s full publication count, and a different population from
+    every row in `scenario_table`'s output (Go8-wide, near-full dataset) —
+    do not average or stack this scenario's numbers with those directly.
+    """
+    from p36.analysis import go8_benchmarking
+
+    flag = go8_benchmarking.institution_partner_flag(raw_df, university)
+    scoped = raw_df[raw_df["source_university"] == university].assign(is_high_performing_partner=flag)
+    return estimate_uplift_from_share_shift(scoped, "is_high_performing_partner", delta_pp)

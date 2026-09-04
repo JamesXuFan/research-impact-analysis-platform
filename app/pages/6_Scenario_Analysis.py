@@ -3,8 +3,8 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib import get_scenario_table
-from p36.config import SCENARIO_DEFAULT_DELTA_PP
+from lib import CLIENT_UNIVERSITY, get_client_institution_scenario, get_institution_partner_performance, get_scenario_table
+from p36.config import HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, SCENARIO_DEFAULT_DELTA_PP
 
 st.set_page_config(page_title="Scenario Analysis", page_icon="🔮", layout="wide")
 theme.inject()
@@ -23,7 +23,7 @@ theme.question_panel(
         ("Increase open-access publication where evidence suggests a benefit.", "done"),
         ("Reduce the proportion of low-impact publications.", "partial"),
         ("Improve publication performance within selected research areas.", "elsewhere"),
-        ("Increase collaboration with selected high-performing institutions.", "open"),
+        ("Increase collaboration with selected high-performing institutions.", "done"),
         ("Shift some publications toward journals identified as strong opportunities.", "done"),
     ]
 )
@@ -32,11 +32,15 @@ st.caption(
     "binary flag this dataset has — 'low-impact' itself is undefined by the client and is "
     "not the same claim as 'uncited'. 'Research areas' is the Go8 Benchmarking page's "
     "field-gap-vs-peers chart, which shows *where* Sydney trails, but is not turned into "
-    "its own FWCI projection here. 'Strong-opportunity journals' now uses the Journal Tier "
-    "page's over-performing-sources table directly (last scenario below) — restricted to "
-    "publications whose source has enough volume in its tier to have a defined gap (see "
-    "that scenario's own note). 'High-performing institutions' still has no data support — "
-    "would need partner-institution-level performance data this platform doesn't have."
+    "its own FWCI projection here. 'Strong-opportunity journals' uses the Journal Tier "
+    "page's over-performing-sources table directly, restricted to publications whose "
+    "source has enough volume in its tier to have a defined gap. 'High-performing "
+    "institutions' turned out to be answerable after all — the `Institutions` column "
+    "(pipe-delimited co-author affiliation names) supports the same kind of over/under-"
+    "performer analysis as the journal one, just not spotted until asked about directly; "
+    "see the dedicated section below, kept separate from the five scenarios above because "
+    "it runs on a different population (Sydney's own raw publications, not the Go8-wide "
+    "deduplicated set)."
 )
 
 st.error(
@@ -197,3 +201,67 @@ sweep_chart = (
     )
 )
 st.altair_chart(theme.style(sweep_chart, height=340), use_container_width=True)
+
+theme.rule(theme.YELLOW)
+
+st.subheader("Increase collaboration with high-performing institutions")
+st.caption(
+    "A separate scenario from the five above — runs on Sydney's own raw publications "
+    "(not the Go8-wide deduplicated set), because 'which institutions should Sydney work "
+    "with more' is inherently a single-university question. The `Institutions` column "
+    "(pipe-delimited co-author affiliation names on every publication) supports the same "
+    "kind of over/under-performer analysis the Journal Tier page runs on journals: per "
+    f"partner institution, mean FWCI of Sydney's publications with that co-author vs. "
+    f"Sydney's own overall mean, restricted to partners with at least "
+    f"{HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS} co-authored publications."
+)
+
+partner_perf = get_institution_partner_performance()
+tab_top, tab_bottom = st.tabs(["Strongest partners", "Weakest partners"])
+with tab_top:
+    top_partners = partner_perf.nlargest(12, "gap").reset_index()
+    top_chart = (
+        alt.Chart(top_partners)
+        .mark_bar(color=theme.BLUE)
+        .encode(
+            y=alt.Y("institution:N", title="", sort="-x"),
+            x=alt.X("gap:Q", title="Partner mean FWCI − Sydney's own overall mean FWCI"),
+            tooltip=["institution", "publications", alt.Tooltip("mean_fwci:Q", format=".2f"), alt.Tooltip("gap:Q", format=".2f")],
+        )
+    )
+    st.altair_chart(theme.style(top_chart, height=360), use_container_width=True)
+with tab_bottom:
+    bottom_partners = partner_perf.nsmallest(12, "gap").reset_index()
+    bottom_chart = (
+        alt.Chart(bottom_partners)
+        .mark_bar(color=theme.RED)
+        .encode(
+            y=alt.Y("institution:N", title="", sort="x"),
+            x=alt.X("gap:Q", title="Partner mean FWCI − Sydney's own overall mean FWCI"),
+            tooltip=["institution", "publications", alt.Tooltip("mean_fwci:Q", format=".2f"), alt.Tooltip("gap:Q", format=".2f")],
+        )
+    )
+    st.altair_chart(theme.style(bottom_chart, height=360), use_container_width=True)
+
+institution_scenario = get_client_institution_scenario(delta_pp)
+st.markdown(
+    f"**Projection:** {institution_scenario['current_share']:.1%} of Sydney's publications "
+    "with at least one qualifying partner already involve a high-performing one "
+    f"(mean FWCI **{institution_scenario['mean_when_true']:.2f}** vs. "
+    f"**{institution_scenario['mean_when_false']:.2f}** for publications whose qualifying "
+    f"partners are all below-average). Shifting {delta_pp:.0%} more of that group toward "
+    f"high-performing partners projects mean FWCI from "
+    f"**{institution_scenario['current_mean_metric']:.3f}** to "
+    f"**{institution_scenario['projected_mean_metric']:.3f}** — over that subset only, not "
+    "Sydney's full publication count (publications with no partner meeting the volume floor "
+    "are excluded, not counted as a negative)."
+)
+caveat_gap = partner_perf.nlargest(3, "gap")
+st.caption(
+    "Strongest partners skew toward large multi-site clinical/medical collaborations "
+    "(" + ", ".join(caveat_gap.index) + ", among others) — plausibly genuine high-value "
+    "partnerships, but also exactly the pattern a handful of huge multi-author clinical "
+    "trials would produce even without the partner institution itself adding anything "
+    "beyond being part of that trial. Treat this list as a shortlist to investigate, "
+    "same caveat as the Journal Tier page's over-performing sources."
+)
