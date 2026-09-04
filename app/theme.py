@@ -418,6 +418,38 @@ def question_panel(items: list[tuple[str, str]], title: str = "Sub-questions thi
     )
 
 
+def index_table(items: list[tuple[str, str, str]]) -> None:
+    """A denser variant of `question_panel` for a full cross-platform index:
+    each row is (question_text, status, module_reference) — the same status
+    vocabulary as `question_panel`, plus a monospace line naming the exact
+    source module/function that answers it (e.g.
+    "journal_tier.py :: impact_by_citescore_quartile"), for "jump to the
+    module that solves this" navigation. No page-link per row (58 rows would
+    mean 58 buttons) — call `st.page_link` once per page section instead,
+    above the block of that page's rows.
+    """
+    rows = []
+    for question, status, ref in items:
+        icon, bg, fg = _STATUS_STYLE[status]
+        rows.append(
+            f'<div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;'
+            f'border-bottom:1px solid #E5E1D8;">'
+            f'<span style="flex-shrink:0;width:22px;height:22px;background:{bg};color:{fg};'
+            f'font-weight:700;font-family:{FONT_DISPLAY};display:flex;align-items:center;'
+            f'justify-content:center;font-size:0.78rem;border:1.5px solid {BLACK};">{icon}</span>'
+            f'<div style="flex:1;min-width:0;">'
+            f'<span style="font-size:0.9rem;line-height:1.4;">{question}</span>'
+            f'<div style="font-family:\'Courier New\',monospace;font-size:0.74rem;color:{GREY};'
+            f'margin-top:3px;">{ref}</div>'
+            f"</div></div>"
+        )
+    st.markdown(
+        f'<div style="border:2px solid {BLACK};background:{WHITE};padding:4px 20px;'
+        f'margin-bottom:1.5rem;animation:bauhausRise 0.4s ease-out;">{"".join(rows)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def rule(color: str = BLACK, height: int = 3) -> None:
     """A thin geometric divider — use between major sections on a page instead
     of st.divider()'s default hairline."""
