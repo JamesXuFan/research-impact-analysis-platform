@@ -27,15 +27,15 @@ theme.header(
 
 theme.question_panel(
     [
-        ("Do internationally collaborative publications receive higher citation impact?", "done"),
-        ("Does the relationship remain after considering research field?", "done"),
-        ("Does the relationship remain after considering publication year?", "done"),
-        ("Are internationally collaborative papers more likely to publish in Q1 journals?", "done"),
-        ("Are they more likely to become highly cited?", "done"),
-        ("Are they less likely to remain uncited?", "done"),
-        ("Does the impact of international collaboration vary across disciplines?", "done"),
-        ("Are some forms of international collaboration more beneficial than others?", "done"),
-        ("Has Sydney's international collaboration rate increased or declined over time?", "done"),
+        ("Do internationally collaborative publications receive higher citation impact?", "done", "ic-status"),
+        ("Does the relationship remain after considering research field?", "done", "ic-gap"),
+        ("Does the relationship remain after considering publication year?", "done", "ic-gap"),
+        ("Are internationally collaborative papers more likely to publish in Q1 journals?", "done", "ic-status"),
+        ("Are they more likely to become highly cited?", "done", "ic-status"),
+        ("Are they less likely to remain uncited?", "done", "ic-status"),
+        ("Does the impact of international collaboration vary across disciplines?", "done", "ic-gap"),
+        ("Are some forms of international collaboration more beneficial than others?", "done", "ic-breadth"),
+        ("Has Sydney's international collaboration rate increased or declined over time?", "done", "ic-trend"),
     ]
 )
 st.caption(
@@ -51,6 +51,7 @@ st.error(
     icon="🚫",
 )
 
+theme.anchor("ic-status")
 st.subheader("Impact by collaboration status")
 status = get_impact_by_collaboration_status()
 status.index = status.index.map({True: "International", False: "Domestic"})
@@ -110,6 +111,7 @@ st.altair_chart(theme.style(box, height=320), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("ic-gap")
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("Gap by field")
@@ -142,6 +144,7 @@ with col_b:
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("ic-breadth")
 st.subheader("Does more international breadth mean more impact?")
 st.caption("Binary international flag can't answer this — bins on the actual country count.")
 breadth = get_impact_by_collaboration_breadth()
@@ -188,6 +191,7 @@ theme.rule(theme.YELLOW)
 universities = sorted(load_raw()["source_university"].unique())
 university = st.selectbox("University", universities, index=universities.index(CLIENT_UNIVERSITY))
 
+theme.anchor("ic-trend")
 col_trend, col_countries = st.columns(2)
 with col_trend:
     st.subheader("Collaboration rate over time")

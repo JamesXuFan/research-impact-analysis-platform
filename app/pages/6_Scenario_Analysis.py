@@ -18,13 +18,13 @@ theme.header(
 
 theme.question_panel(
     [
-        ("Increase Q1 publication share by N percentage points.", "done"),
-        ("Increase international collaboration by N percentage points.", "done"),
-        ("Increase open-access publication where evidence suggests a benefit.", "done"),
-        ("Reduce the proportion of low-impact publications.", "partial"),
+        ("Increase Q1 publication share by N percentage points.", "done", "sc-scenarios"),
+        ("Increase international collaboration by N percentage points.", "done", "sc-scenarios"),
+        ("Increase open-access publication where evidence suggests a benefit.", "done", "sc-scenarios"),
+        ("Reduce the proportion of low-impact publications.", "partial", "sc-scenarios"),
         ("Improve publication performance within selected research areas.", "elsewhere"),
-        ("Increase collaboration with selected high-performing institutions.", "done"),
-        ("Shift some publications toward journals identified as strong opportunities.", "done"),
+        ("Increase collaboration with selected high-performing institutions.", "done", "sc-institutions"),
+        ("Shift some publications toward journals identified as strong opportunities.", "done", "sc-scenarios"),
     ]
 )
 st.caption(
@@ -74,6 +74,7 @@ table.index = table.index.map(label_map)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("sc-scenarios")
 st.subheader("Projected mean FWCI under each scenario")
 long_df = table[["current_mean_metric", "projected_mean_metric"]].reset_index(names="scenario")
 long_df = long_df.melt(id_vars="scenario", var_name="series", value_name="mean_fwci")
@@ -204,6 +205,7 @@ st.altair_chart(theme.style(sweep_chart, height=340), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("sc-institutions")
 st.subheader("Increase collaboration with high-performing institutions")
 st.caption(
     "A separate scenario from the five above — runs on Sydney's own raw publications "

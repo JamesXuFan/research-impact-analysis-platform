@@ -28,15 +28,15 @@ theme.header(
 
 theme.question_panel(
     [
-        ("Do publications in Q1 journals receive more citations than Q2, Q3 or Q4 journals?", "done"),
-        ("How large is the citation difference between journal tiers?", "done"),
+        ("Do publications in Q1 journals receive more citations than Q2, Q3 or Q4 journals?", "done", "jt-quartile"),
+        ("How large is the citation difference between journal tiers?", "done", "jt-quartile"),
         ("Which faculties/fields have the highest success rates in Q1 publishing?", "elsewhere"),
-        ("Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?", "done"),
-        ("Compare highly-cited (top-decile) publication rates across quartiles.", "done"),
-        ("Compare uncited-publication rates across quartiles.", "done"),
-        ("Does publishing in Q1 increase the probability of becoming highly cited?", "done"),
+        ("Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?", "done", "jt-consistency"),
+        ("Compare highly-cited (top-decile) publication rates across quartiles.", "done", "jt-quartile"),
+        ("Compare uncited-publication rates across quartiles.", "done", "jt-quartile"),
+        ("Does publishing in Q1 increase the probability of becoming highly cited?", "done", "jt-quartile"),
         ("Which fields have the highest / improving / declining Q1 share?", "elsewhere"),
-        ("Are there journals/publications within a tier that receive more citations than expected for that tier?", "done"),
+        ("Are there journals/publications within a tier that receive more citations than expected for that tier?", "done", "jt-overperform"),
     ]
 )
 st.caption(
@@ -89,6 +89,7 @@ st.altair_chart(theme.style(q1_line, height=300), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("jt-quartile")
 st.subheader("Citation performance across Q1–Q4")
 st.caption(
     "The binary Q1 flag above collapses Q2, Q3 and Q4 into a single 'not Q1' bucket — "
@@ -141,6 +142,7 @@ st.markdown(
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("jt-consistency")
 st.subheader("Is the Q1 advantage consistent across disciplines?")
 st.caption(
     "Q1-minus-non-Q1 mean-FWCI gap, computed separately within each field — the same "
@@ -199,6 +201,7 @@ st.dataframe(desc.to_frame("CiteScore percentile").T, width="stretch")
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("jt-overperform")
 st.subheader("Do individual journals over- or under-perform their own tier?")
 st.caption(
     "The previously-unaddressed sub-question: a tier average can hide individual sources "

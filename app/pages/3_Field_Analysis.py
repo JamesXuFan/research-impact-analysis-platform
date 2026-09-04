@@ -26,16 +26,16 @@ theme.header(
 
 theme.question_panel(
     [
-        ("Which fields produce the highest publication volume?", "done"),
-        ("Which fields achieve the strongest impact?", "done"),
-        ("Which fields have the highest Q1 publication share?", "done"),
-        ("Which fields have high volume but relatively low citation impact?", "done"),
-        ("Which fields have relatively low volume but very strong citation impact?", "done"),
-        ("Which areas are improving most rapidly / declining?", "done"),
-        ("Which fields produce the highest proportion of overperforming (top-decile) publications?", "done"),
-        ("Which fields produce the largest number of highly cited publications?", "done"),
+        ("Which fields produce the highest publication volume?", "done", "fa-summary"),
+        ("Which fields achieve the strongest impact?", "done", "fa-summary"),
+        ("Which fields have the highest Q1 publication share?", "done", "fa-summary"),
+        ("Which fields have high volume but relatively low citation impact?", "done", "fa-quadrant"),
+        ("Which fields have relatively low volume but very strong citation impact?", "done", "fa-quadrant"),
+        ("Which areas are improving most rapidly / declining?", "done", "fa-growth"),
+        ("Which fields produce the highest proportion of overperforming (top-decile) publications?", "done", "fa-summary"),
+        ("Which fields produce the largest number of highly cited publications?", "done", "fa-highly-cited"),
         ("Which fields appear to represent existing strengths, and where is the greatest potential for improvement?", "partial"),
-        ("Are particular publication strategies more successful in some fields than others?", "done"),
+        ("Are particular publication strategies more successful in some fields than others?", "done", "fa-approach"),
     ]
 )
 st.caption(
@@ -63,6 +63,7 @@ else:
 
 field_summary = get_field_summary()
 
+theme.anchor("fa-summary")
 st.subheader("Field summary")
 col_table, col_donut = st.columns([3, 2])
 with col_table:
@@ -95,6 +96,7 @@ with col_donut:
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("fa-quadrant")
 col_scatter, col_box = st.columns(2)
 with col_scatter:
     st.subheader("Volume vs. impact")
@@ -157,6 +159,7 @@ st.altair_chart(theme.style(q1_field_chart, height=max(240, 24 * len(q1_field_df
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("fa-highly-cited")
 st.subheader("Highly cited publications by field")
 st.caption(
     "top_decile_share above is a *rate* — this is the count it implies "
@@ -180,6 +183,7 @@ st.altair_chart(theme.style(highly_cited_chart, height=max(240, 24 * len(highly_
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("fa-growth")
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("Field growth (total-period)")
@@ -226,6 +230,7 @@ with col_b:
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("fa-approach")
 st.subheader("Are particular collaboration approaches more successful in some fields?")
 st.caption(
     "'Publication strategy' has no client-confirmed definition, so this uses the closest "
