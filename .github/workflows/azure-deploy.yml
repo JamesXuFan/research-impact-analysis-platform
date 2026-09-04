@@ -1,0 +1,28 @@
+name: Deploy to Azure App Service
+
+# Deploys code only — app/, src/, requirements.txt, startup.sh, .streamlit/.
+# The processed dataset (data/processed/*.parquet) is NOT part of this repo
+# (licensed data, too large for a normal git push — see .gitignore) and is
+# NOT rebuilt here either (that needs the raw .xlsx exports, also excluded).
+# It was uploaded once, separately, to the App Service's persistent storage
+# at /home/data/processed/ — see docs/deployment-azure.md — and
+# src/p36/dataset.py reads it from there via the P36_DATA_DIR app setting,
+# which survives every deploy this workflow runs.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: comp3888
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
