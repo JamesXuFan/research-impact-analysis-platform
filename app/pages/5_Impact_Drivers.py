@@ -27,7 +27,7 @@ theme.question_panel(
         ("Collaboration Size → Citation Impact", "done", "id-coefficients"),
         ("Document Type → Citation Impact", "done", "id-doctype"),
         ("Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?", "partial", "/International_Collaboration#ic-breadth"),
-        ("Institutional Collaboration → Journal Choice → Citation Impact", "partial"),
+        ("Institutional Collaboration → Journal Choice → Citation Impact", "partial", "id-coefficients"),
         ("Is there an interaction between journal quality and international collaboration?", "done", "id-interaction"),
         ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "done", "id-combination"),
         ("Are some drivers particularly important only in particular disciplines?", "elsewhere", "/Journal_Tier#jt-consistency"),

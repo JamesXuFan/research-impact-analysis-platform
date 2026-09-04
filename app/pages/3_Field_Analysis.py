@@ -34,16 +34,19 @@ theme.question_panel(
         ("Which areas are improving most rapidly / declining?", "done", "fa-growth"),
         ("Which fields produce the highest proportion of overperforming (top-decile) publications?", "done", "fa-summary"),
         ("Which fields produce the largest number of highly cited publications?", "done", "fa-highly-cited"),
-        ("Which fields appear to represent existing strengths, and where is the greatest potential for improvement?", "partial"),
+        ("Which fields appear to represent existing strengths, and where is the greatest potential for improvement?", "partial", "fa-quadrant"),
         ("Are particular publication strategies more successful in some fields than others?", "done", "fa-approach"),
     ]
 )
 st.caption(
-    "'Strengths / potential' is a synthesis of the volume, impact, Q1-share and growth "
-    "sections below, not one chart on its own. 'Publication strategy' has no client-confirmed "
-    "definition — answered below via the closest concrete stand-in this dataset supports "
-    "(domestic-single-institution / domestic-multi-institution / international), not a "
-    "broader notion of strategy (venue choice, career stage, etc.) this data can't speak to."
+    "'Strengths / potential' links to the volume-vs-impact quadrant below — its four "
+    "quadrants are the closest single chart to an answer (high-volume/high-impact reads "
+    "as an existing strength, low-volume/high-impact as potential upside) — but the full "
+    "answer is a synthesis with the Q1-share and growth sections too, not that chart alone. "
+    "'Publication strategy' has no client-confirmed definition — answered below via the "
+    "closest concrete stand-in this dataset supports (domestic-single-institution / "
+    "domestic-multi-institution / international), not a broader notion of strategy (venue "
+    "choice, career stage, etc.) this data can't speak to."
 )
 
 _, dropped = load_exploded_deduplicated()
