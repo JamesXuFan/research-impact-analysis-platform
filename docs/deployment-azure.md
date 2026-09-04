@@ -3,7 +3,7 @@
 Live at: **https://data-platform.azurewebsites.net**
 
 Resource group `comp3888_group`, Linux App Service Plan `data-platform-plan`
-(**Basic B3** — see "Why B3, not B1" below), web app `data-platform`, Python 3.12,
+(**Premium v4 P2v4**, 4 vCPU / 16 GB — history below), web app `data-platform`, Python 3.12,
 Australia East. Deploys automatically via GitHub Actions on every push to
 `main` (`.github/workflows/azure-deploy.yml`).
 
@@ -32,7 +32,7 @@ code does not.
 ```powershell
 # Resource group, Linux plan, web app
 az group create --name comp3888_group --location australiaeast
-az appservice plan create --name data-platform-plan --resource-group comp3888_group --sku B3 --is-linux
+az appservice plan create --name data-platform-plan --resource-group comp3888_group --sku P2v4 --is-linux
 az webapp create --name data-platform --resource-group comp3888_group --plan data-platform-plan --runtime "PYTHON:3.12"
 
 # Streamlit needs WebSockets (off by default). Startup command is the
@@ -41,6 +41,11 @@ az webapp create --name data-platform --resource-group comp3888_group --plan dat
 az webapp config set --resource-group comp3888_group --name data-platform --web-sockets-enabled true
 az webapp config set --resource-group comp3888_group --name data-platform --startup-file `
     "python -m streamlit run app/Home.py --server.address 0.0.0.0 --server.port 8000 --server.headless true"
+
+# Prevents the ~20-minute idle timeout from forcing a full cold start (re-read
+# both parquet files from persistent storage) on whoever visits next — see
+# "Why Always On matters" below. Free on Basic tier and above.
+az webapp config set --resource-group comp3888_group --name data-platform --always-on true
 
 # Let Oryx install requirements.txt on deploy; tell Streamlit which port to bind;
 # point dataset.py at the persistent data location
@@ -101,17 +106,38 @@ command instead of a script filename (see the `az webapp config set
 --startup-file "python -m streamlit run ..."` line above) — no file lookup
 involved, so nothing to get wrong.
 
-**Why B3, not B1.** B1 (1.75 GB RAM) OOM-crashed on startup —
+**Why not B1.** B1 (1.75 GB RAM) OOM-crashed on startup —
 `az monitor metrics list --metric MemoryWorkingSet` showed working set
 climbing 131 MB → 785 MB → 1.19 GB and then dropping straight to 0 (the
 container being killed and restarted), consistent with loading the ~245 MB
 raw and ~208 MB deduplicated parquet files into pandas DataFrames — parquet
 files expand substantially in memory, and `st.cache_data` keeps both cached
-in the same process. B3 (7 GB) has comfortable headroom; if cost matters
-more than headroom, B2 (3.5 GB) is worth trying first, but B1 is not enough
-for this dataset. Diagnose the same way if this recurs: check
-`MemoryWorkingSet` for a climb-then-drop-to-zero pattern before assuming any
-other cause.
+in the same process. Diagnose the same way if an OOM-style crash recurs:
+check `MemoryWorkingSet` for a climb-then-drop-to-zero pattern before
+assuming any other cause.
+
+**Why Premium v4, not just a bigger Basic tier.** Went B1 (crashed) → B3
+(7 GB, stable, but Basic tier is shared/lower-priority compute) →
+**P2v4** (4 vCPU / 16 GB, Premium — dedicated compute, requested when "the
+platform feels slow" turned out to be partly a genuine compute-tier
+question, not only the cold-start issue below). Note: this subscription's
+**PremiumV3 family quota is 0** (`az appservice plan update --sku P1v3`
+fails with "Operation cannot be completed without additional quota" /
+"Current Limit (PremiumV3 VMs): 0") — PremiumV4 (`P1v4`, `P2v4`, ...) has
+quota and works; if scaling ever fails the same way, try the adjacent
+family (v4 instead of v3, or vice versa) before requesting a quota increase.
+
+**Why Always On matters as much as the tier.** Independently of compute
+tier, App Service idles the app out after ~20 minutes of no traffic by
+default, and the next visitor pays a full cold start — re-importing
+pandas/statsmodels and re-reading both parquet files from the persistent
+`/home` mount (measured ~26s for the 208 MB file alone via the Kudu VFS API,
+i.e. over HTTP — the app's own direct read is faster than that but still
+slower than local disk). `alwaysOn` was off by default and is now on
+(`az webapp config set --always-on true`) — this is what turns "slow every
+~20 minutes" into "slow once, right after a deploy or restart, never
+otherwise." A faster tier alone does not fix repeated cold starts; the two
+fixes are complementary, not substitutes for each other.
 
 ## Ongoing deploys
 
@@ -140,11 +166,15 @@ az webapp log tail --resource-group comp3888_group --name data-platform
   Authentication** (Settings → Authentication in the Portal, or
   `az webapp auth microsoft update`) — easier to set now than to retrofit
   after the link has circulated.
-- **Cost.** Basic B3 is a real recurring charge (~US$55/month at time of
-  writing — check current pricing; B2 is roughly half that, B1 about a
-  quarter, but see "Why B3, not B1" above for why B1 doesn't actually work
-  here), not a one-off. Scale down (`az appservice plan update --sku ...`) or
-  delete the resource group when the project no longer needs the app running.
+- **Cost.** Premium v4 P2v4 is a materially bigger recurring charge than the
+  Basic tiers this deployment started on (check current pricing in the
+  portal — Premium is priced per vCPU-hour and meaningfully more than
+  Basic's B3, which was itself already ~US$55/month). This was requested
+  ("给我提高挡位") after diagnosing that some of the perceived slowness was a
+  genuine compute-tier question, not only the cold-start issue Always On
+  fixes. Scale down (`az appservice plan update --sku B3` or similar) or
+  delete the resource group when the project no longer needs this level of
+  performance running continuously.
 
 ## Custom domain
 
