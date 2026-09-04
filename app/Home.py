@@ -40,6 +40,12 @@ for i, (icon, name, item_no, question) in enumerate(guide):
             unsafe_allow_html=True,
         )
 
+st.page_link(
+    "pages/0_Sub_Question_Index.py",
+    label="Looking for one specific sub-question from the brief? → Sub-Question Index",
+    icon="🗂️",
+)
+
 theme.rule(theme.YELLOW)
 
 raw = load_raw()
