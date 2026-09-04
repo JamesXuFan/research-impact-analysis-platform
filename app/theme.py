@@ -339,6 +339,58 @@ def inject() -> None:
         """,
         unsafe_allow_html=True,
     )
+    _cross_page_scroll_bridge()
+
+
+def _cross_page_scroll_bridge() -> None:
+    """Makes cross-page `question_panel()` links (href like
+    "/Field_Analysis#fa-q1-share") actually land on the anchor, not just the
+    top of the target page.
+
+    Same-page anchor links (`#fa-q1-share`) work with pure CSS — the browser
+    handles the scroll natively, no JS needed. Cross-page links don't: the
+    target `<div id="...">` doesn't exist in the DOM yet at the moment the
+    browser processes the URL fragment (Streamlit streams the new page's
+    elements in over the websocket after the script starts running), so the
+    native jump-on-navigate silently does nothing.
+
+    `st.markdown(..., unsafe_allow_html=True)` can't fix this — Streamlit's
+    frontend inserts that HTML via a path that does not execute embedded
+    `<script>` tags. `st.iframe` given an HTML string renders in a real,
+    executable `<iframe>` instead; same-origin, so it can reach back into
+    the actual page via `window.parent` to read the URL hash and scroll
+    that document (not the iframe itself). Polls for the target element for
+    a few seconds (Streamlit's own render can lag behind the navigation),
+    and remembers the last hash it handled on `window.parent` (which
+    persists across Streamlit reruns, unlike this component, which
+    remounts on every one) so an unrelated widget interaction elsewhere on
+    the page doesn't yank the view back to the same anchor a second time.
+    """
+    st.iframe(
+        """
+        <script>
+        (function () {
+            try {
+                var hash = window.parent.location.hash;
+                if (!hash || window.parent.__qjumpLastHash === hash) return;
+                var id = decodeURIComponent(hash.slice(1));
+                var attemptsLeft = 30;
+                (function tryScroll() {
+                    var el = window.parent.document.getElementById(id);
+                    if (el) {
+                        el.scrollIntoView({behavior: "smooth", block: "start"});
+                        window.parent.__qjumpLastHash = hash;
+                    } else if (attemptsLeft > 0) {
+                        attemptsLeft -= 1;
+                        setTimeout(tryScroll, 200);
+                    }
+                })();
+            } catch (e) {}
+        })();
+        </script>
+        """,
+        height=1,  # st.iframe requires a positive integer — this component has no visible content
+    )
 
 
 _SHAPES = {
@@ -405,12 +457,25 @@ def question_panel(
     page, not duplicated here), or "open" (not yet addressed anywhere in
     this platform — said plainly rather than omitted).
 
-    When `anchor_id` is given, the question becomes a click-to-jump link to
-    that in-page anchor (see `theme.anchor()`) — place an `anchor(anchor_id)`
-    call immediately above the `st.subheader()` it should land on. Omit it
-    (2-tuple, or `None`) for "elsewhere"/"open" items with no in-page target,
-    or "partial" items answered by a synthesis of several sections rather
-    than one specific chart — those stay plain text, not a dead link.
+    When `anchor_id` is given, the question becomes a click-to-jump link.
+    Two forms:
+
+    - A bare id ("fa-q1-share") — same-page: jumps to `theme.anchor(id)`
+      placed immediately above the `st.subheader()` it should land on. Pure
+      CSS/native browser scroll, no JS involved.
+    - A path starting with "/" ("/Field_Analysis#fa-q1-share") — cross-page:
+      navigates to that page and lands on its anchor, for "elsewhere"
+      (answered on a different page) items. Needs
+      `_cross_page_scroll_bridge()` (called once by `inject()`) on *both*
+      pages — the linking page doesn't need it for the link itself to work,
+      but every page that might be a cross-page link *target* does, and
+      since any page can in principle be linked to, every page calls
+      `inject()` regardless.
+
+    Omit `anchor_id` (2-tuple, or `None`) for "open" items with nothing to
+    link to anywhere, or "partial" items answered by a synthesis of several
+    sections rather than one specific chart — those stay plain text, not a
+    dead link.
 
     Call right after `theme.header()`.
     """
@@ -418,9 +483,11 @@ def question_panel(
     for item in items:
         question, status, anchor_id = (*item, None)[:3]
         icon, bg, fg = _STATUS_STYLE[status]
-        question_html = (
-            f'<a href="#{anchor_id}" class="qjump">{question}</a>' if anchor_id else question
-        )
+        if anchor_id:
+            href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"
+            question_html = f'<a href="{href}" class="qjump">{question}</a>'
+        else:
+            question_html = question
         rows.append(
             f'<div style="display:flex;gap:12px;align-items:flex-start;padding:7px 0;'
             f'border-bottom:1px solid #E5E1D8;">'

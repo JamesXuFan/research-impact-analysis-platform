@@ -22,7 +22,7 @@ theme.question_panel(
         ("Increase international collaboration by N percentage points.", "done", "sc-scenarios"),
         ("Increase open-access publication where evidence suggests a benefit.", "done", "sc-scenarios"),
         ("Reduce the proportion of low-impact publications.", "partial", "sc-scenarios"),
-        ("Improve publication performance within selected research areas.", "elsewhere"),
+        ("Improve publication performance within selected research areas.", "elsewhere", "/Go8_Benchmarking#go8-fields"),
         ("Increase collaboration with selected high-performing institutions.", "done", "sc-institutions"),
         ("Shift some publications toward journals identified as strong opportunities.", "done", "sc-scenarios"),
     ]

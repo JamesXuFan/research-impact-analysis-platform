@@ -143,6 +143,7 @@ with col_box:
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("fa-q1-share")
 st.subheader("Q1 share by field")
 st.caption("Same PROVISIONAL Q1 definition as the Journal Tier page, broken out by field.")
 q1_field_df = field_summary[["q1_share"]].reset_index(names="field")

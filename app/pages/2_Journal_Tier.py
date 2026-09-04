@@ -30,12 +30,12 @@ theme.question_panel(
     [
         ("Do publications in Q1 journals receive more citations than Q2, Q3 or Q4 journals?", "done", "jt-quartile"),
         ("How large is the citation difference between journal tiers?", "done", "jt-quartile"),
-        ("Which faculties/fields have the highest success rates in Q1 publishing?", "elsewhere"),
+        ("Which faculties/fields have the highest success rates in Q1 publishing?", "elsewhere", "/Field_Analysis#fa-q1-share"),
         ("Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?", "done", "jt-consistency"),
         ("Compare highly-cited (top-decile) publication rates across quartiles.", "done", "jt-quartile"),
         ("Compare uncited-publication rates across quartiles.", "done", "jt-quartile"),
         ("Does publishing in Q1 increase the probability of becoming highly cited?", "done", "jt-quartile"),
-        ("Which fields have the highest / improving / declining Q1 share?", "elsewhere"),
+        ("Which fields have the highest / improving / declining Q1 share?", "elsewhere", "/Field_Analysis#fa-q1-share"),
         ("Are there journals/publications within a tier that receive more citations than expected for that tier?", "done", "jt-overperform"),
     ]
 )
