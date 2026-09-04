@@ -6,11 +6,20 @@ Build it with ``python -m p36.build_dataset`` (see that module). Everything in t
 file only *reads* what that script wrote.
 """
 
+import os
 from pathlib import Path
 
 import pandas as pd
 
-PROCESSED_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
+# Local dev: data/processed/ next to the repo, built by `python -m p36.build_dataset`.
+# Deployed (e.g. Azure App Service via GitHub Actions): the processed parquet
+# files aren't in the git repo (licensed data, too large for a normal git push
+# — see .gitignore) and CI has no way to rebuild them without the raw exports.
+# Set P36_DATA_DIR to point at wherever they were uploaded separately instead
+# (persistent server storage, outside the deployed code package) — see
+# docs/deployment-azure.md.
+_DEFAULT_PROCESSED_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
+PROCESSED_DIR = Path(os.environ.get("P36_DATA_DIR", str(_DEFAULT_PROCESSED_DIR)))
 
 RAW_PATH = PROCESSED_DIR / "publications_raw.parquet"
 DEDUPED_PATH = PROCESSED_DIR / "publications_deduplicated.parquet"
