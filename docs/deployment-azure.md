@@ -1,9 +1,9 @@
 # Deploying to Azure App Service
 
-Live at: **https://comp3888.azurewebsites.net**
+Live at: **https://data-platform.azurewebsites.net**
 
-Resource group `comp3888_group`, Linux App Service Plan `comp3888-linux-plan`
-(**Basic B3** — see "Why B3, not B1" below), web app `comp3888`, Python 3.12,
+Resource group `comp3888_group`, Linux App Service Plan `data-platform-plan`
+(**Basic B3** — see "Why B3, not B1" below), web app `data-platform`, Python 3.12,
 Australia East. Deploys automatically via GitHub Actions on every push to
 `main` (`.github/workflows/azure-deploy.yml`).
 
@@ -32,31 +32,31 @@ code does not.
 ```powershell
 # Resource group, Linux plan, web app
 az group create --name comp3888_group --location australiaeast
-az appservice plan create --name comp3888-linux-plan --resource-group comp3888_group --sku B3 --is-linux
-az webapp create --name comp3888 --resource-group comp3888_group --plan comp3888-linux-plan --runtime "PYTHON:3.12"
+az appservice plan create --name data-platform-plan --resource-group comp3888_group --sku B3 --is-linux
+az webapp create --name data-platform --resource-group comp3888_group --plan data-platform-plan --runtime "PYTHON:3.12"
 
 # Streamlit needs WebSockets (off by default). Startup command is the
 # literal streamlit invocation, NOT a script filename — see "Why not
 # startup.sh" below.
-az webapp config set --resource-group comp3888_group --name comp3888 --web-sockets-enabled true
-az webapp config set --resource-group comp3888_group --name comp3888 --startup-file `
+az webapp config set --resource-group comp3888_group --name data-platform --web-sockets-enabled true
+az webapp config set --resource-group comp3888_group --name data-platform --startup-file `
     "python -m streamlit run app/Home.py --server.address 0.0.0.0 --server.port 8000 --server.headless true"
 
 # Let Oryx install requirements.txt on deploy; tell Streamlit which port to bind;
 # point dataset.py at the persistent data location
-az webapp config appsettings set --resource-group comp3888_group --name comp3888 `
+az webapp config appsettings set --resource-group comp3888_group --name data-platform `
     --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITES_PORT=8000 P36_DATA_DIR="/home/data/processed"
 
 # SCM/FTP basic-auth publishing credentials are off by default on new App
 # Services — needed for both the publish-profile (GitHub Actions) and the
 # Kudu VFS upload below.
 az resource update --resource-group comp3888_group --name scm --namespace Microsoft.Web `
-    --resource-type basicPublishingCredentialsPolicies --parent sites/comp3888 --set properties.allow=true
+    --resource-type basicPublishingCredentialsPolicies --parent sites/data-platform --set properties.allow=true
 az resource update --resource-group comp3888_group --name ftp --namespace Microsoft.Web `
-    --resource-type basicPublishingCredentialsPolicies --parent sites/comp3888 --set properties.allow=true
+    --resource-type basicPublishingCredentialsPolicies --parent sites/data-platform --set properties.allow=true
 
 # Publish profile -> GitHub Actions secret (used by azure/webapps-deploy)
-az webapp deployment list-publishing-profiles --resource-group comp3888_group --name comp3888 --xml `
+az webapp deployment list-publishing-profiles --resource-group comp3888_group --name data-platform --xml `
     | gh secret set AZURE_WEBAPP_PUBLISH_PROFILE --repo JamesXuFan/COMP3888-Project36
 ```
 
@@ -66,7 +66,7 @@ Kudu's VFS API accepts arbitrary file sizes over plain HTTP PUT with the
 publishing username/password as Basic auth — no size cap the way GitHub has.
 
 ```powershell
-$creds = az webapp deployment list-publishing-credentials --resource-group comp3888_group --name comp3888 `
+$creds = az webapp deployment list-publishing-credentials --resource-group comp3888_group --name data-platform `
     --query "{user:publishingUserName, pass:publishingPassword}" -o json | ConvertFrom-Json
 $b64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($creds.user):$($creds.pass)"))
 ```
@@ -74,18 +74,18 @@ $b64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$
 ```bash
 AUTH="<the base64 string from above>"
 curl -X PUT -H "Authorization: Basic $AUTH" \
-  "https://comp3888.scm.azurewebsites.net/api/vfs/data/processed/"   # create the dir once
+  "https://data-platform.scm.azurewebsites.net/api/vfs/data/processed/"   # create the dir once
 
 curl -X PUT -H "Authorization: Basic $AUTH" \
   --data-binary @data/processed/publications_deduplicated.parquet \
-  "https://comp3888.scm.azurewebsites.net/api/vfs/data/processed/publications_deduplicated.parquet"
+  "https://data-platform.scm.azurewebsites.net/api/vfs/data/processed/publications_deduplicated.parquet"
 
 curl -X PUT -H "Authorization: Basic $AUTH" \
   --data-binary @data/processed/publications_raw.parquet \
-  "https://comp3888.scm.azurewebsites.net/api/vfs/data/processed/publications_raw.parquet"
+  "https://data-platform.scm.azurewebsites.net/api/vfs/data/processed/publications_raw.parquet"
 ```
 
-Verify with `curl -H "Authorization: Basic $AUTH" https://comp3888.scm.azurewebsites.net/api/vfs/data/processed/`.
+Verify with `curl -H "Authorization: Basic $AUTH" https://data-platform.scm.azurewebsites.net/api/vfs/data/processed/`.
 
 ## Two problems hit during the first deploy — kept here so they don't recur
 
@@ -126,7 +126,7 @@ compiling pandas/statsmodels/pyarrow wheels). If a deploy succeeds but the
 site 500s, check the log stream:
 
 ```powershell
-az webapp log tail --resource-group comp3888_group --name comp3888
+az webapp log tail --resource-group comp3888_group --name data-platform
 ```
 
 — most first-deploy failures are either the WebSockets setting, the
@@ -148,7 +148,7 @@ az webapp log tail --resource-group comp3888_group --name comp3888
 
 ## Custom domain
 
-Once satisfied with `comp3888.azurewebsites.net`, add a custom domain via
+Once satisfied with `data-platform.azurewebsites.net`, add a custom domain via
 `az webapp config hostname add` and provision managed TLS with
 `az webapp config ssl create --hostname <your-domain> --resource-group comp3888_group`.
 Needs a DNS record added at whichever registrar the domain is with — that
