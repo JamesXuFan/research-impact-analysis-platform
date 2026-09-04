@@ -1,0 +1,20 @@
+# Raw QS/Scopus per-university exports — licensed data, not ours to
+# redistribute via a git remote. Keep locally; do not remove this line
+# without confirming the data's redistribution terms first.
+data/*.xlsx
+
+# Regenerable processed dataset — rebuild with `python -m p36.build_dataset`
+data/processed/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editors
+.vscode/
+.idea/
+
+# Deploy artifacts (see docs/deployment-azure.md)
+deploy.zip
