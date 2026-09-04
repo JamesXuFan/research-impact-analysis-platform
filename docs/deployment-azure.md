@@ -167,14 +167,34 @@ az webapp log tail --resource-group comp3888_group --name data-platform
   `az webapp auth microsoft update`) — easier to set now than to retrofit
   after the link has circulated.
 - **Cost.** Premium v4 P2v4 is a materially bigger recurring charge than the
-  Basic tiers this deployment started on (check current pricing in the
-  portal — Premium is priced per vCPU-hour and meaningfully more than
-  Basic's B3, which was itself already ~US$55/month). This was requested
-  ("给我提高挡位") after diagnosing that some of the perceived slowness was a
-  genuine compute-tier question, not only the cold-start issue Always On
-  fixes. Scale down (`az appservice plan update --sku B3` or similar) or
-  delete the resource group when the project no longer needs this level of
-  performance running continuously.
+  Basic tiers this deployment started on (Basic B3 was already ~US$55/month).
+  This was requested ("给我提高挡位") after diagnosing that some of the
+  perceived slowness was a genuine compute-tier question, not only the
+  cold-start issue Always On fixes. Scale down (`az appservice plan update
+  --sku B3` or similar) or delete the resource group when the project no
+  longer needs this level of performance running continuously.
+
+  **Verified pricing (Australia East, Linux, via the public Retail Prices
+  API, 2026-09-06)** — worth re-checking before scaling further, since this
+  account runs on a capped student/free-trial credit that auto-stops
+  resources (not billed further) once exhausted, not a card-backed
+  pay-as-you-go subscription:
+
+  | SKU | vCPU/RAM (approx.) | $/hour | $/month | Days a US$200 credit lasts |
+  | --- | --- | --- | --- | --- |
+  | P1v4 | 2 / 8 GB | $0.212 | ~$153 | ~39 |
+  | **P2v4 (current)** | 4 / 16 GB | $0.424 | ~$305 | **~20** |
+  | P3v4 | 8 / 32 GB | $0.847 | ~$610 | ~10 |
+  | P4mv4 | 16 / 128 GB | $2.155 | ~$1,552 | ~3.9 |
+  | P5mv4 (ceiling this subscription's quota allows) | 32 / 256 GB | $4.311 | ~$3,104 | ~1.9 |
+
+  Confirmed by briefly scaling all the way to P5mv4 and back — quota allows
+  every tier above, this is a budget choice, not a technical ceiling. Stayed
+  on P2v4: it already covers this app's actual bottleneck (a one-time,
+  I/O-bound cold-start data load, not sustained CPU parallelism — Streamlit
+  runs each session largely single-threaded, so 16 or 32 cores go mostly
+  unused) and gives the best balance of headroom vs. the credit lasting
+  close to a full month, rather than days.
 
 ## Custom domain
 
