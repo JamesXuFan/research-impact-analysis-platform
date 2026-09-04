@@ -16,7 +16,7 @@ from lib import (
 )
 from p36.config import CITATION_WINDOW_TRAILING_YEARS_EXCLUDED
 
-st.set_page_config(page_title="International Collaboration", page_icon="🌏", layout="wide")
+st.set_page_config(page_title="P36 · International Collaboration", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "International Collaboration Analysis",

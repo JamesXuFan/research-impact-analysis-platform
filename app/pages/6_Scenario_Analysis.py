@@ -6,7 +6,7 @@ import theme
 from lib import CLIENT_UNIVERSITY, get_client_institution_scenario, get_institution_partner_performance, get_scenario_table
 from p36.config import HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, SCENARIO_DEFAULT_DELTA_PP
 
-st.set_page_config(page_title="Scenario Analysis", page_icon="🔮", layout="wide")
+st.set_page_config(page_title="P36 · Scenario Analysis", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Scenario Analysis",
