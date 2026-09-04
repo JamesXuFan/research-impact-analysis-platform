@@ -93,17 +93,13 @@ def q1_advantage_by_field(exploded_df: pd.DataFrame) -> pd.DataFrame:
     return pivot.sort_values("gap", ascending=False)
 
 
-def overperforming_sources(
+def _source_level_gap(
     df: pd.DataFrame, min_publications: int = OVERPERFORMING_SOURCE_MIN_PUBLICATIONS
 ) -> pd.DataFrame:
-    """Per-source (journal) mean FWCI compared to its own CiteScore-quartile
-    average — "are there journals or publications within a tier that receive
-    more citations than would be expected for that tier?" (README item 3,
-    previously unaddressed by any Q1/non-Q1 split). Restricted to sources
-    with at least `min_publications` publications within that quartile, so a
-    single highly-cited paper can't make a small source look like an
-    outlier. `gap` = source's own mean FWCI minus its quartile's mean FWCI;
-    sort by `gap` for the strongest over-/under-performers.
+    """Shared computation behind `overperforming_sources` and
+    `source_performance_flag`: per-source mean FWCI vs. its own CiteScore-
+    quartile mean. One row per (quartile, normalised source key) meeting
+    `min_publications`; `gap` = source mean FWCI minus quartile mean FWCI.
 
     `Scopus Source title` is exported independently per university with no
     cross-export normalisation (see data_dictionary.md) — the same journal
@@ -142,7 +138,7 @@ def overperforming_sources(
     )
     sources = sources[sources["publications"] >= min_publications].reset_index()
     sources["source"] = sources["_source_key"].map(display_title)
-    sources = sources.drop(columns=["_source_key"]).rename(columns={"_quartile": "quartile"})
+    sources = sources.rename(columns={"_quartile": "quartile"})
     # .map() on a categorical column can itself come back categorical (pandas
     # infers the mapped dtype from the *codes*, not the mapped values, in some
     # versions) — force plain float so the subtraction below isn't trying to
@@ -150,3 +146,42 @@ def overperforming_sources(
     sources["quartile_mean_fwci"] = sources["quartile"].map(quartile_mean).astype(float)
     sources["gap"] = sources["mean_fwci"] - sources["quartile_mean_fwci"]
     return sources.sort_values("gap", ascending=False)
+
+
+def overperforming_sources(
+    df: pd.DataFrame, min_publications: int = OVERPERFORMING_SOURCE_MIN_PUBLICATIONS
+) -> pd.DataFrame:
+    """Per-source (journal) mean FWCI compared to its own CiteScore-quartile
+    average — "are there journals or publications within a tier that receive
+    more citations than would be expected for that tier?" (README item 3,
+    previously unaddressed by any Q1/non-Q1 split). Restricted to sources
+    with at least `min_publications` publications within that quartile, so a
+    single highly-cited paper can't make a small source look like an
+    outlier. `gap` = source's own mean FWCI minus its quartile's mean FWCI;
+    sort by `gap` for the strongest over-/under-performers.
+    """
+    sources = _source_level_gap(df, min_publications)
+    return sources.drop(columns=["_source_key"])
+
+
+def source_performance_flag(
+    df: pd.DataFrame, min_publications: int = OVERPERFORMING_SOURCE_MIN_PUBLICATIONS
+) -> pd.Series:
+    """Per-*publication* nullable boolean: True if this publication's source
+    out-performs its own CiteScore-quartile average (by `_source_level_gap`
+    above), False if it under-performs, NaN if the source doesn't meet
+    `min_publications` in that quartile or has no quartile/source at all.
+    Aligned to `df`'s index — built for feeding
+    `p36.analysis.scenario_analysis.estimate_uplift_from_share_shift`, to
+    answer README item 17's "shift some publications toward journals
+    identified as strong opportunities" (README item 3's over-performing-
+    sources table, wired into a projection rather than left as a shortlist).
+    """
+    working = df.copy()
+    working["_quartile"] = citescore_quartile(working)
+    working["_source_key"] = working["Scopus Source title"].str.strip().str.casefold()
+
+    gap_lookup = _source_level_gap(df, min_publications).set_index(["quartile", "_source_key"])["gap"]
+    key = pd.MultiIndex.from_arrays([working["_quartile"], working["_source_key"]])
+    gap = pd.Series(gap_lookup.reindex(key).values, index=working.index)
+    return (gap > 0).astype("boolean").mask(gap.isna())

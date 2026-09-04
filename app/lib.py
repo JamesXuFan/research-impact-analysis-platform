@@ -225,6 +225,13 @@ def get_overperforming_sources():
 # --- 6. Field analysis (app/pages/3_Field_Analysis.py) ----------------------
 
 
+@st.cache_data(show_spinner="Comparing collaboration approaches by field…")
+def get_collaboration_approach_by_field():
+    exploded, _ = load_exploded_deduplicated()
+    exploded = field_analysis.add_collaboration_approach(exploded)
+    return field_analysis.collaboration_approach_by_field(exploded)
+
+
 @st.cache_data(show_spinner="Computing field summary…")
 def get_field_summary():
     exploded, _ = load_exploded_deduplicated()
@@ -299,7 +306,12 @@ def get_fwci_by_field():
 
 @st.cache_data(show_spinner="Computing scenario projections…")
 def get_scenario_table(delta_pp: float):
-    return scenario_analysis.scenario_table(load_deduplicated(), delta_pp=delta_pp)
+    dedup = load_deduplicated()
+    # is_source_overperforming isn't part of add_derived_flags (it needs the
+    # CiteScore-quartile/source-title machinery in journal_tier.py) — merge
+    # it in here rather than recomputing scenario logic to accommodate it.
+    dedup = dedup.assign(is_source_overperforming=journal_tier.source_performance_flag(dedup))
+    return scenario_analysis.scenario_table(dedup, delta_pp=delta_pp)
 
 
 # --- Shared UI components ----------------------------------------------------

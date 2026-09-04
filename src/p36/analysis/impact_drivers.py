@@ -174,3 +174,78 @@ def document_type_summary_table(fit) -> pd.DataFrame:
 
     table.index = [_category(i) for i in table.index]
     return table.sort_values("coefficient", ascending=False)
+
+
+def fit_interaction_model(model_df: pd.DataFrame):
+    """Same specification as fit_impact_driver_model, plus an
+    `is_q1 : is_international` interaction term — README item 14's "are
+    there interactions between journal quality and collaboration?", answered
+    directly rather than left as a per-field eyeball comparison. A separate
+    model from the main one (not the main model with a term added) so the
+    primary model's own coefficients keep their simple "holding everything
+    else constant" reading; adding an interaction changes what the two main
+    effects mean (each becomes conditional on the other being False), which
+    is a different question, not a refinement of the same one.
+
+    HC3 robust SE, same as the main model. Interpretation: the interaction
+    coefficient is how much *larger or smaller* the Q1 effect is specifically
+    for internationally-collaborative publications, on top of each factor's
+    own separate effect — not a substitute for reading `is_q1` and
+    `is_international` themselves in this same fit.
+    """
+    formula = (
+        "Q('Field-Weighted Citation Impact') ~ "
+        "is_international * is_q1 + is_open_access + log_authors + log_institutions "
+        f"+ Year + C({PRIMARY_FIELD_COLUMN}) + C(Q('{DOCUMENT_TYPE_COLUMN}'))"
+    )
+    model = smf.ols(formula, data=model_df)
+    return model.fit(cov_type="HC3")
+
+
+def interaction_summary_table(fit) -> pd.DataFrame:
+    """Coefficient/SE/p-value/95% CI for is_international, is_q1, and their
+    interaction term, pulled out of fit_interaction_model's fit — the three
+    rows that jointly answer "is there an interaction, and if so is it worth
+    reporting alongside the two main effects".
+    """
+    terms = [t for t in fit.params.index if t in ("is_international[T.True]", "is_q1[T.True]") or ":" in t]
+    return pd.DataFrame(
+        {
+            "coefficient": fit.params[terms],
+            "std_err": fit.bse[terms],
+            "p_value": fit.pvalues[terms],
+            "ci_low": fit.conf_int().loc[terms, 0],
+            "ci_high": fit.conf_int().loc[terms, 1],
+        }
+    )
+
+
+def combination_summary(df: pd.DataFrame) -> pd.DataFrame:
+    """Descriptive (not model-based) cross-tab: mean FWCI, top-decile share,
+    and uncited share for every combination of is_q1 / is_international /
+    is_open_access — README item 14's "what combination of factors is most
+    commonly associated with high- vs. low-impact publications". Purely
+    descriptive group means on the full dataset, not a regression — pair
+    with fit_impact_driver_model's coefficients for the "holding everything
+    else constant" version of the same question; this table shows the raw
+    combinations as they actually occur, confounding and all, which is a
+    different and equally legitimate thing to show, not a replacement for
+    the regression.
+
+    Rows with an undefined is_q1 (no CiteScore percentile) are dropped —
+    same scope restriction as everywhere else is_q1 is used.
+    """
+    from p36.metrics import mean_fwci, top_decile_share
+
+    scoped = df.dropna(subset=["is_q1"]).copy()
+    scoped["is_q1"] = scoped["is_q1"].astype(bool)
+    grouped = scoped.groupby(["is_q1", "is_international", "is_open_access"], observed=True)
+    table = pd.DataFrame(
+        {
+            "publications": grouped.size(),
+            "mean_fwci": grouped.apply(mean_fwci, include_groups=False),
+            "top_decile_share": grouped.apply(top_decile_share, include_groups=False),
+            "uncited_share": grouped["is_uncited"].mean(),
+        }
+    )
+    return table.sort_values("mean_fwci", ascending=False)

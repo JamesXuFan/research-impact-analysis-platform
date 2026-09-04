@@ -147,11 +147,20 @@ INTERNATIONAL_COLLABORATION_MIN_COUNTRIES = 2
 
 # --- Institutional collaboration ---------------------------------------------
 
-# Unlike international collaboration, this is not operationalised as a binary
-# threshold — "institutional collaboration" is reported as the mean/distribution
-# of `Number of Institutions` directly (e.g. go8_benchmarking.benchmark_summary's
+# For most figures this is not operationalised as a binary threshold —
+# "institutional collaboration" is reported as the mean/distribution of
+# `Number of Institutions` directly (e.g. go8_benchmarking.benchmark_summary's
 # mean_institutions_per_paper), and as log1p(Number of Institutions) when used as
 # a regression predictor (item 14) to reduce right-skew. See docs/methodology.md.
+#
+# The one exception: `is_multi_institution` (p36.metrics.add_derived_flags) for
+# field_analysis.add_collaboration_approach's 3-category "publication strategy"
+# stand-in (README item 6) — `Number of Institutions >=
+# INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS`, same >=-not-> convention as
+# INTERNATIONAL_COLLABORATION_MIN_COUNTRIES above, for the same reason (a
+# publication with exactly 2 institutions, the minimum, already counts as
+# multi-institution).
+INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS = 2
 
 # --- Open access status (PROVISIONAL — awaiting client confirmation) --------
 

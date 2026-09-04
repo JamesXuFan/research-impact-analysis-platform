@@ -117,3 +117,55 @@ def field_growth(exploded_df: pd.DataFrame, year_range: tuple[int, int] = MAIN_Y
     return exploded_df.groupby(FIELD_COLUMN_EXPLODED).apply(
         period_growth, year_range=year_range, include_groups=False
     ).sort_values(ascending=False)
+
+
+COLLABORATION_APPROACH_COLUMN = "collaboration_approach"
+
+
+def add_collaboration_approach(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a 3-category `collaboration_approach` column — the closest thing
+    this dataset has to a "publication strategy" variable (README item 6:
+    "are particular publication strategies more successful in some fields
+    than others?", previously unanswered because no strategy variable was
+    defined). Not a client-confirmed definition of "strategy" — a documented
+    stand-in built from two flags already in use elsewhere (`is_international`,
+    `is_multi_institution`), not a new concept:
+
+    - "International"                 — is_international is True
+    - "Domestic, multi-institution"    — is_international is False, is_multi_institution is True
+    - "Domestic, single institution"   — is_international is False, is_multi_institution is False
+
+    Expects `df` to already carry `is_international` and `is_multi_institution`
+    from p36.metrics.add_derived_flags — this function does not recompute the
+    institution-count threshold itself (see .claude/agents/metrics-consistency.md:
+    that threshold is named in p36.config and cast to plain bool in
+    add_derived_flags, same as every other nullable-Int64-derived flag).
+    """
+    df = df.copy()
+    df[COLLABORATION_APPROACH_COLUMN] = "Domestic, single institution"
+    df.loc[df["is_multi_institution"], COLLABORATION_APPROACH_COLUMN] = "Domestic, multi-institution"
+    df.loc[df["is_international"], COLLABORATION_APPROACH_COLUMN] = "International"
+    return df
+
+
+def collaboration_approach_by_field(exploded_df: pd.DataFrame) -> pd.DataFrame:
+    """Mean FWCI and publication count for every (field, collaboration
+    approach) combination — README item 6's "publication strategy" question,
+    made concrete via `add_collaboration_approach` above. Pass an
+    already field-exploded dataframe that also has `collaboration_approach`
+    (call `add_collaboration_approach` before or after exploding — the
+    column doesn't depend on field). Purely descriptive group means, not a
+    regression — a field where "International" shows the highest mean FWCI
+    is consistent with, not proof of, international collaboration being the
+    more effective approach specifically in that field.
+    """
+    from p36.metrics import mean_fwci
+
+    grouped = exploded_df.groupby([FIELD_COLUMN_EXPLODED, COLLABORATION_APPROACH_COLUMN], observed=True)
+    table = pd.DataFrame(
+        {
+            "publications": grouped.size(),
+            "mean_fwci": grouped.apply(mean_fwci, include_groups=False),
+        }
+    )
+    return table
