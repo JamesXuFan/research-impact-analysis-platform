@@ -1,6 +1,9 @@
 name: Deploy to Azure App Service
 
-# Deploys code only — app/, src/, requirements.txt, startup.sh, .streamlit/.
+# Deploys code only — app/, src/, requirements.txt, .streamlit/. The startup
+# command (streamlit run ...) is set directly on the App Service resource,
+# not a script in this repo — see docs/deployment-azure.md, "Why not
+# startup.sh".
 # The processed dataset (data/processed/*.parquet) is NOT part of this repo
 # (licensed data, too large for a normal git push — see .gitignore) and is
 # NOT rebuilt here either (that needs the raw .xlsx exports, also excluded).
