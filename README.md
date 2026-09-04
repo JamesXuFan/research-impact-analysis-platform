@@ -12,6 +12,35 @@ This project aims to develop an interactive analytical platform for exploring un
 [Data](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/tree/main/data)
 ## Wiki Page
 [Goup Wiki](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/wiki/COMP3888_W11_02_P36-wiki)
+
+## Setup
+
+The raw QS/Scopus per-university exports (`data/*.xlsx`) and the processed
+dataset built from them (`data/processed/*.parquet`) are **not in this repo** —
+they're licensed data, excluded via `.gitignore` rather than pushed to git
+history. Get them from the [Data](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/tree/main/data)
+link above and place the eight `.xlsx` files directly under `data/` before
+doing anything else; every step below depends on them.
+
+```bash
+pip install -r requirements.txt
+
+# One-time: clean + dedupe the raw exports into data/processed/*.parquet.
+# Re-run this after the raw .xlsx files change; the app itself never reads
+# the raw exports directly, only this processed output. Run from src/ (no
+# pyproject.toml/setup.py yet, so `p36` is only importable with src/ as the
+# working directory — `python -m p36.build_dataset` from the repo root fails
+# with ModuleNotFoundError).
+cd src
+python -m p36.build_dataset
+cd ..
+
+# Launch the platform (http://localhost:8501) — from the repo root
+streamlit run app/Home.py
+```
+
+Deploying instead of running locally? See [docs/deployment-azure.md](docs/deployment-azure.md).
+
 ## Analysis
 3. Journal Tier and Q1 Analysis
 - ...
