@@ -49,6 +49,7 @@ __all__ = [
     "get_q1_share_by_year",
     "get_citescore_percentile_distribution",
     "get_field_summary",
+    "get_collaboration_approach_by_field",
     "get_field_growth",
     "get_field_trend",
     "get_impact_by_collaboration_status",
@@ -57,6 +58,8 @@ __all__ = [
     "get_impact_by_collaboration_breadth",
     "get_collaboration_rate_trend",
     "get_scenario_table",
+    "get_institution_partner_performance",
+    "get_client_institution_scenario",
     "get_fwci_by_collaboration_status",
     "get_fwci_by_field",
     "get_citescore_percentile_series",
@@ -312,6 +315,16 @@ def get_scenario_table(delta_pp: float):
     # it in here rather than recomputing scenario logic to accommodate it.
     dedup = dedup.assign(is_source_overperforming=journal_tier.source_performance_flag(dedup))
     return scenario_analysis.scenario_table(dedup, delta_pp=delta_pp)
+
+
+@st.cache_data(show_spinner="Ranking Sydney's partner institutions by performance…")
+def get_institution_partner_performance():
+    return go8_benchmarking.institution_partner_performance(load_raw())
+
+
+@st.cache_data(show_spinner="Computing the high-performing-institution scenario…")
+def get_client_institution_scenario(delta_pp: float):
+    return scenario_analysis.client_institution_scenario(load_raw(), CLIENT_UNIVERSITY, delta_pp=delta_pp)
 
 
 # --- Shared UI components ----------------------------------------------------

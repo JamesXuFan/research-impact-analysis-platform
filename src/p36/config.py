@@ -61,6 +61,16 @@ CITESCORE_QUARTILE_LABELS = ["Q1", "Q2", "Q3", "Q4"]
 # analysis-design threshold.
 OVERPERFORMING_SOURCE_MIN_PUBLICATIONS = 10
 
+# Minimum publications a partner institution needs (co-authored with a given
+# university, raw/per-university dataframe) before it's classified as a
+# "high-performing" or "low-performing" collaborator — same reasoning as
+# OVERPERFORMING_SOURCE_MIN_PUBLICATIONS above, applied to
+# go8_benchmarking.institution_partner_performance (README item 17: "increase
+# collaboration with selected high-performing institutions"). Verified
+# 2026-09-05: 2,147 of Sydney's 7,667 distinct partner institutions clear this
+# bar — comfortably enough to work with.
+HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS = 10
+
 # --- Highly-cited / top-decile share (direction verified) -------------------
 
 # A publication counts as "highly cited" / top-decile if

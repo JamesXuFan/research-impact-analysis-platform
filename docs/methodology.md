@@ -85,13 +85,59 @@ publication with exactly 2 countries already qualifies.
 
 ### Institutional collaboration
 
-Unlike international collaboration, this is **not** a binary threshold metric — it is
-reported directly as `Number of Institutions` (its mean, e.g.
-`go8_benchmarking.benchmark_summary`'s `mean_institutions_per_paper`), and as
-`log1p(Number of Institutions)` when used as a regression predictor (item 14) to
-reduce right-skew. If a future finding needs a binary "is multi-institutional" flag
-analogous to `is_international`, define it here and in `p36.metrics.add_derived_flags`
-first — do not invent one inline in an analysis module.
+For most figures this is **not** a binary threshold metric — it is reported directly
+as `Number of Institutions` (its mean, e.g. `go8_benchmarking.benchmark_summary`'s
+`mean_institutions_per_paper`), and as `log1p(Number of Institutions)` when used as a
+regression predictor (item 14) to reduce right-skew.
+
+The one exception: `is_multi_institution` (`p36.metrics.add_derived_flags`,
+`Number of Institutions >= INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS`, same
+`>=` convention as `is_international` — added 2026-09-04), for
+`field_analysis.add_collaboration_approach`'s "publication strategy" stand-in
+(README item 6). Any *other* future need for a binary institutional-collaboration
+flag should extend this one, not invent a second, independent threshold inline in
+an analysis module.
+
+### High-performing partner institutions (added 2026-09-05, README item 17)
+
+The `Institutions` column (pipe-delimited co-author affiliation names, null on only
+12 of 385,611 raw rows — verified 2026-09-05) supports the same kind of
+over/under-performer analysis as
+`journal_tier.overperforming_sources` runs on journals — initially missed and the
+"increase collaboration with selected high-performing institutions" scenario marked
+as needing data this project doesn't have, until asked about directly.
+
+`go8_benchmarking._institution_level_gap(df, university)`: explodes `Institutions` for
+`university`'s own **raw** publications, drops `university` itself, groups on a
+normalised (`.str.strip().str.casefold()`) institution key — same convention and same
+reason as `journal_tier._source_level_gap`'s `_source_key` for `Scopus Source title`:
+the same institution can be spelled slightly differently paper to paper even within
+one university's own export, and grouping on the raw string would silently split it
+across two rows — and computes each remaining partner's mean FWCI minus `university`'s
+own overall mean FWCI. Restricted to partners with at least
+`HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS` (10) co-authored publications (verified
+2026-09-05: 2,147 of Sydney's 7,667 distinct partners clear this bar). Two public
+functions build on it, indexed differently on purpose (an earlier version indexed
+`institution_partner_performance` by display name and had `institution_partner_flag`
+match against that same index — silently matching nothing, since display names aren't
+normalised; caught by metrics-consistency review before merge, fixed by giving each
+function the index it actually needs):
+
+- `institution_partner_performance` — indexed by display name (most common raw
+  spelling), for showing to a human.
+- `institution_partner_flag` — matches against `_institution_level_gap`'s normalised
+  key directly, turning the table into a per-publication nullable boolean for
+  `scenario_analysis.client_institution_scenario` — a *separate* function from
+  `scenario_table`, because it runs on one university's raw publications, a different
+  population from the Go8-wide deduplicated set every other scenario uses; do not
+  stack or average its numbers with `scenario_table`'s rows directly.
+
+Caveat worth stating alongside any finding from this: the strongest partners skew
+toward large multi-site clinical/medical trial collaborations — plausibly genuine
+high-value partnerships, but also exactly the pattern a handful of huge
+multi-institution clinical trials produce even without the specific partner
+institution adding anything beyond being part of that trial. Treat the ranking as a
+shortlist to investigate, not a verdict — same caveat as the journal version.
 
 ### Open access status — **PROVISIONAL**
 
