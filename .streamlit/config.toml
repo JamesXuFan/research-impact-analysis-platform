@@ -1,0 +1,15 @@
+[theme]
+base = "light"
+primaryColor = "#DA291C"
+backgroundColor = "#F2EEE6"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1A1A1A"
+font = "sans-serif"
+
+[client]
+# "viewer" hides the Deploy button from the toolbar/menu. Streamlit bundles
+# it with Rerun/Clear cache under one "developer options" switch — there is
+# no finer-grained "hide only Deploy" setting in this Streamlit version
+# (1.63.0). Rerun/Clear cache stay reachable via keyboard shortcuts (R / C)
+# and st.cache_data.clear()/st.cache_resource.clear() in code if needed.
+toolbarMode = "viewer"

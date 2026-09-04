@@ -1,0 +1,171 @@
+=== Publication type ===
+dtype: str, nulls: 0 / 327265
+Publication type
+Article             246816
+Review               34017
+Conference Paper     23463
+Chapter              20128
+Book                  2491
+Data Paper             285
+Retracted               48
+Note                     9
+Editorial                5
+Letter                   3
+
+=== Open Access ===
+dtype: str, nulls: 134186 / 327265
+Open Access
+NaN                  134186
+Gold|Green            77410
+Green                 34449
+Hybrid gold|Green     33787
+Hybrid gold           18107
+Bronze|Green          10957
+Bronze                 9453
+Gold                   8916
+
+=== Sector ===
+dtype: str, nulls: 12 / 327265
+Sector
+Academic                                    197769
+Medical| Academic                            49108
+Academic| Government                         29990
+Medical| Academic| Government                13404
+Government| Academic                         13078
+Academic| Corporate                           5222
+Medical| Government| Academic                 4384
+Other| Academic                               2506
+Medical| Academic| Corporate                  2164
+Other| Medical| Academic                      2108
+Other| Academic| Government                   1374
+Academic| Government| Corporate               1323
+Medical| Academic| Government| Corporate      1264
+Other| Medical| Academic| Government          1165
+Government| Academic| Corporate                532
+
+=== CiteScore percentile (publication year) * ===
+dtype: float64, nulls: 38202 / 327265
+CiteScore percentile (publication year) *
+NaN     38202
+1.0     15227
+3.0     13967
+2.0     13493
+5.0     12128
+4.0     11476
+6.0     10600
+8.0     10551
+10.0     9493
+7.0      9326
+9.0      8674
+13.0     8417
+11.0     8302
+12.0     8132
+14.0     7083
+
+=== Outputs in Top Citation Percentiles, per percentile ===
+dtype: float64, nulls: 0 / 327265
+Outputs in Top Citation Percentiles, per percentile
+73.0    11461
+58.0     9785
+28.0     8818
+1.0      8600
+45.0     7719
+48.0     7554
+42.0     7403
+37.0     7382
+2.0      7063
+3.0      6699
+59.0     6625
+24.0     6519
+19.0     6433
+16.0     6186
+78.0     6172
+
+=== Field-Weighted Outputs in Top Citation Percentiles, per percentile ===
+dtype: float64, nulls: 0 / 327265
+Field-Weighted Outputs in Top Citation Percentiles, per percentile
+78.0    12929
+73.0    10523
+1.0      7116
+2.0      6142
+3.0      5865
+79.0     5809
+4.0      5596
+80.0     5550
+5.0      5475
+6.0      5424
+8.0      5220
+10.0     5212
+7.0      5196
+13.0     5184
+9.0      5062
+
+=== Quacquarelli Symonds (QS) Subject area field name ===
+dtype: str, nulls: 8015 / 327265
+Quacquarelli Symonds (QS) Subject area field name
+Life Sciences & Medicine                                  134052
+Engineering & Technology                                   32870
+Social Sciences & Management                               30576
+Natural Sciences| Engineering & Technology                 17674
+Engineering & Technology| Natural Sciences                 17448
+Natural Sciences                                           17258
+NaN                                                         8015
+Social Sciences & Management| Life Sciences & Medicine      5689
+Life Sciences & Medicine| Social Sciences & Management      5601
+Arts & Humanities| Social Sciences & Management             4575
+Social Sciences & Management| Engineering & Technology      4465
+Social Sciences & Management| Arts & Humanities             4433
+Engineering & Technology| Social Sciences & Management      4411
+Arts & Humanities                                           4157
+Natural Sciences| Life Sciences & Medicine                  3147
+
+=== ANZSRC FoR (2020) parent name ===
+dtype: str, nulls: 35124 / 327265
+ANZSRC FoR (2020) parent name
+Biomedical And Clinical Sciences                     43575
+NaN                                                  35124
+Multidisciplinary                                    22010
+Engineering                                          14971
+Health Sciences| Biomedical And Clinical Sciences    11581
+Biomedical And Clinical Sciences| Health Sciences    11439
+Health Sciences                                      10317
+Biological Sciences                                   9457
+Information And Computing Sciences                    7698
+Physical Sciences                                     7063
+Earth Sciences                                        4736
+Human Society                                         4268
+Commerce, Management, Tourism And Services            4127
+Chemical Sciences                                     3958
+Education                                             3927
+
+=== CiteScore percentile numeric range ===
+count    289063.000000
+mean         21.138883
+std          20.203429
+min           1.000000
+25%           6.000000
+50%          14.000000
+75%          30.000000
+max         100.000000
+Name: CiteScore percentile (publication year) *, dtype: float64
+
+=== Number of Countries/Regions describe ===
+count    327265.0
+mean     2.194634
+std      1.874972
+min           1.0
+25%           1.0
+50%           2.0
+75%           3.0
+max          50.0
+Name: Number of Countries/Regions, dtype: Float64
+
+=== Country/Region sample (first 5 non-null, split by university) ===
+'China| Australia'
+'China| Australia'
+'Belgium| United Kingdom| United States| Germany| Australia| Switzerland| Canada'
+'China| Australia'
+'China| Australia'
+'Chile| India| United Kingdom| Mexico| Spain| Japan| Hong Kong| Finland| Egypt| Italy| France| Denmark| Brazil| South Korea| China| Israel| Germany| Turkey| Switzerland| Portugal| Australia| Malaysia'
+'United Kingdom| China| Australia'
+'United States| Australia'
