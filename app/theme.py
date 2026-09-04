@@ -121,6 +121,21 @@ def inject() -> None:
         html, body, [class*="css"], .stMarkdown, p, li, label {{
             font-family: {FONT_BODY};
         }}
+
+        /* In-page jump targets for question_panel()'s clickable questions
+         * (theme.anchor()) — scroll-margin-top keeps the landing spot from
+         * hiding under Streamlit's own sticky header. */
+        html {{ scroll-behavior: smooth; }}
+        .qanchor {{ scroll-margin-top: 90px; }}
+        a.qjump {{
+            color: {BLACK};
+            text-decoration: none;
+            border-bottom: 1.5px dashed {GREY};
+            cursor: pointer;
+            transition: color 0.12s ease-out, border-color 0.12s ease-out;
+        }}
+        a.qjump:hover {{ color: {BLUE}; border-bottom-color: {BLUE}; }}
+        a.qjump:focus-visible {{ outline: 2px solid {BLUE}; outline-offset: 2px; }}
         h1, h2, h3 {{
             font-family: {FONT_DISPLAY} !important;
             text-transform: uppercase;
@@ -377,26 +392,42 @@ _STATUS_STYLE = {
 }
 
 
-def question_panel(items: list[tuple[str, str]], title: str = "Sub-questions this page answers") -> None:
+def question_panel(
+    items: list[tuple[str, str] | tuple[str, str, str]],
+    title: str = "Sub-questions this page answers",
+) -> None:
     """A checklist-style panel mapping this page's charts back to the actual
     sub-questions in the project brief (README Analysis item), instead of
-    leaving that link implicit. `items` is a list of (question_text, status)
-    pairs; status is one of "done" (a chart/table below answers it directly),
-    "partial" (addressed, but only in aggregate or qualitatively), "elsewhere"
-    (answered on a different page, not duplicated here), or "open" (not yet
-    addressed anywhere in this platform — said plainly rather than omitted).
+    leaving that link implicit. Each item is (question_text, status) or
+    (question_text, status, anchor_id); status is one of "done" (a
+    chart/table below answers it directly), "partial" (addressed, but only
+    in aggregate or qualitatively), "elsewhere" (answered on a different
+    page, not duplicated here), or "open" (not yet addressed anywhere in
+    this platform — said plainly rather than omitted).
+
+    When `anchor_id` is given, the question becomes a click-to-jump link to
+    that in-page anchor (see `theme.anchor()`) — place an `anchor(anchor_id)`
+    call immediately above the `st.subheader()` it should land on. Omit it
+    (2-tuple, or `None`) for "elsewhere"/"open" items with no in-page target,
+    or "partial" items answered by a synthesis of several sections rather
+    than one specific chart — those stay plain text, not a dead link.
+
     Call right after `theme.header()`.
     """
     rows = []
-    for question, status in items:
+    for item in items:
+        question, status, anchor_id = (*item, None)[:3]
         icon, bg, fg = _STATUS_STYLE[status]
+        question_html = (
+            f'<a href="#{anchor_id}" class="qjump">{question}</a>' if anchor_id else question
+        )
         rows.append(
             f'<div style="display:flex;gap:12px;align-items:flex-start;padding:7px 0;'
             f'border-bottom:1px solid #E5E1D8;">'
             f'<span style="flex-shrink:0;width:22px;height:22px;background:{bg};color:{fg};'
             f'font-weight:700;font-family:{FONT_DISPLAY};display:flex;align-items:center;'
             f'justify-content:center;font-size:0.78rem;border:1.5px solid {BLACK};">{icon}</span>'
-            f'<span style="font-size:0.92rem;line-height:1.45;padding-top:1px;">{question}</span>'
+            f'<span style="font-size:0.92rem;line-height:1.45;padding-top:1px;">{question_html}</span>'
             f"</div>"
         )
     st.markdown(
@@ -411,6 +442,7 @@ def question_panel(items: list[tuple[str, str]], title: str = "Sub-questions thi
                 <b style="color:{BLACK};">~</b> answered, aggregate/qualitative only &nbsp;·&nbsp;
                 <b style="color:{BLACK};">→</b> answered on another page &nbsp;·&nbsp;
                 <b style="color:{BLACK};">?</b> not yet addressed anywhere in this platform
+                &nbsp;·&nbsp; underlined = click to jump to it below
             </div>
         </div>
         """,
@@ -418,36 +450,13 @@ def question_panel(items: list[tuple[str, str]], title: str = "Sub-questions thi
     )
 
 
-def index_table(items: list[tuple[str, str, str]]) -> None:
-    """A denser variant of `question_panel` for a full cross-platform index:
-    each row is (question_text, status, module_reference) — the same status
-    vocabulary as `question_panel`, plus a monospace line naming the exact
-    source module/function that answers it (e.g.
-    "journal_tier.py :: impact_by_citescore_quartile"), for "jump to the
-    module that solves this" navigation. No page-link per row (58 rows would
-    mean 58 buttons) — call `st.page_link` once per page section instead,
-    above the block of that page's rows.
+def anchor(anchor_id: str) -> None:
+    """An invisible in-page jump target — place immediately above the
+    `st.subheader()` (or other section start) that a `question_panel()` link
+    should land on. `scroll-margin-top` (set on `.qanchor` in `inject()`'s
+    CSS) keeps the landing spot from hiding under Streamlit's sticky header.
     """
-    rows = []
-    for question, status, ref in items:
-        icon, bg, fg = _STATUS_STYLE[status]
-        rows.append(
-            f'<div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;'
-            f'border-bottom:1px solid #E5E1D8;">'
-            f'<span style="flex-shrink:0;width:22px;height:22px;background:{bg};color:{fg};'
-            f'font-weight:700;font-family:{FONT_DISPLAY};display:flex;align-items:center;'
-            f'justify-content:center;font-size:0.78rem;border:1.5px solid {BLACK};">{icon}</span>'
-            f'<div style="flex:1;min-width:0;">'
-            f'<span style="font-size:0.9rem;line-height:1.4;">{question}</span>'
-            f'<div style="font-family:\'Courier New\',monospace;font-size:0.74rem;color:{GREY};'
-            f'margin-top:3px;">{ref}</div>'
-            f"</div></div>"
-        )
-    st.markdown(
-        f'<div style="border:2px solid {BLACK};background:{WHITE};padding:4px 20px;'
-        f'margin-bottom:1.5rem;animation:bauhausRise 0.4s ease-out;">{"".join(rows)}</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div id="{anchor_id}" class="qanchor"></div>', unsafe_allow_html=True)
 
 
 def rule(color: str = BLACK, height: int = 3) -> None:

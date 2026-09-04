@@ -19,17 +19,17 @@ theme.header(
 
 theme.question_panel(
     [
-        ("Which factors have the strongest association with citation impact?", "done"),
-        ("Which factors remain important after controlling for other metrics?", "done"),
-        ("Is journal quartile (Q1) still important after accounting for field?", "done"),
-        ("Is international collaboration still important after accounting for journal quality?", "done"),
-        ("Open Access → Citation Impact", "done"),
-        ("Collaboration Size → Citation Impact", "done"),
-        ("Document Type → Citation Impact", "done"),
+        ("Which factors have the strongest association with citation impact?", "done", "id-coefficients"),
+        ("Which factors remain important after controlling for other metrics?", "done", "id-coefficients"),
+        ("Is journal quartile (Q1) still important after accounting for field?", "done", "id-coefficients"),
+        ("Is international collaboration still important after accounting for journal quality?", "done", "id-coefficients"),
+        ("Open Access → Citation Impact", "done", "id-coefficients"),
+        ("Collaboration Size → Citation Impact", "done", "id-coefficients"),
+        ("Document Type → Citation Impact", "done", "id-doctype"),
         ("Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?", "partial"),
         ("Institutional Collaboration → Journal Choice → Citation Impact", "partial"),
-        ("Is there an interaction between journal quality and international collaboration?", "done"),
-        ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "done"),
+        ("Is there an interaction between journal quality and international collaboration?", "done", "id-interaction"),
+        ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "done", "id-combination"),
         ("Are some drivers particularly important only in particular disciplines?", "elsewhere"),
     ]
 )
@@ -97,6 +97,7 @@ if fit.rsquared < 0.1:
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("id-coefficients")
 st.subheader("Coefficients (Field-Weighted Citation Impact ~ predictors)")
 table = impact_drivers.driver_summary_table(fit)
 st.dataframe(
@@ -154,6 +155,7 @@ for row in coef_df.sort_values("coefficient", key=abs, ascending=False).itertupl
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("id-doctype")
 st.subheader("Document Type → Citation Impact")
 st.caption(
     "FWCI is already document-type-normalised by SciVal's own methodology — a naive "
@@ -200,6 +202,7 @@ st.markdown(
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("id-interaction")
 st.subheader("Interaction: journal quality × international collaboration")
 st.caption(
     "A separate model from the main one above, not the main model with a term added — "
@@ -238,6 +241,7 @@ st.markdown(
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("id-combination")
 st.subheader("Which combination of factors goes with high vs. low impact?")
 st.caption(
     "Descriptive group means on the full dataset, not a regression — every combination of "

@@ -26,17 +26,17 @@ theme.header(
 
 theme.question_panel(
     [
-        ("How does Sydney compare in publication volume?", "done"),
-        ("How does citation impact compare?", "done"),
-        ("How does Q1 publication share compare?", "done"),
-        ("How does highly cited publication performance compare?", "done"),
-        ("How does international collaboration compare?", "done"),
-        ("How does institutional collaboration compare?", "done"),
-        ("Which research fields are Sydney's strongest relative to peers? Where are the largest gaps?", "done"),
-        ("Which Go8 universities are improving most rapidly?", "done"),
-        ("Are competitors using different journal-publishing patterns?", "done"),
-        ("Are competitors collaborating with different countries or institutions?", "partial"),
-        ("Which performance gaps appear realistically addressable?", "partial"),
+        ("How does Sydney compare in publication volume?", "done", "go8-rank"),
+        ("How does citation impact compare?", "done", "go8-rank"),
+        ("How does Q1 publication share compare?", "done", "go8-rank"),
+        ("How does highly cited publication performance compare?", "done", "go8-rank"),
+        ("How does international collaboration compare?", "done", "go8-rank"),
+        ("How does institutional collaboration compare?", "done", "go8-rank"),
+        ("Which research fields are Sydney's strongest relative to peers? Where are the largest gaps?", "done", "go8-fields"),
+        ("Which Go8 universities are improving most rapidly?", "done", "go8-growth"),
+        ("Are competitors using different journal-publishing patterns?", "done", "go8-countries-patterns"),
+        ("Are competitors collaborating with different countries or institutions?", "partial", "go8-countries-patterns"),
+        ("Which performance gaps appear realistically addressable?", "partial", "go8-fields"),
     ]
 )
 st.caption(
@@ -48,6 +48,7 @@ st.caption(
 
 summary = get_benchmark_summary()
 
+theme.anchor("go8-rank")
 st.subheader("Sydney's rank within the Go8")
 rank_metrics = ["publications", "mean_fwci", "q1_share", "top_decile_share", "international_collaboration_share", "mean_institutions_per_paper"]
 rank_cols = st.columns(len(rank_metrics))
@@ -175,6 +176,7 @@ st.altair_chart(radar_chart, use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("go8-growth")
 st.subheader("Publication-count growth (total-period, within MAIN_YEAR_RANGE)")
 st.caption(
     "Not a year-over-year growth rate — see docs/methodology.md, Total-period growth. "
@@ -200,6 +202,7 @@ st.altair_chart(theme.style(growth_bar, height=280), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("go8-fields")
 st.subheader("Strongest / weakest fields vs. Go8 peers")
 st.caption("Sydney's mean FWCI minus the Go8-peer average, by field. Positive = Sydney outperforms.")
 gap = get_field_gap_vs_peers()
@@ -236,6 +239,7 @@ st.caption(
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("go8-countries-patterns")
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("International co-author countries")
