@@ -15,7 +15,7 @@ from p36.analysis import field_analysis
 from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
 from p36.config import FRACTIONAL_FIELD_COUNTING
 
-st.set_page_config(page_title="Field Analysis", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="P36 · Field Analysis", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Research Field / Faculty Analysis",

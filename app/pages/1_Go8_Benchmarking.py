@@ -15,7 +15,7 @@ from lib import (
     load_raw,
 )
 
-st.set_page_config(page_title="Go8 Benchmarking", page_icon="🏆", layout="wide")
+st.set_page_config(page_title="P36 · Go8 Benchmarking", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Go8 / Peer Benchmarking",

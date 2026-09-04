@@ -17,7 +17,7 @@ from lib import (
 )
 from p36.config import MAIN_YEAR_RANGE, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS, Q1_CITESCORE_PERCENTILE_MAX
 
-st.set_page_config(page_title="Journal Tier / Q1", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="P36 · Journal Tier / Q1", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Journal Tier and Q1 Analysis",

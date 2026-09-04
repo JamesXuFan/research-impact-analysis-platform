@@ -4,7 +4,7 @@ import streamlit as st
 import theme
 from lib import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat, get_overlap_by_university, load_deduplicated, load_raw
 
-st.set_page_config(page_title="Publication Intelligence Platform", page_icon="📚", layout="wide")
+st.set_page_config(page_title="P36 · Publication Intelligence Platform", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Publication Intelligence & Research Impact Analysis Platform",

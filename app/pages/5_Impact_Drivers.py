@@ -6,7 +6,7 @@ import theme
 from lib import load_deduplicated
 from p36.analysis import impact_drivers
 
-st.set_page_config(page_title="Impact Drivers", page_icon="📈", layout="wide")
+st.set_page_config(page_title="P36 · Impact Drivers", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Integrated Research Impact Driver Analysis",
