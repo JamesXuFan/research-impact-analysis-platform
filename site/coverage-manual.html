@@ -1,0 +1,859 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>P36 Coverage Manual</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+  :root{
+    --cream:#F2EEE6; --paper:#FFFFFF; --ink:#1A1A1A; --muted:#6B6A63; --line:#1A1A1A; --hair:#DAD5C8;
+    --red:#DA291C; --blue:#0F4C81; --yellow:#FFC20E;
+    --red-tint:#FBE6E3; --blue-tint:#E4ECF3; --yellow-tint:#FFF6DC;
+    --font-display:'Archivo Black','Noto Sans SC','Arial Black',sans-serif;
+    --font-body:'Space Grotesk','Noto Sans SC',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+      --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+      --red-tint:#3A211D; --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+    --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+    --red-tint:#3A211D; --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-body); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--yellow); color:var(--ink); }
+  h1,h2,h3,h4{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:-0.01em; text-wrap:balance; margin:0; color:var(--ink); }
+  #app[data-lang="zh"] h1,#app[data-lang="zh"] h2,#app[data-lang="zh"] h3,#app[data-lang="zh"] h4{ text-transform:none; letter-spacing:0; }
+  a{ color:inherit; } code{ font-family:var(--font-mono); } p{ margin:0; }
+  #app[data-lang="zh"] .en{ display:none; } #app[data-lang="en"] .zh{ display:none; }
+
+  nav.topbar{ position:sticky; top:0; z-index:20; background:var(--ink); border-bottom:4px solid var(--yellow); display:flex; align-items:center; gap:2px; overflow-x:auto; padding:0 8px; }
+  nav.topbar .brand{ font-family:var(--font-display); color:var(--cream); font-size:0.82rem; padding:14px 16px 14px 4px; white-space:nowrap; border-right:2px solid #4a473d; margin-right:4px; }
+  nav.topbar a, nav.topbar span.cur{ display:flex; align-items:center; gap:7px; text-decoration:none; color:var(--cream); font-size:0.76rem; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; padding:15px 11px; white-space:nowrap; border-bottom:4px solid transparent; margin-bottom:-4px; transition:background .12s ease-out; }
+  #app[data-lang="zh"] nav.topbar a, #app[data-lang="zh"] nav.topbar span.cur{ text-transform:none; letter-spacing:0; font-size:0.8rem; }
+  nav.topbar a:hover{ background:#2b2820; }
+  nav.topbar span.cur{ background:var(--yellow); color:var(--ink); border-bottom-color:var(--red); }
+  nav.topbar a .n, nav.topbar span.cur .n{ font-family:var(--font-mono); color:var(--yellow); font-weight:700; }
+  nav.topbar span.cur .n{ color:var(--ink); }
+  .langbtn{ margin-left:auto; flex:none; font-family:var(--font-mono); font-size:0.74rem; font-weight:600; background:var(--cream); color:var(--ink); border:2px solid var(--cream); padding:8px 12px; cursor:pointer; }
+  .langbtn:hover{ background:var(--yellow); border-color:var(--yellow); }
+  .langbtn:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+
+  main{ max-width:860px; margin:0 auto; padding:0 20px 100px; }
+  header.masthead{ max-width:1080px; margin:0 auto; padding:52px 20px 8px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px; }
+  #app[data-lang="zh"] .eyebrow{ text-transform:none; }
+  header.masthead h1{ font-size:clamp(2rem,5vw,3.1rem); line-height:1.06; max-width:20ch; }
+  header.masthead .dek{ font-size:1.02rem; color:var(--muted); max-width:64ch; margin-top:14px; }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:10px; margin:26px 0 8px; }
+  .lgitem{ font-family:var(--font-mono); font-size:0.76rem; font-weight:600; padding:7px 11px; border:2px solid var(--line); background:var(--paper); display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  #app[data-lang="zh"] .lgitem{ font-family:var(--font-body); }
+  .chip{ font-family:var(--font-mono); font-weight:700; font-size:0.72rem; width:24px; height:24px; flex:none; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--line); color:#fff; }
+  .chip.done{ background:var(--blue); }
+  .chip.partial{ background:var(--yellow); color:var(--ink); }
+  .chip.elsewhere{ background:var(--muted); }
+  .chip.open{ background:var(--paper); color:var(--ink); }
+
+  .allclear{ display:flex; align-items:center; gap:14px; background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:16px 18px; margin:22px 0 0; font-size:0.9rem; }
+  .allclear .big{ font-family:var(--font-display); font-size:1.6rem; color:var(--blue); flex:none; }
+
+  .item{ margin-top:56px; padding-top:36px; border-top:4px solid var(--line); }
+  .item:first-of-type{ margin-top:44px; }
+  .item-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:6px; }
+  .item-head .n{ font-family:var(--font-display); font-size:1.7rem; color:var(--yellow); -webkit-text-stroke:1.5px var(--ink); }
+  .item-head h2{ font-size:1.6rem; }
+  .item-sub{ color:var(--muted); max-width:66ch; margin:12px 0 26px; font-size:0.98rem; }
+
+  h4.h4{ font-family:var(--font-body); font-weight:700; text-transform:uppercase; letter-spacing:0.07em; font-size:0.78rem; color:var(--muted); margin:28px 0 12px; }
+  h4.h4:first-of-type{ margin-top:0; }
+  .prose{ font-size:0.96rem; max-width:66ch; }
+  .prose + .prose{ margin-top:10px; }
+
+  ul.impl{ margin:0; padding:0; list-style:none; max-width:70ch; }
+  ul.impl li{ position:relative; padding:7px 0 7px 22px; font-size:0.94rem; border-bottom:1px solid var(--hair); }
+  ul.impl li:last-child{ border-bottom:none; }
+  ul.impl li::before{ content:"—"; position:absolute; left:0; color:var(--yellow-tint); -webkit-text-stroke:1px var(--ink); font-weight:700; }
+  ul.impl li b{ color:var(--ink); }
+  ul.impl li code{ font-size:0.86em; background:var(--paper); border:1px solid var(--hair); padding:1px 5px; }
+
+  .new{ background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:14px 18px; margin:14px 0; font-size:0.9rem; }
+  .new .lbl{ font-family:var(--font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--blue); }
+
+  .qlist{ margin:8px 0 4px; }
+  .qrow{ display:grid; grid-template-columns:30px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid var(--hair); font-size:0.92rem; align-items:start; }
+  .qrow:last-child{ border-bottom:none; }
+  .qrow .qtext{ color:var(--ink); padding-top:1px; }
+  .qrow a.qjump{ color:var(--ink); text-decoration:none; border-bottom:1.5px dashed var(--muted); font-weight:600; }
+  .qrow a.qjump:hover{ color:var(--blue); border-bottom-color:var(--blue); }
+  .qrow .qwhy{ display:block; color:var(--muted); font-size:0.84rem; margin-top:5px; line-height:1.55; }
+  .qrow .qwhy b{ color:var(--ink); font-weight:600; }
+
+  .capgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0 22px; text-align:center; }
+  .capgrid div{ border:2px solid var(--line); background:var(--paper); padding:12px 6px; }
+  .capgrid .num{ font-family:var(--font-display); font-size:1.5rem; }
+  .capgrid .lbl{ font-family:var(--font-mono); font-size:0.66rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); margin-top:4px; }
+  @media (max-width:600px){ .capgrid{ grid-template-columns:repeat(2,1fr);} }
+
+  .crosslinks{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:16px; }
+  .crosslinks a{ display:block; text-decoration:none; border:2px solid var(--line); background:var(--paper); padding:16px 18px; transition:transform .1s ease-out, box-shadow .1s ease-out; }
+  .crosslinks a:hover{ transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--ink); }
+  .crosslinks .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+  .crosslinks h3{ font-size:0.96rem; margin-top:5px; }
+
+  footer{ max-width:1080px; margin:40px auto 0; padding:36px 20px 60px; font-size:0.8rem; color:var(--muted); border-top:1px solid var(--hair); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+</style>
+
+<div id="app" data-lang="zh">
+
+<nav class="topbar">
+  <span class="brand">P36 COVERAGE</span>
+  <a data-page="home" href="index.html"><span class="en">Docs home</span><span class="zh">文档首页</span></a>
+  <a data-page="foundations" href="https://claude.ai/code/artifact/795c53d8-ff1d-45b4-8a28-0faf1ecfb09d"><span class="en">Methods ↗</span><span class="zh">方法论 ↗</span></a>
+  <a data-page="guidebook" href="https://claude.ai/code/artifact/680782eb-2079-4dc1-94e6-7efac2bfa886"><span class="en">Guidebook ↗</span><span class="zh">Guidebook ↗</span></a>
+  <a data-page="live" href="https://data-platform.azurewebsites.net"><span class="en">Live Platform ↗</span><span class="zh">在线平台 ↗</span></a>
+  <span class="cur"><span class="en">Coverage Manual</span><span class="zh">覆盖手册</span></span>
+  <button class="langbtn" id="langToggle" type="button">EN</button>
+</nav>
+
+<header class="masthead">
+  <div class="eyebrow">
+    <span class="en">COMP3888_W11_02_P36 · supplementary manual · platform functionality & sub-question coverage · updated 2026-09-06</span>
+    <span class="zh">COMP3888_W11_02_P36 · 补充方法手册 · 平台功能实现与分问题覆盖 · 2026-09-06更新</span>
+  </div>
+  <h1><span class="en">Coverage Manual</span><span class="zh">覆盖手册</span></h1>
+  <p class="dek">
+    <span class="en">The Methods Reference explains the statistics — <i>why</i> a chart or a
+    threshold was chosen, in general. This is the companion piece, taken two levels further:
+    for each of the six analysis pages, exactly what is built, exactly which brief
+    sub-question each part answers, and — new in this revision — a short line under
+    <i>every single sub-question</i> naming the exact table and column(s) involved and the
+    precise comparison performed on them (not just why that chart type was chosen), so the
+    answer can be checked against the actual data, not just the visual. Click any
+    sub-question below to jump straight to it on the live platform.</span>
+    <span class="zh">Methods Reference 讲的是统计学原理——为什么选这种图、这种阈值，是一般性的说明。
+    这份是它的姊妹篇，而且这次又往前走了两步：针对6个分析页面中的每一个，说清楚平台上到底做了
+    什么、每一部分具体回答了任务书里的哪一个子问题——本次修订新增的是，<i>每一条子问题</i>下面都
+    补了一行，点名具体是哪张表格、哪一列（或哪几列），以及在它们之上做了什么精确的对比运算
+    （不只是"为什么选这种图"），这样答案是可以对照实际数据核实的，不只是看个图形印象。点击下面
+    任意一条子问题，可以直接跳转到在线平台上对应的位置。</span>
+  </p>
+
+  <div class="legend">
+    <span class="lgitem"><span class="chip done">✓</span><span class="en">answered directly, on this page</span><span class="zh">本页直接回答</span></span>
+    <span class="lgitem"><span class="chip partial">~</span><span class="en">answered, aggregate / qualitative only</span><span class="zh">已回答，但只是聚合或定性层面</span></span>
+    <span class="lgitem"><span class="chip elsewhere">→</span><span class="en">answered on a different page</span><span class="zh">在其它页面回答</span></span>
+    <span class="lgitem"><span class="chip open">?</span><span class="en">not yet built anywhere in the platform</span><span class="zh">平台目前尚未实现</span></span>
+  </div>
+  <p class="prose" style="margin-top:14px;">
+    <span class="en">This legend is not decorative — it's the same four states the live
+    platform itself shows, at the top of every analysis page, as a "Sub-questions this
+    page answers" panel, which is itself now clickable: each question links straight to
+    its chart, on the same page for a same-page answer, across pages for an "answered
+    elsewhere" one. This document is that panel's content, written out in full with the
+    reasoning behind every status and every chart choice.</span>
+    <span class="zh">这套图例不是装饰——它跟平台每个分析页面顶部实际显示的"本页回答的子问题"面板，
+    用的是同一套四种状态，而且那个面板现在本身也是可以点击跳转的：本页能回答的问题直接跳到本页对应
+    图表，"在其它页面回答"的问题跳到对应的另一个页面。这份文档就是把那个面板的内容完整写出来，
+    并且给每一个判定、每一次图表选择都补上背后的理由。</span>
+  </p>
+
+  <div class="allclear">
+    <span class="big">58 / 58</span>
+    <span>
+      <span class="en"><b>Zero sub-questions remain marked "open"</b> across all six pages,
+      verified by a programmatic sweep of every <code>theme.question_panel()</code> call in
+      <code>app/pages/</code>. The two that closed most recently — Item 17's "increase
+      collaboration with high-performing institutions" and "shift publications toward
+      strong-opportunity journals" — turned out to be answerable once the <code>Institutions</code>
+      and <code>Scopus Source title</code> columns were looked at properly, not genuinely
+      missing data as first assessed.</span>
+      <span class="zh"><b>全部6个页面里没有任何一条子问题还标着"尚未实现"</b>——这是对
+      <code>app/pages/</code> 里每一处 <code>theme.question_panel()</code> 调用做程序化扫描后
+      确认的。最近才补上的两条——第17项的"增加与高绩效机构的合作"和"将部分发表转向有潜力的
+      期刊"——实际上是可以回答的，只是之前没有认真看 <code>Institutions</code> 和
+      <code>Scopus Source title</code> 这两列，并不是真的缺数据。</span>
+    </span>
+  </div>
+</header>
+
+<main>
+
+<div class="item">
+  <div class="item-head"><span class="n">03</span><h2><span class="en">Journal Tier & Q1 Analysis</span><span class="zh">期刊等级与Q1分析</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/2_Journal_Tier.py</code> — what share of output sits in
+    Q1 journals, and how does that vary.</span>
+    <span class="zh"><code>app/pages/2_Journal_Tier.py</code> —— 多少产出落在Q1期刊里，
+    这个比例又是怎么变化的。</span>
+  </p>
+
+  <h4 class="h4"><span class="en">What's on the page</span><span class="zh">页面上有什么</span></h4>
+  <ul class="impl">
+    <li><span class="en">Q1 share by university (bar) and by year (line), <code>MAIN_YEAR_RANGE</code>-scoped.</span><span class="zh">按大学（柱状图）和按年份（折线图，限定在 <code>MAIN_YEAR_RANGE</code> 内）的Q1份额。</span></li>
+    <li><span class="en">Citation performance across all four CiteScore quartiles (Q1–Q4) — mean FWCI, highly-cited share, uncited share, side by side.</span><span class="zh">CiteScore四个分位（Q1–Q4）的引用表现对比——平均FWCI、高被引占比、零引用占比并排展示。</span></li>
+    <li><span class="en">Q1-minus-non-Q1 FWCI gap, computed separately per field — is the advantage the same everywhere, or concentrated?</span><span class="zh">按学科分别计算的Q1减非Q1的FWCI差距——这个优势是到处都一样，还是集中在少数学科？</span></li>
+    <li><span class="en">Over/under-performing journals within their own tier — per-source mean FWCI vs. its quartile average, floor-filtered by publication count, top/bottom 12 in two tabs.</span><span class="zh">在自己所在档位内跑赢/跑输的期刊——按来源的平均FWCI对比该分位的均值，
+    按发文量设下限过滤，前12/后12分两个标签页展示。</span></li>
+    <li><span class="en">CiteScore percentile histogram (the right-skew that first confirmed the percentile direction), and a live CiteScore-vs-SJR Q1 agreement check.</span><span class="zh">CiteScore百分位直方图（最初正是这个右偏形态确认了百分位的方向），以及一个实时算出的
+    CiteScore口径与SJR口径Q1吻合率检验。</span></li>
+  </ul>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-quartile"><span class="en">Do Q1 publications receive more citations than Q2, Q3 or Q4?</span><span class="zh">Q1期刊的论文引用是否比Q2、Q3、Q4更高？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>quartile_df</code> table behind <code>get_impact_by_citescore_quartile()</code> — 4 rows (Q1/Q2/Q3/Q4, from <code>citescore_quartile()</code> bucketing the <code>CiteScore percentile</code> column) × the <code>mean_fwci</code> column, one bar per row. The binary Q1 flag used elsewhere on this page collapses Q2/Q3/Q4 into one "not Q1" bucket — this chart re-breaks the same CiteScore-percentile column into all four tiers, putting all four bars on one axis (position/length, the most accurately-judged channel) so the comparison the question actually asks for is direct, not inferred from a two-category flag.</span><span class="zh"><b>用的数据：</b><code>get_impact_by_citescore_quartile()</code> 生成的
+      <code>quartile_df</code> 表格——4行（Q1/Q2/Q3/Q4，由 <code>citescore_quartile()</code>
+      把<code>CiteScore percentile</code>列分桶得到），对比<code>mean_fwci</code>这一列，
+      一行一根柱子。这一页其它地方用的二元Q1标记会把Q2/Q3/Q4全部合并成"非Q1"一个桶——这张图把同一个
+      CiteScore百分位列重新拆成完整的四档，四根柱子放在同一根轴上（位置/长度是人眼最容易准确
+      判断的视觉通道），这样问题要的对比就是直接看出来的，不用从一个二分类标记里去推断。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-quartile"><span class="en">How large is the citation difference between journal tiers?</span><span class="zh">各档位之间的引用差距有多大？</span></a>
+      <span class="qwhy"><span class="en">Same <code>quartile_df</code> table, read as a magnitude rather than a ranking: <code>mean_fwci</code> at row Q1 minus <code>mean_fwci</code> at row Q4 is the actual gap size — the text underneath states it as a number (<code>mean_fwci</code>, <code>top_decile_share</code>, and <code>uncited_share</code> all falling monotonically Q1→Q4) rather than leaving "large" for the reader to eyeball off the chart alone.</span><span class="zh">同一张<code>quartile_df</code>表格，但读的是差距大小而不是排名：Q1行的<code>mean_fwci</code>
+      减去Q4行的<code>mean_fwci</code>就是实际差距，下方文字直接给出具体数字
+      （<code>mean_fwci</code>、<code>top_decile_share</code>、<code>uncited_share</code>三列
+      都在Q1→Q4之间单调下降），而不是把"有多大"这个问题留给读者自己在图上目测。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-q1-share"><span class="en">Which faculties/fields have the highest success rates in Q1 publishing?</span><span class="zh">哪些院系/学科的Q1成功率最高？</span></a>
+      <span class="qwhy"><span class="en">This is a field-level ranking question, not a tier-level one — it belongs to the Field Analysis page's <code>field_summary</code> table's <code>q1_share</code> column (also charted as its own bar), sorted by exactly this number, rather than being duplicated here.</span><span class="zh">这是一个学科层面的排名问题，不是档位层面的——它属于Field Analysis页面
+      <code>field_summary</code> 表格的<code>q1_share</code>列（也单独画了一张条形图），
+      按这个数字排序，所以没有在这里重复。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-consistency"><span class="en">Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?</span><span class="zh">Q1的优势在各学科之间是否一致，还是集中在少数学科？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the table from <code>q1_advantage_by_field()</code> — one row per field, a <code>gap</code> column defined as that field's Q1-publication <code>mean_fwci</code> minus its non-Q1 <code>mean_fwci</code>, computed separately per field rather than once on the pooled dataset — which is what actually tests "consistent" rather than assuming it: a single pooled gap can't distinguish one field driving the whole effect from every field sharing it equally, but a bar per field can and does (every row's <code>gap</code> is positive here, though the size varies several-fold).</span><span class="zh"><b>用的数据：</b><code>q1_advantage_by_field()</code> 输出的表格——每个学科一行，
+      <code>gap</code> 列 = 该学科Q1论文的<code>mean_fwci</code>减去非Q1论文的<code>mean_fwci</code>，
+      在每个学科内部分别计算——而不是只在合并数据上算一次——这才是真正
+      检验"一致"这件事，而不是想当然地假设它成立：一个合并算出来的差距分不清是某一个学科
+      在拉动整体效应，还是所有学科都均匀共享这个效应，但按学科分开的柱状图能分清（这里每一行的
+      <code>gap</code>都是正的，只是大小相差好几倍）。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-quartile"><span class="en">Compare highly-cited (top-decile) publication rates across quartiles.</span><span class="zh">对比各分位的高被引论文占比。</span></a>
+      <span class="qwhy"><span class="en">The same <code>quartile_df</code> table's <code>top_decile_share</code> column, plotted as the "Highly cited" bars sharing the same four-tier x-axis as the <code>mean_fwci</code> bars above them — a direct visual comparison, tier by tier.</span><span class="zh">同一张<code>quartile_df</code>表格的<code>top_decile_share</code>列，画成"高被引"
+      柱子，跟上面<code>mean_fwci</code>柱状图共用同一个四档x轴——按档位逐一直接比较。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-quartile"><span class="en">Compare uncited-publication rates across quartiles.</span><span class="zh">对比各分位的零引用论文占比。</span></a>
+      <span class="qwhy"><span class="en">Same table's <code>uncited_share</code> column, the mirror-image "Uncited" bars in the same paired chart — deliberately placed next to, not instead of, the highly-cited bars, since a tier can look strong on one measure and weak on the other.</span><span class="zh">同一张表格的<code>uncited_share</code>列，是配对图里镜像的"零引用"柱子——特意放在
+      "高被引"柱子旁边而不是取代它，因为一个档位可能在其中一项指标上表现好、另一项却不好。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-quartile"><span class="en">Does publishing in Q1 increase the probability of becoming highly cited?</span><span class="zh">发表在Q1是否会提高成为高被引论文的概率？</span></a>
+      <span class="qwhy"><span class="en">Answered by the shape of the same <code>quartile_df</code> table across all three of its columns (<code>mean_fwci</code>, <code>top_decile_share</code>, <code>uncited_share</code>), not a single Q1-vs-rest step: all three fall monotonically Q1→Q2→Q3→Q4, which is what rules out "Q1 is a cliff-edge, Q2/Q3/Q4 are all the same" and supports "yes, and it's a gradient that keeps going."</span><span class="zh">靠的是同一张<code>quartile_df</code>表格三列（<code>mean_fwci</code>、
+      <code>top_decile_share</code>、<code>uncited_share</code>）的整体形状，而不是一次Q1对其它的
+      简单对比：三列在全部四档之间都是Q1→Q2→Q3→Q4单调下降，这正好排除了"Q1是断崖式的，
+      Q2/Q3/Q4其实都差不多"这种可能，支持"是的，而且这是一条持续延伸的梯度"这个结论。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-q1-share"><span class="en">Which fields have the highest / improving / declining Q1 share?</span><span class="zh">哪些学科的Q1份额最高/上升最快/下降最快？</span></a>
+      <span class="qwhy"><span class="en">Field Analysis page's <code>field_summary.q1_share</code> column for the "highest" half, and its separate <code>growth_df.growth</code> column (<code>field_growth()</code>'s <code>period_growth</code> per field) for the "improving/declining" half — again a field-level ranking, not something this tier-focused page computes.</span><span class="zh">Field Analysis页面<code>field_summary</code>表格的<code>q1_share</code>列对应
+      "最高"这一半，独立的<code>growth_df</code>表格的<code>growth</code>列（<code>field_growth()</code>
+      按学科算的<code>period_growth</code>）对应"上升/下降最快"这一半——同样是
+      学科层面的排名，不是这个聚焦档位的页面该算的东西。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-overperform"><span class="en">Are there journals/publications within a tier that receive more citations than expected for that tier?</span><span class="zh">同一档位内是否存在引用表现超出预期的期刊/论文？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>sources</code> table from <code>get_overperforming_sources()</code> — one row per (quartile, Scopus source title) pair, with <code>publications</code>, <code>mean_fwci</code>, and a <code>gap</code> column = that source's own <code>mean_fwci</code> minus its own quartile's <code>mean_fwci</code>, restricted to sources with at least <code>OVERPERFORMING_SOURCE_MIN_PUBLICATIONS</code> (10) publications in that quartile. This is the one sub-question a tier-average chart structurally cannot answer — "expected for that tier" is itself a per-source, not per-tier, computation — and the floor stops one highly-cited paper from manufacturing the appearance of an outlier.</span><span class="zh"><b>用的数据：</b><code>get_overperforming_sources()</code> 输出的<code>sources</code>
+      表格——每一行是一个(分位, Scopus期刊来源)组合，带<code>publications</code>、
+      <code>mean_fwci</code>两列，外加一个<code>gap</code>列 = 该来源自己的<code>mean_fwci</code>
+      减去它自己所在分位的<code>mean_fwci</code>，并限定该来源在该分位内至少有
+      <code>OVERPERFORMING_SOURCE_MIN_PUBLICATIONS</code>（10）篇发文量。这是一个按档位平均的
+      图表在结构上根本回答不了的问题——"超出该档位预期"本身就是一个按来源、而不是按档位算的
+      量——发文量下限则避免一篇高被引论文就把一个来源伪装成"表现突出"。</span></span>
+    </span></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="n">06</span><h2><span class="en">Research Field / Faculty Analysis</span><span class="zh">研究学科/院系分析</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/3_Field_Analysis.py</code> — which fields are strongest,
+    improving, or under-performing.</span>
+    <span class="zh"><code>app/pages/3_Field_Analysis.py</code> —— 哪些学科最强、在进步、或表现不足。</span>
+  </p>
+
+  <div class="new">
+    <span class="lbl"><span class="en">Closed since 2026-09-04</span><span class="zh">2026-09-04之后补上的</span></span>
+    <span class="en">"Are particular publication strategies more successful in some fields than
+    others?" was previously left unanswered — "strategy" has no client-confirmed
+    definition. It's now answered via the closest concrete, computable stand-in this
+    dataset supports (collaboration approach: domestic/single-institution vs.
+    domestic/multi-institution vs. international), crossed with field.</span>
+    <span class="zh">"某些发表策略是否在特定学科更有效？"之前一直没有回答——"策略"这个词客户
+    没有给出确定的定义。现在用这个数据集能支持的、最接近的一个可计算的替代变量来回答
+    （合作方式：国内单机构 / 国内多机构 / 国际合作），并按学科交叉分析。</span>
+  </div>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-summary"><span class="en">Which fields produce the highest publication volume?</span><span class="zh">哪些学科的发文量最高？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>field_summary</code> table from <code>field_summary()</code> — one row per field, columns <code>publications</code>, <code>mean_fwci</code>, <code>q1_share</code>, <code>top_decile_share</code>, <code>uncited_share</code>. It's sortable on its <code>publications</code> column directly — no separate chart needed when a ranked table already answers "which is highest" precisely, to the exact count.</span><span class="zh"><b>用的数据：</b><code>field_summary()</code> 生成的<code>field_summary</code>
+      表格——每个学科一行，列有<code>publications</code>、<code>mean_fwci</code>、
+      <code>q1_share</code>、<code>top_decile_share</code>、<code>uncited_share</code>。
+      可以直接按 <code>publications</code> 列排序——当一张可排序的表格已经能
+      精确到具体数字地回答"哪个最高"时，不需要另外画一张图。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-summary"><span class="en">Which fields achieve the strongest impact?</span><span class="zh">哪些学科的影响力最强？</span></a>
+      <span class="qwhy"><span class="en">Same <code>field_summary</code> table, <code>mean_fwci</code> column — kept in one table with <code>publications</code> and <code>q1_share</code> deliberately, so a reader can immediately see whether a field's strength is broad (high on all three columns) or narrow (high on one, unremarkable on the others).</span><span class="zh">同一张<code>field_summary</code>表的 <code>mean_fwci</code> 列——特意跟
+      <code>publications</code>、<code>q1_share</code>放在同一张表里，
+      这样读者能立刻看出一个学科的优势是全面的（三列都高）还是单一的（只有一列高）。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-summary"><span class="en">Which fields have the highest Q1 publication share?</span><span class="zh">哪些学科的Q1发表份额最高？</span></a>
+      <span class="qwhy"><span class="en">Third sortable column (<code>q1_share</code>) of the same <code>field_summary</code> table — also broken out as its own dedicated bar chart (the <code>q1_field_df</code> table, same column, sorted) further down the page for anyone who wants the ranking without the rest of the table.</span><span class="zh">同一张<code>field_summary</code>表的第三个可排序列（<code>q1_share</code>）——
+      页面下方还专门做了一张独立的条形图（<code>q1_field_df</code>表格，同一列，已排序），
+      方便只想看这一项排名、不想看整张表的人。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-quadrant"><span class="en">Which fields have high volume but relatively low citation impact?</span><span class="zh">哪些学科发文量高但影响力偏低？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>quadrant</code> table from <code>volume_vs_impact_quadrant(field_summary)</code> — the same <code>field_summary</code> table's <code>publications</code> (x) plotted against <code>mean_fwci</code> (y), each field classified into one of 4 bands by whether it's above/below the <i>median</i> of each column across all fields. This combination — and its mirror image below — reads off as a labelled quadrant, rather than requiring the reader to sort two separate columns and cross-reference them by hand.</span><span class="zh"><b>用的数据：</b><code>volume_vs_impact_quadrant(field_summary)</code> 生成的
+      <code>quadrant</code>表格——还是<code>field_summary</code>表的<code>publications</code>列
+      （x轴）对<code>mean_fwci</code>列（y轴），按每一列在全部学科里的<i>中位数</i>以上/以下，
+      把每个学科分进4个象限之一。这种组合——以及下面它的镜像组合——直接对应到一个有标签的象限，
+      不用读者自己排序两列数字再手动交叉核对。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-quadrant"><span class="en">Which fields have relatively low volume but very strong citation impact?</span><span class="zh">哪些学科发文量低但影响力很强？</span></a>
+      <span class="qwhy"><span class="en">Same <code>quadrant</code> table, the opposite corner — points where <code>publications</code> is below-median and <code>mean_fwci</code> is above-median get the "low volume, high impact" label directly from <code>volume_vs_impact_quadrant()</code>, visible in that region rather than needing to be inferred.</span><span class="zh">同一张<code>quadrant</code>表格，对角的那个象限——<code>publications</code>低于
+      中位数、<code>mean_fwci</code>高于中位数的点，会被<code>volume_vs_impact_quadrant()</code>
+      直接标成"低产出量、高影响力"，落在这个区域里的点直接就是答案，不需要再推断。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-growth"><span class="en">Which areas are improving most rapidly, and which are declining?</span><span class="zh">哪些领域进步最快，哪些在退步？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>growth_df</code> table from <code>field_growth()</code> — one row per field, a <code>growth</code> column (<code>period_growth</code>: last-year count minus first-year count, over first-year count, within <code>MAIN_YEAR_RANGE</code>), sorted descending for the bar, plus explicit "most improved" / "most declined" text call-outs computed live off the same column — the sentence form exists specifically so the answer doesn't require reading bar heights off a chart with 10+ fields.</span><span class="zh"><b>用的数据：</b><code>field_growth()</code> 生成的<code>growth_df</code>表格——
+      每个学科一行，<code>growth</code>列（<code>period_growth</code>：<code>MAIN_YEAR_RANGE</code>
+      范围内，末年发文量减首年发文量、再除以首年发文量），降序排列画柱状图，加上根据同一列
+      实时算出的"进步最快"/"退步最快"文字总结——特意做成一句话的形式，这样答案就不用从一张有
+      10多个学科的图上去读柱子高度。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-summary"><span class="en">Which fields produce the highest proportion of overperforming (top-decile) publications?</span><span class="zh">哪些学科的高被引（前10%）论文占比最高？</span></a>
+      <span class="qwhy"><span class="en">The <code>field_summary</code> table's <code>top_decile_share</code> column — a rate, deliberately kept distinct from the next question's count, since a small field can have a high rate on very few papers.</span><span class="zh"><code>field_summary</code>表的 <code>top_decile_share</code> 列——这是一个比例，
+      特意跟下一个问题的"数量"区分开，因为一个小学科可能只凭很少几篇论文就拿到很高的比例。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-highly-cited"><span class="en">Which fields produce the largest number of highly cited publications?</span><span class="zh">哪些学科的高被引论文绝对数量最多？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>highly_cited_df</code> table — <code>field_summary</code> with an added <code>highly_cited_count</code> column computed as <code>publications × top_decile_share</code>, rounded. <code>top_decile_share</code> alone is a rate; multiplying it back out by each field's publication count gives an actual number, specifically so a small field's high rate isn't mistaken for a large field's large count of highly-cited papers — the two questions can and do have different answers.</span><span class="zh"><b>用的数据：</b><code>highly_cited_df</code>表格——在<code>field_summary</code>基础上
+      加了一列<code>highly_cited_count</code>，算法是<code>publications × top_decile_share</code>
+      再四舍五入。<code>top_decile_share</code>本身是个比例；这张图把它乘回各学科的发文量，
+      算出实际的数字，就是为了避免把"小学科的高比例"误当成"大学科的高被引论文绝对数量多"——
+      这两个问题的答案确实可能不一样。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-quadrant"><span class="en">Which fields appear to represent existing strengths, and where is the greatest potential for improvement?</span><span class="zh">哪些学科代表现有优势，哪些最有提升潜力？</span></a>
+      <span class="qwhy"><span class="en">"Strengths / potential" links to the same <code>quadrant</code> table — its four quadrant labels are the closest single-table answer (high-<code>publications</code>/high-<code>mean_fwci</code> reads as an existing strength, low-<code>publications</code>/high-<code>mean_fwci</code> as potential upside) — but the full answer is a synthesis with the <code>field_summary.q1_share</code> and <code>growth_df.growth</code> columns too, not that table alone.</span><span class="zh">"优势/潜力"链接到同一张<code>quadrant</code>表格——它的四个象限标签是最接近一个
+      现成答案的单张表（高<code>publications</code>+高<code>mean_fwci</code>读作现有优势，
+      低<code>publications</code>+高<code>mean_fwci</code>读作潜力）——但完整的答案是
+      结合<code>field_summary</code>的<code>q1_share</code>列和<code>growth_df</code>的
+      <code>growth</code>列一起做的综合判断，不是单靠那一张表就够。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-approach"><span class="en">Are particular publication strategies more successful in some fields than others?</span><span class="zh">某些发表策略是否在特定学科更有效？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>approach_df</code> table from <code>collaboration_approach_by_field()</code> — field × <code>collaboration_approach</code> (International / Domestic multi-institution / Domestic single-institution, from <code>add_collaboration_approach()</code>'s <code>is_international</code> and <code>is_multi_institution</code> flags) as the two grouping columns, with <code>publications</code> and <code>mean_fwci</code> per combination. "Publication strategy" has no client-confirmed definition, so this uses the closest concrete stand-in the dataset supports, with the per-field international-advantage margin (<code>intl_gap</code>, a pivoted difference of <code>mean_fwci</code> columns) computed and stated explicitly underneath so "more successful in some fields than others" has an actual number, not just a chart to eyeball.</span><span class="zh"><b>用的数据：</b><code>collaboration_approach_by_field()</code> 生成的
+      <code>approach_df</code>表格——学科×<code>collaboration_approach</code>（国际合作/国内
+      多机构/国内单机构，来自<code>add_collaboration_approach()</code>基于
+      <code>is_international</code>和<code>is_multi_institution</code>两个标记算出的分类）
+      两个分组维度，每种组合一行<code>publications</code>和<code>mean_fwci</code>。"发表策略"
+      客户没有给出确定的定义，所以用这个数据集能支持的最接近的一个具体替代变量，图表下方还
+      明确算出了每个学科的国际合作优势幅度（<code>intl_gap</code>，把<code>mean_fwci</code>列
+      透视后相减得到），这样"在某些学科更有效"这句话就有一个具体数字支撑，不只是让读者自己
+      看图估计。</span></span>
+    </span></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="n">09</span><h2><span class="en">International Collaboration Analysis</span><span class="zh">国际合作分析</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/4_International_Collaboration.py</code> — are internationally
+    co-authored papers cited more frequently.</span>
+    <span class="zh"><code>app/pages/4_International_Collaboration.py</code> —— 国际合著的论文是否被引用得更多。</span>
+  </p>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-status"><span class="en">Do internationally collaborative publications receive higher citation impact?</span><span class="zh">国际合作的论文是否有更高的引用影响力？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>status</code> table from <code>impact_by_collaboration_status()</code> — two rows (International/Domestic, split on <code>is_international</code>), columns <code>publications</code>, <code>mean_fwci</code>, <code>q1_share</code>, <code>top_decile_share</code>, <code>uncited_share</code>. The bar compares the two rows' <code>mean_fwci</code> directly on one axis — and is paired with a box plot of the row-level <code>Field-Weighted Citation Impact</code> column immediately below it specifically because a bar of means alone would overstate how separated the two groups actually are; FWCI is heavy-tailed and the distributions overlap substantially.</span><span class="zh"><b>用的数据：</b><code>impact_by_collaboration_status()</code> 生成的
+      <code>status</code>表格——两行（国际合作/国内，按<code>is_international</code>拆分），
+      列有<code>publications</code>、<code>mean_fwci</code>、<code>q1_share</code>、
+      <code>top_decile_share</code>、<code>uncited_share</code>。柱状图在同一根轴上直接对比
+      两行的<code>mean_fwci</code>——下面紧接着配了一张用行级<code>Field-Weighted Citation
+      Impact</code>列画的箱线图，就是因为单看均值柱状图会夸大两组实际分离的程度；FWCI是重尾
+      分布，两组的分布其实有相当大的重叠。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-gap"><span class="en">Does the relationship remain after considering research field?</span><span class="zh">考虑学科因素之后，这个关系是否依然成立？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the table from <code>impact_gap_by_field()</code> — a pivot of the exploded dataset by field × <code>is_international</code> on <code>Field-Weighted Citation Impact</code> (mean), with a <code>gap</code> column = the True column minus the False column, one row per field. Computing it separately within each field, rather than once on the pooled dataset, is what actually checks the finding survives stratification (a Simpson's-paradox check) instead of just assuming the aggregate gap generalises.</span><span class="zh"><b>用的数据：</b><code>impact_gap_by_field()</code> 输出的表格——把展开后的数据集
+      按学科×<code>is_international</code>两个维度透视，对<code>Field-Weighted Citation
+      Impact</code>取均值，再加一列<code>gap</code> = True那一列减False那一列，每个学科一行。
+      在每个学科内部单独计算，而不是只在合并数据上算一次——这才是真正检验这个结论在分层之后
+      是否依然成立（Simpson悖论检验），而不是想当然地认为整体差距在每个学科都适用。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-gap"><span class="en">Does the relationship remain after considering publication year?</span><span class="zh">考虑发表年份之后，这个关系是否依然成立？</span></a>
+      <span class="qwhy"><span class="en">Same logic applied on the year axis instead of field: the table from <code>impact_gap_by_year()</code> — year × <code>is_international</code> pivot of <code>Field-Weighted Citation Impact</code>, same <code>gap</code> = True minus False definition, one row per year — with the trailing <code>CITATION_WINDOW_TRAILING_YEARS_EXCLUDED</code> years excluded by default so a real trend isn't confused with the citation-window artefact that mechanically shrinks recent years' FWCI.</span><span class="zh">同样的逻辑用在年份这个轴上：<code>impact_gap_by_year()</code> 输出的表格——
+      按年份×<code>is_international</code>透视<code>Field-Weighted Citation Impact</code>，
+      同样的<code>gap</code> = True减False定义，每年一行——默认排除末尾
+      <code>CITATION_WINDOW_TRAILING_YEARS_EXCLUDED</code>年（引用窗口不足的年份），避免把
+      这种机制性造成的近几年FWCI偏低，误认成一个真实的趋势变化。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-status"><span class="en">Are internationally collaborative papers more likely to publish in Q1 journals?</span><span class="zh">国际合作论文是否更可能发在Q1期刊？</span></a>
+      <span class="qwhy"><span class="en">One column (<code>q1_share</code>) of the same <code>status</code> table used for the citation-impact question above — kept as one table rather than three separate charts so all of Q1/highly-cited/uncited can be compared for both groups at a glance.</span><span class="zh">跟上面引用影响力问题共用同一张<code>status</code>表格里的一列
+      （<code>q1_share</code>）——特意做成一张表而不是三张独立的图，这样Q1/高被引/零引用
+      三项指标在两组之间的对比可以一眼看全。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-status"><span class="en">Are they more likely to become highly cited?</span><span class="zh">是否更可能成为高被引论文？</span></a>
+      <span class="qwhy"><span class="en">Second column (<code>top_decile_share</code>) of the same <code>status</code> table.</span><span class="zh">同一张<code>status</code>表的第二列（<code>top_decile_share</code>）。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-status"><span class="en">Are they less likely to remain uncited?</span><span class="zh">是否更不容易成为零引用论文？</span></a>
+      <span class="qwhy"><span class="en">Third column (<code>uncited_share</code>) of the same <code>status</code> table — completing all three outcome measures from one comparison, not three.</span><span class="zh">同一张<code>status</code>表的第三列（<code>uncited_share</code>）——三项结果指标
+      来自同一次对比，不是三次独立的分析。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-gap"><span class="en">Does the impact of international collaboration vary across disciplines?</span><span class="zh">国际合作的影响力效应是否因学科而异？</span></a>
+      <span class="qwhy"><span class="en">The same <code>impact_gap_by_field()</code> table's <code>gap</code> column, bar-charted, <i>is</i> the per-field breakdown — visible variation in bar height across fields (range +0.52 to +0.90) is the direct answer, not something inferred from a single pooled number.</span><span class="zh">同一张<code>impact_gap_by_field()</code>表格的<code>gap</code>列画成柱状图，
+      本身就是按学科拆分的结果——柱子高度在各学科之间的明显差异（区间+0.52到+0.90）
+      就是直接答案，不需要从一个合并数字里推断。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-breadth"><span class="en">Are some forms of international collaboration more beneficial than others?</span><span class="zh">某些形式的国际合作是否比其它形式更有益？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>breadth_df</code> table from <code>impact_by_collaboration_breadth()</code> — <code>Number of Countries/Regions</code> binned via <code>COLLABORATION_BREADTH_BINS</code> into 1/2/3/4+ categories, columns <code>mean_fwci</code> and <code>q1_share</code> per bin. A binary international flag can only ever say "collaborated or not" — this table bins on the actual distinct co-author country count, turning "some forms" into an ordered, inspectable gradient instead of a single yes/no comparison.</span><span class="zh"><b>用的数据：</b><code>impact_by_collaboration_breadth()</code> 生成的
+      <code>breadth_df</code>表格——<code>Number of Countries/Regions</code>列按
+      <code>COLLABORATION_BREADTH_BINS</code>分箱成1/2/3/4+四档，每档一行
+      <code>mean_fwci</code>和<code>q1_share</code>两列。一个二元的国际合作标记只能回答
+      "有没有合作"——这张表按实际的合著国家数量分箱，把"某些形式"变成一个有序的、可以直接
+      检视的梯度，而不是一次单一的是非对比。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-trend"><span class="en">Has Sydney's international collaboration rate increased or declined over time?</span><span class="zh">悉尼的国际合作率随时间是上升还是下降？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>trend</code> series from <code>collaboration_rate_trend(load_raw(), university)</code> — year → <code>is_international</code>-share, one point per year, on Sydney's raw (not deduplicated) publications. A literal year-by-year time series of Sydney's own collaboration share — a line chart because year is a genuinely ordered axis, which is exactly what "over time" asks for.</span><span class="zh"><b>用的数据：</b><code>collaboration_rate_trend(load_raw(), university)</code>
+      算出的<code>trend</code>序列——年份 → <code>is_international</code>比例，一年一个点，
+      用的是悉尼未去重的原始数据。这是悉尼自己合作率的逐年时间序列——用折线图是因为年份是
+      一个真正有序的轴，这正是"随时间变化"这个问题需要的图表类型。</span></span>
+    </span></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="n">14</span><h2><span class="en">Integrated Research Impact Driver Analysis</span><span class="zh">综合研究影响力驱动因素分析</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/5_Impact_Drivers.py</code> — holding the other factors
+    constant, which drivers actually associate with impact.</span>
+    <span class="zh"><code>app/pages/5_Impact_Drivers.py</code> —— 在控制其它因素不变的情况下，
+    到底哪些因素真正跟影响力相关。</span>
+  </p>
+
+  <div class="new">
+    <span class="lbl"><span class="en">Closed since 2026-09-04</span><span class="zh">2026-09-04之后补上的</span></span>
+    <span class="en">Two sub-questions previously marked open now have dedicated analysis:
+    a second regression with an explicit <code>is_q1 : is_international</code> interaction
+    term, and a descriptive factor-combination cross-tab. A third — "field-specific
+    importance" — is now explicitly routed to the closest thing this platform actually
+    computes, rather than left open.</span>
+    <span class="zh">两个之前标为"尚未实现"的子问题现在有了专门的分析：一个带显式
+    <code>is_q1 : is_international</code> 交互项的第二个回归模型，以及一张描述性的
+    因素组合交叉表。第三个——"某些因素是否只在特定学科重要"——现在明确指向了这个平台
+    实际算出来的最接近的答案，而不是继续留空。</span>
+  </div>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Which factors have the strongest association with citation impact?</span><span class="zh">哪些因素跟引用影响力的关联最强？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>table</code> from <code>driver_summary_table(fit)</code> — one row per predictor (<code>is_international</code>, <code>is_q1</code>, <code>is_open_access</code>, <code>log_authors</code>, <code>log_institutions</code>, year, field fixed effects), columns <code>coefficient</code>, <code>std_err</code>, <code>p_value</code>, <code>ci_low</code>, <code>ci_high</code>. The forest-plot-style chart puts every row's <code>coefficient</code> and its <code>ci_low</code>–<code>ci_high</code> range on one comparable axis, sorted by <code>|coefficient|</code> — "strongest association" is then a direct visual ranking, not something computed separately from the table.</span><span class="zh"><b>用的数据：</b><code>driver_summary_table(fit)</code> 输出的<code>table</code>——
+      每个预测变量一行（<code>is_international</code>、<code>is_q1</code>、
+      <code>is_open_access</code>、<code>log_authors</code>、<code>log_institutions</code>、
+      年份、学科固定效应），列有<code>coefficient</code>、<code>std_err</code>、
+      <code>p_value</code>、<code>ci_low</code>、<code>ci_high</code>。森林图式的图表把每一行的
+      <code>coefficient</code>和它的<code>ci_low</code>–<code>ci_high</code>区间放在同一根
+      可比较的轴上，按<code>|coefficient|</code>排序——"关联最强"直接就是一个可视的排名，
+      不需要在表格之外另外算一次。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Which factors remain important after controlling for other metrics?</span><span class="zh">控制其它变量之后，哪些因素依然重要？</span></a>
+      <span class="qwhy"><span class="en">This is what a coefficient in the same <code>table</code> already means by construction — each one is estimated "holding the other predictors constant," so no separate controlled-vs-uncontrolled comparison chart is needed once the coefficient table is read correctly; its <code>p_value</code> column marks which stay significant.</span><span class="zh">这正是同一张<code>table</code>里的系数在定义上自带的含义——每一个系数本来就是
+      "在其它预测变量不变的情况下"估计出来的，所以只要正确理解这张系数表，就不需要另外画一张
+      "控制前vs控制后"的对比图；它的<code>p_value</code>列标出了哪些依然显著。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Is journal quartile (Q1) still important after accounting for field?</span><span class="zh">考虑学科之后，期刊分位（Q1）是否依然重要？</span></a>
+      <span class="qwhy"><span class="en">The <code>C(field)</code> fixed-effect terms are fit in the same equation as <code>is_q1</code> (see the model formula on the Foundations page), so the <code>is_q1</code> row's <code>coefficient</code> in the same <code>table</code> is already net of each field's own baseline FWCI level — that row is the answer directly, no separate with-field/without-field comparison required.</span><span class="zh"><code>C(field)</code> 固定效应项跟 <code>is_q1</code> 在同一个方程里一起拟合
+      （见Foundations页面的模型公式），所以同一张<code>table</code>里<code>is_q1</code>那一行的
+      <code>coefficient</code>已经扣除了各学科自身的基线FWCI水平——那一行就是直接答案，
+      不需要再做一次有/无学科的对比。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Is international collaboration still important after accounting for journal quality?</span><span class="zh">考虑期刊质量之后，国际合作是否依然重要？</span></a>
+      <span class="qwhy"><span class="en"><code>is_q1</code> and <code>is_international</code> are both rows in the same <code>table</code>, included together as direct predictors in the same model, so the <code>is_international</code> row's <code>coefficient</code> (+0.09) is its effect net of Q1 status, not despite it — a fraction of the raw +0.75 gap the International Collaboration page's <code>status</code> table shows without controlling for Q1.</span><span class="zh"><code>is_q1</code> 和 <code>is_international</code> 都是同一张<code>table</code>里的行，
+      作为直接预测变量一起放进同一个模型，所以<code>is_international</code>那一行的
+      <code>coefficient</code>（+0.09）已经是扣除了Q1因素之后的效应——只是International
+      Collaboration页面<code>status</code>表格里那个没控制Q1、原始+0.75差距的一小部分。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Open Access → Citation Impact</span><span class="zh">开放获取 → 引用影响力</span></a>
+      <span class="qwhy"><span class="en">The <code>is_open_access</code> row's <code>coefficient</code>/<code>p_value</code> in the same <code>table</code> — flagged alongside a PROVISIONAL note on how null open-access values are treated (<code>OPEN_ACCESS_NULL_MEANS_NOT_OA</code>), since the client hasn't confirmed that assumption.</span><span class="zh">同一张<code>table</code>里<code>is_open_access</code>那一行的
+      <code>coefficient</code>/<code>p_value</code>——旁边标注了一个PROVISIONAL说明，讲的是
+      开放获取字段的空值是怎么处理的（<code>OPEN_ACCESS_NULL_MEANS_NOT_OA</code>），因为客户
+      还没有确认这个假设。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Collaboration Size → Citation Impact</span><span class="zh">合作规模 → 引用影响力</span></a>
+      <span class="qwhy"><span class="en">The <code>log_authors</code> and <code>log_institutions</code> rows of the same <code>table</code> — log1p-transformed because raw <code>Number of Authors</code>/<code>Number of Institutions</code> are right-skewed, so a plain linear term would be dominated by a handful of huge multi-author papers.</span><span class="zh">同一张<code>table</code>里<code>log_authors</code>和<code>log_institutions</code>
+      两行——之所以取log1p对数，是因为原始的<code>Number of Authors</code>/
+      <code>Number of Institutions</code>是右偏分布，直接用线性项会被少数几篇作者极多的
+      论文主导。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-doctype"><span class="en">Document Type → Citation Impact</span><span class="zh">文献类型 → 引用影响力</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>doc_table</code> from <code>document_type_summary_table(fit)</code> — one row per <code>Publication type</code> category (~8: Article as baseline, Conference Paper, Chapter, Book, Data Paper, Editorial, Letter, Note), columns <code>coefficient</code>, <code>ci_low</code>, <code>ci_high</code>, <code>p_value</code>, all relative to Article. Small enough to show in full (unlike the dozens of fields, fit but omitted from the main chart for readability), and the finding is genuinely surprising: Conference Paper and Chapter's rows show a significantly <i>positive</i> coefficient even though FWCI is already document-type-normalised by SciVal.</span><span class="zh"><b>用的数据：</b><code>document_type_summary_table(fit)</code> 输出的
+      <code>doc_table</code>——每个<code>Publication type</code>类别一行（约8类：Article做基线，
+      加Conference Paper、Chapter、Book、Data Paper、Editorial、Letter、Note），列有
+      <code>coefficient</code>、<code>ci_low</code>、<code>ci_high</code>、<code>p_value</code>，
+      都是相对Article的。数量少到可以完整展示（不像学科有几十个，虽然也拟合了但为了图表
+      可读性没画出来），而且发现本身很意外：Conference Paper和Chapter那两行的系数是显著
+      <i>正</i>的，即便FWCI理论上已经被SciVal按文献类型归一化过了。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-breadth"><span class="en">Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?</span><span class="zh">国际合作是否通过提高Q1发表概率间接提升了影响力？</span></a>
+      <span class="qwhy"><span class="en">This regression's <code>table</code> includes <code>is_international</code> and <code>is_q1</code> as two separate direct-predictor rows, not a formal mediation model — a proper answer needs a fitted indirect-effect estimate, which isn't built. The closest available reasoning uses the International Collaboration page's <code>breadth_df</code> table instead: its <code>q1_share</code> column climbs alongside the <code>countries</code> bins (1→2→3→4+), consistent with (not proof of) part of the effect running through Q1 placement.</span><span class="zh">这个回归模型的<code>table</code>把 <code>is_international</code> 和 <code>is_q1</code>
+      作为两个独立的直接预测变量行放进去，不是一个正式的中介效应模型——真正的答案需要一个
+      拟合出来的间接效应估计值，目前没有做。现有能提供的最接近的推理换用了International
+      Collaboration页面的<code>breadth_df</code>表格：它的<code>q1_share</code>列随
+      <code>countries</code>分箱（1→2→3→4+）一起上升，这跟"部分效应是通过Q1这条路径传导"
+      这个说法一致，但不能证明它。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-coefficients"><span class="en">Institutional Collaboration → Journal Choice → Citation Impact</span><span class="zh">机构合作 → 期刊选择 → 引用影响力</span></a>
+      <span class="qwhy"><span class="en">No journal-choice mediator variable is defined anywhere in this dataset — the <code>log_institutions</code> row's <code>coefficient</code> in the same <code>table</code> is its direct effect on impact only, with no step routed through <code>is_q1</code> or the CiteScore-quartile columns in between. Answering this properly would need a defined "journal choice" measure crossed with institutional collaboration first.</span><span class="zh">这个数据集里没有定义任何"期刊选择"这个中介变量——同一张<code>table</code>里
+      <code>log_institutions</code> 那一行的<code>coefficient</code>只是它对影响力的直接效应，
+      中间没有经过<code>is_q1</code>或CiteScore分位这些列。要真正回答这个问题，需要先定义一个
+      "期刊选择"的度量，再跟机构合作交叉分析。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-interaction"><span class="en">Is there an interaction between journal quality and international collaboration?</span><span class="zh">期刊质量和国际合作之间是否存在交互效应？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>inter_table</code> from <code>interaction_summary_table(interaction_fit)</code> — the main model's rows plus one new row, <code>is_international[T.True]:is_q1[T.True]</code>, its own <code>coefficient</code>/<code>p_value</code>/CI. A plain regression with <code>is_q1</code> and <code>is_international</code> as separate terms can only ever report one fixed effect per variable — it structurally cannot say whether their combined effect is more than additive; the interaction row is the only way to test that, fit as its own model (not added to the main one) because doing so would silently change what the main model's own <code>is_q1</code> and <code>is_international</code> rows mean.</span><span class="zh"><b>用的数据：</b><code>interaction_summary_table(interaction_fit)</code> 输出的
+      <code>inter_table</code>——主模型的所有行，外加一个新行
+      <code>is_international[T.True]:is_q1[T.True]</code>，有自己的
+      <code>coefficient</code>/<code>p_value</code>/置信区间。一个把 <code>is_q1</code> 和
+      <code>is_international</code> 当成独立项的普通回归，每个变量只能报告一个固定效应——
+      结构上就没法判断它们合在一起的效应是不是比简单相加更大；这个交互项行是唯一能检验这一点
+      的办法，单独拟合成一个模型（不加进主模型），是因为那样做会悄悄改变主模型里
+      <code>is_q1</code> 和 <code>is_international</code> 两行本身的含义。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-combination"><span class="en">What combination of factors is most commonly associated with high- vs. low-impact publications?</span><span class="zh">哪种因素组合最常跟高/低影响力论文关联在一起？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>combo</code> table from <code>combination_summary()</code> — grouped by all combinations of <code>is_q1</code> × <code>is_international</code> × <code>is_open_access</code> (up to 8 rows), columns <code>publications</code>, <code>mean_fwci</code>, <code>top_decile_share</code>, <code>uncited_share</code>. A regression coefficient reports one global effect per factor, one at a time — "which combination" needs these actual joint group means at once, which is a cross-tab, not a coefficient. Deliberately computed on the full dataset with nothing held constant, as the raw-pattern counterpart to the model above, not a replacement for it.</span><span class="zh"><b>用的数据：</b><code>combination_summary()</code> 输出的<code>combo</code>表格——
+      按<code>is_q1</code> × <code>is_international</code> × <code>is_open_access</code>
+      所有组合分组（最多8行），列有<code>publications</code>、<code>mean_fwci</code>、
+      <code>top_decile_share</code>、<code>uncited_share</code>。回归系数报告的是每个因素
+      单独的、全局的一个效应——"哪种组合"需要的正是这些组合各自的联合分组均值，这是一张
+      交叉表，不是一个系数。特意在完整数据集上计算、不控制任何变量，作为上面回归模型的
+      "原始模式"对照版本，而不是替代它。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-consistency"><span class="en">Are some drivers particularly important only in particular disciplines?</span><span class="zh">某些驱动因素是否只在特定学科特别重要？</span></a>
+      <span class="qwhy"><span class="en">This model's <code>table</code> fits one global linear effect per predictor across all fields at once — a true answer would need a full interaction term per predictor per field, which needs far more rows per field than most fields have to estimate reliably. The closest thing this platform actually computes is the Journal Tier page's <code>q1_advantage_by_field()</code> table (one predictor's effect broken out by field), best read alongside the International Collaboration page's <code>impact_gap_by_field()</code> table for a second predictor's version of the same idea.</span><span class="zh">这个模型的<code>table</code>对每个预测变量只在全部学科上拟合一个全局线性效应——
+      真正的答案需要给每个预测变量、每个学科都加一个交互项，而这需要比大多数学科现有数据量
+      多得多的样本才能可靠估计。这个平台实际算出来、最接近的答案是Journal Tier页面的
+      <code>q1_advantage_by_field()</code>表格（一个预测变量按学科拆开的效应），最好再配合
+      International Collaboration页面的<code>impact_gap_by_field()</code>表格（另一个预测
+      变量的同类拆分）一起看。</span></span>
+    </span></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="n">16</span><h2><span class="en">Go8 / Peer Benchmarking</span><span class="zh">Go8同行对标</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/1_Go8_Benchmarking.py</code> — how Sydney performs relative
+    to its Go8 peers.</span>
+    <span class="zh"><code>app/pages/1_Go8_Benchmarking.py</code> —— 悉尼相对于Go8同行的表现如何。</span>
+  </p>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does Sydney compare in publication volume?</span><span class="zh">悉尼在发文量上跟同行相比如何？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>summary</code> table from <code>get_benchmark_summary()</code> — 8 rows (one per Go8 university), columns <code>publications</code>, <code>mean_fwci</code>, <code>q1_share</code>, <code>top_decile_share</code>, <code>international_collaboration_share</code>, <code>mean_institutions_per_paper</code>. The rank row applies <code>.rank(ascending=False)</code> to the <code>publications</code> column and reads off Sydney's position — computed live rather than hard-coded.</span><span class="zh"><b>用的数据：</b><code>get_benchmark_summary()</code> 生成的<code>summary</code>
+      表格——8行（每所Go8大学一行），列有<code>publications</code>、<code>mean_fwci</code>、
+      <code>q1_share</code>、<code>top_decile_share</code>、
+      <code>international_collaboration_share</code>、<code>mean_institutions_per_paper</code>。
+      排名行对<code>publications</code>列调用<code>.rank(ascending=False)</code>，读出悉尼的
+      名次——实时算出来的，不是写死的数字。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does citation impact compare?</span><span class="zh">引用影响力相比如何？</span></a>
+      <span class="qwhy"><span class="en">Same <code>summary</code> table, <code>.rank(ascending=False)</code> applied to the <code>mean_fwci</code> column instead.</span><span class="zh">同一张<code>summary</code>表格，改对<code>mean_fwci</code>列调用
+      <code>.rank(ascending=False)</code>。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does Q1 publication share compare?</span><span class="zh">Q1发表份额相比如何？</span></a>
+      <span class="qwhy"><span class="en">Same <code>summary</code> table, ranked on its <code>q1_share</code> column.</span><span class="zh">同一张<code>summary</code>表格，按<code>q1_share</code>列排名。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does highly cited publication performance compare?</span><span class="zh">高被引表现相比如何？</span></a>
+      <span class="qwhy"><span class="en">Same <code>summary</code> table, ranked on its <code>top_decile_share</code> column.</span><span class="zh">同一张<code>summary</code>表格，按<code>top_decile_share</code>列排名。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does international collaboration compare?</span><span class="zh">国际合作情况相比如何？</span></a>
+      <span class="qwhy"><span class="en">Same <code>summary</code> table, ranked on its <code>international_collaboration_share</code> column — also min-max normalised and plotted on the radar chart's shape for a qualitative read alongside the other five metrics.</span><span class="zh">同一张<code>summary</code>表格，按<code>international_collaboration_share</code>
+      列排名——也做了最小-最大归一化，画在了雷达图的轮廓里，方便跟其它五个指标一起做定性的
+      整体观察。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-rank"><span class="en">How does institutional collaboration compare?</span><span class="zh">机构合作情况相比如何？</span></a>
+      <span class="qwhy"><span class="en">Same <code>summary</code> table's <code>mean_institutions_per_paper</code> column, newly wired into the rank row, the metric-selector bar, and the radar as of 2026-09-04 — this number existed in the table before that, but wasn't comparable/rankable across universities until it was added to these three places.</span><span class="zh">同一张<code>summary</code>表格的<code>mean_institutions_per_paper</code>列，
+      2026-09-04之后新接入了排名行、指标选择柱状图和雷达图——这个数字在那之前就存在于表格里，
+      但直到接入这三个地方之前，都没法直接跨大学比较排名。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-fields"><span class="en">Which research fields are Sydney's strongest relative to peers? Where are the largest gaps?</span><span class="zh">悉尼相对同行最强的学科是哪些？最大的差距在哪里？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>gap_df</code> table from <code>field_gap_vs_peers()</code> — one row per field, a <code>gap</code> column = Sydney's <code>mean_fwci</code> minus the other 7 universities' average <code>mean_fwci</code>, on the raw exploded dataframe. The page then calls <code>.nlargest(5, "gap")</code> and <code>.nsmallest(5, "gap")</code> on that same column, explicitly listed underneath the chart — turning "which fields" into a ranked list rather than requiring the reader to eyeball a bar chart with 20+ fields on it.</span><span class="zh"><b>用的数据：</b><code>field_gap_vs_peers()</code> 生成的<code>gap_df</code>表格——
+      每个学科一行，<code>gap</code>列 = 悉尼的<code>mean_fwci</code>减去其它7所大学的平均
+      <code>mean_fwci</code>，算在原始展开数据框上。页面对同一列调用
+      <code>.nlargest(5, "gap")</code>和<code>.nsmallest(5, "gap")</code>，明确列在图表下方——
+      把"哪些学科"变成一份排好序的列表，而不是让读者自己在一张有20多个学科的图上去目测。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-growth"><span class="en">Which Go8 universities are improving most rapidly?</span><span class="zh">哪些Go8大学进步最快？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>growth_df</code> table from <code>growth_by_university()</code> — one row per university, a <code>growth</code> column (<code>period_growth</code>, on raw per-university data), sorted descending for the bar — the ranking the question asks for is the sort order itself.</span><span class="zh"><b>用的数据：</b><code>growth_by_university()</code> 生成的<code>growth_df</code>表格——
+      每所大学一行，<code>growth</code>列（<code>period_growth</code>，算在原始未去重数据上），
+      降序排列画柱状图——问题要的排名本身就是排序结果。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-countries-patterns"><span class="en">Are competitors using different journal-publishing patterns?</span><span class="zh">竞争对手的期刊发表模式是否不同？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>patterns</code> table from <code>journal_pattern_by_university()</code> — 8 rows (universities) × source-type share columns. "Different patterns" is then a difference in row shape within one table, directly visible without needing a separate difference-score computed and charted on top.</span><span class="zh"><b>用的数据：</b><code>journal_pattern_by_university()</code> 生成的
+      <code>patterns</code>表格——8行（大学）× 各来源类型份额列。"模式不同"就体现为同一张表里
+      行与行之间形状的差异，直接就能看出来，不需要另外算一个差异分数再画图。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-countries-patterns"><span class="en">Are competitors collaborating with different countries or institutions?</span><span class="zh">竞争对手合作的国家或机构是否不同？</span></a>
+      <span class="qwhy"><span class="en">Only the "countries" half is built: the <code>countries_df</code> table from <code>top_countries_by_university(load_raw(), university, top_n=10)</code> — country × <code>publications</code>, one university selectable at a time. No per-university partner-<i>institution</i> breakdown exists on this page. The institution side is answered for Sydney specifically over on the Scenario Analysis page's <code>partner_perf</code> table, not comparatively across all 8 universities here.</span><span class="zh">只做了"国家"这一半：<code>top_countries_by_university(load_raw(), university,
+      top_n=10)</code> 生成的<code>countries_df</code>表格——国家×<code>publications</code>，
+      一次只能选一所大学看。这一页没有按大学拆分的合作<i>机构</i>明细。机构那一半只在
+      Scenario Analysis页面的<code>partner_perf</code>表格里针对悉尼单独回答了，不是在这里
+      做8所大学的横向比较。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-fields"><span class="en">Which performance gaps appear realistically addressable?</span><span class="zh">哪些差距看起来是现实可弥补的？</span></a>
+      <span class="qwhy"><span class="en">"Realistically addressable" is a judgement call, not a computable number — the same <code>gap_df.gap</code> column from <code>field_gap_vs_peers()</code> is the evidentiary input a reader would use to make that judgement, not a chart or score that renders the judgement itself.</span><span class="zh">"现实可弥补"是一个需要人来判断的问题，不是一个能直接算出来的数字——同样是
+      <code>field_gap_vs_peers()</code> 的<code>gap_df.gap</code>列，是做这个判断时要用到的
+      依据，但它本身不是一张直接给出判断结论的图或分数。</span></span>
+    </span></div>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><span class="n">17</span><h2><span class="en">Scenario Analysis</span><span class="zh">情景分析</span></h2></div>
+  <p class="item-sub">
+    <span class="en"><code>app/pages/6_Scenario_Analysis.py</code> — what mean impact would look
+    like under a hypothetical shift.</span>
+    <span class="zh"><code>app/pages/6_Scenario_Analysis.py</code> —— 假设性地调整某个指标后，
+    平均影响力会变成什么样。</span>
+  </p>
+
+  <div class="new">
+    <span class="lbl"><span class="en">Closed since 2026-09-04 — both previously "open"</span><span class="zh">2026-09-04之后补上的——两个都曾标为"尚未实现"</span></span>
+    <span class="en">"Increase collaboration with selected high-performing institutions" and "shift
+    publications toward strong-opportunity journals" were both initially assessed as
+    needing data this platform didn't have. Both turned out to be wrong on closer
+    inspection: the <code>Institutions</code> and <code>Scopus Source title</code> columns
+    already carry exactly what's needed, once exploded and matched per-partner /
+    per-source the same way the rest of this platform already handles multi-valued
+    fields.</span>
+    <span class="zh">"增加与特定高绩效机构的合作"和"将部分发表转向有潜力的期刊"这两条，最初都被
+    判定为需要平台没有的数据。仔细检查之后发现这个判断是错的：<code>Institutions</code>
+    和 <code>Scopus Source title</code> 这两列本身就带着所需的全部信息，只要按平台其它
+    地方处理多值字段的同一套方法拆开、按合作机构/按期刊来源分别匹配就行。</span>
+  </div>
+
+  <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
+  <div class="qlist">
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-scenarios"><span class="en">Increase Q1 publication share by N percentage points.</span><span class="zh">将Q1发表份额提高N个百分点。</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>table</code> from <code>scenario_table(dedup, delta_pp)</code> — one row per scenario, columns <code>current_share</code>, <code>projected_share</code>, <code>mean_when_true</code>, <code>mean_when_false</code>, <code>current_mean_metric</code>, <code>projected_mean_metric</code>. The <code>is_q1</code> row computes current vs. projected mean FWCI if Q1 share shifted by <code>delta_pp</code>, using <code>mean_when_true</code> minus <code>mean_when_false</code> (the actual historical Q1-vs-non-Q1 FWCI gap in this dataset) as the per-point uplift, rather than an assumed number.</span><span class="zh"><b>用的数据：</b><code>scenario_table(dedup, delta_pp)</code> 输出的<code>table</code>——
+      每个情景一行，列有<code>current_share</code>、<code>projected_share</code>、
+      <code>mean_when_true</code>、<code>mean_when_false</code>、
+      <code>current_mean_metric</code>、<code>projected_mean_metric</code>。<code>is_q1</code>
+      那一行算的正是：如果Q1份额按<code>delta_pp</code>变化，现状vs预测的平均FWCI是多少，
+      每一个百分点的提升幅度用的是<code>mean_when_true</code>减<code>mean_when_false</code>
+      （这份数据里实际的Q1对非Q1的FWCI差距），不是一个假设出来的数字。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-scenarios"><span class="en">Increase international collaboration by N percentage points.</span><span class="zh">将国际合作提高N个百分点。</span></a>
+      <span class="qwhy"><span class="en">Same <code>table</code>, the <code>is_international</code> row — <code>mean_when_true</code> minus <code>mean_when_false</code> here is the historical international-vs-domestic gap in place of the Q1 gap.</span><span class="zh">同一张<code>table</code>，<code>is_international</code>那一行——这里的
+      <code>mean_when_true</code>减<code>mean_when_false</code>是国际合作对国内合作的历史
+      差距，而不是Q1的差距。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-scenarios"><span class="en">Increase open-access publication where evidence suggests a benefit.</span><span class="zh">在有证据显示有益的地方提高开放获取比例。</span></a>
+      <span class="qwhy"><span class="en">Same <code>table</code>, the <code>is_open_access</code> row, flagged with a PROVISIONAL caption specifically because how open-access null values are treated (<code>OPEN_ACCESS_NULL_MEANS_NOT_OA</code>) is a client-unconfirmed assumption this scenario inherits directly.</span><span class="zh">同一张<code>table</code>，<code>is_open_access</code>那一行，特意标注了
+      PROVISIONAL说明——因为开放获取字段空值该怎么处理
+      （<code>OPEN_ACCESS_NULL_MEANS_NOT_OA</code>）是一个客户还没确认的假设，这个情景直接
+      继承了这个假设。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip partial">~</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-scenarios"><span class="en">Reduce the proportion of low-impact publications.</span><span class="zh">降低低影响力论文的比例。</span></a>
+      <span class="qwhy"><span class="en">Same <code>table</code>, the <code>is_uncited</code> row (framed as "↓ uncited share") — projected via <code>Citations == 0</code>, the closest binary flag this dataset actually has. "Low-impact" itself is undefined by the client and is not the same claim as "uncited": a publication can have low-but-nonzero impact and this row wouldn't move it.</span><span class="zh">同一张<code>table</code>，<code>is_uncited</code>那一行（标成"↓零引用份额"）——
+      用<code>Citations == 0</code>来做预测，这是数据集里现有最接近的二元标记。"低影响力"本身
+      客户没有给出定义，跟"零引用"不是一回事：一篇论文可能影响力低但不为零，这一行
+      对它是不起作用的。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-fields"><span class="en">Improve publication performance within selected research areas.</span><span class="zh">提升特定研究领域的发表表现。</span></a>
+      <span class="qwhy"><span class="en">The Go8 Benchmarking page's <code>gap_df.gap</code> column already identifies exactly where Sydney trails, by field — that's the "selected research areas" input a scenario like this would need, but it isn't turned into its own row in this page's <code>table</code>; doing so would mean picking which fields' publications get reassigned a target FWCI, a scope decision this page doesn't make on its own.</span><span class="zh">Go8 Benchmarking页面的<code>gap_df.gap</code>列已经按学科明确指出了悉尼落后在
+      哪里——这正是这类情景需要的"特定研究领域"输入，但这里没有把它转成这个页面
+      <code>table</code>里独立的一行；要做到这一点，需要决定挑选哪些学科的论文去赋予一个
+      目标FWCI，这是一个这个页面自己无法单方面决定的范围界定问题。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-institutions"><span class="en">Increase collaboration with selected high-performing institutions.</span><span class="zh">增加与特定高绩效机构的合作。</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> the <code>partner_perf</code> table from <code>get_institution_partner_performance()</code> — one row per partner institution, columns <code>publications</code>, <code>mean_fwci</code>, and <code>gap</code> = that partner's <code>mean_fwci</code> minus Sydney's own overall mean, floored at <code>HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS</code> (10) co-authored publications. The <code>Institutions</code> column (pipe-delimited co-author affiliations) turned out to support the exact same per-partner computation already built for journals — the volume floor stops a single big collaboration from faking a partner's ranking. That converts the question into the same shape as the other scenarios: shift some share of publications toward the group already flagged as above-average.</span><span class="zh"><b>用的数据：</b><code>get_institution_partner_performance()</code> 生成的
+      <code>partner_perf</code>表格——每个合作机构一行，列有<code>publications</code>、
+      <code>mean_fwci</code>，外加一个<code>gap</code>列 = 该机构的<code>mean_fwci</code>减去
+      悉尼自己的整体平均，限定至少<code>HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS</code>
+      （10）篇合著发文量。<code>Institutions</code>列（用竖线分隔的合著机构名单）实际上支持
+      跟期刊那边一模一样的按机构算法——发文量下限避免一次大型合作就伪造出某个机构的排名。
+      这样一来，这个问题就变成了和其它情景同样的形状：把一部分发表转向已经被标记为高于
+      平均水平的那一组合作机构。</span></span>
+    </span></div>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-scenarios"><span class="en">Shift some publications toward journals identified as strong opportunities.</span><span class="zh">将部分发表转向被识别为"有潜力"的期刊。</span></a>
+      <span class="qwhy"><span class="en">Wires <code>journal_tier.source_performance_flag()</code>'s per-publication boolean straight into the scenario <code>table</code> as an <code>is_source_overperforming</code> row (merged in via <code>dedup.assign()</code> in <code>get_scenario_table()</code>, before calling <code>scenario_table()</code>), scoped to the ~74% of publications whose source has enough volume in its tier to carry a defined flag — turning the Journal Tier page's <code>sources</code> shortlist from a static table into an actual FWCI projection, the same mechanism as the other rows above.</span><span class="zh">把<code>journal_tier.source_performance_flag()</code>算出的按论文一行的布尔标记，
+      直接接入情景<code>table</code>，作为<code>is_source_overperforming</code>这一行
+      （在<code>get_scenario_table()</code>里通过<code>dedup.assign()</code>合并进去，
+      再调用<code>scenario_table()</code>），范围限定在约74%的、期刊来源在其所在档位内有
+      足够发文量、能定义出标记的那部分发表——把Journal Tier页面<code>sources</code>表格那份
+      静态候选名单，变成一个实际的FWCI预测，用的是跟上面其它行一样的机制。</span></span>
+    </span></div>
+  </div>
+
+  <div class="new" style="margin-top:22px;">
+    <span class="lbl"><span class="en">A caveat that applies to both new scenarios</span><span class="zh">两个新情景共同的一条提醒</span></span>
+    <span class="en">Both the institution-partner and journal-source over-performer lists skew
+    toward large multi-author, multi-site collaborations (clinical trials, big journals with
+    huge volume) — plausibly genuine high-value partners, but also exactly the pattern a
+    handful of huge collaborations would produce even without the partner itself adding
+    anything beyond being part of them. Treat both as shortlists to investigate, not verdicts —
+    stated explicitly on the page itself, not just here.</span>
+    <span class="zh">机构合作和期刊来源这两份"跑赢"名单都偏向大型多作者、多地点的合作项目
+    （临床试验、发文量巨大的大期刊）——这些可能确实是真正有价值的合作对象，但也正好是
+    少数几个超大型合作项目会产生的模式，哪怕这个合作机构本身并没有在"参与这个大项目"之外
+    带来额外的价值。两份名单都应该当成需要进一步调查的候选清单，不是定论——这一点在
+    页面本身就已经明确写出来了，不只是在这份文档里提。</span>
+  </div>
+</div>
+
+<div class="item">
+  <div class="item-head"><h2><span class="en">Reading this alongside the other documents</span><span class="zh">如何跟其它文档配合使用</span></h2></div>
+  <p class="item-sub" style="margin-bottom:14px;">
+    <span class="en">Three documents, three different jobs — this one is the middle
+    layer.</span>
+    <span class="zh">三份文档，三种不同的用途——这一份是中间层。</span>
+  </p>
+  <div class="capgrid">
+    <div><div class="num">📖</div><div class="lbl"><span class="en">Guidebook</span><span class="zh">Guidebook</span></div></div>
+    <div><div class="num">📋</div><div class="lbl"><span class="en">Coverage (this)</span><span class="zh">覆盖手册（本页）</span></div></div>
+    <div><div class="num">Σ</div><div class="lbl"><span class="en">Methods Reference</span><span class="zh">方法论文档</span></div></div>
+    <div><div class="num">▦</div><div class="lbl"><span class="en">Live Platform</span><span class="zh">在线平台</span></div></div>
+  </div>
+  <p class="prose">
+    <span class="en">The <b>Guidebook</b> answers "how do I run/extend this project".
+    <b>Coverage</b> (this document) answers "what does the platform actually do, which
+    brief question does each part answer, and specifically why does that chart or
+    statistic answer it" — it's a snapshot of the live "Sub-questions this page answers"
+    panels plus the reasoning behind each one, safe to cite in a written report even when
+    the interactive app isn't open. <b>Methods Reference</b> answers "why this kind of
+    statistic, why this kind of chart, in general" for each analysis in depth. Start at
+    whichever question you actually have — or click straight through to the
+    <b>Live Platform</b> from any sub-question above.</span>
+    <span class="zh"><b>Guidebook</b> 回答"怎么运行/扩展这个项目"。<b>Coverage</b>（本文档）回答
+    "平台到底做了什么，每一部分具体回答任务书里的哪个问题，以及具体为什么是这张图/这个统计量
+    回答了它"——它是平台上"本页回答的子问题"面板加上每一条背后理由的一份快照，即便交互式
+    应用没打开，写报告时也能直接引用。<b>Methods Reference</b> 针对每一项分析深入回答
+    "为什么用这一<i>类</i>统计方法、为什么用这一<i>类</i>图"这种一般性问题。从你实际遇到的
+    问题出发去找答案就好——也可以直接从上面任意一条子问题点进<b>在线平台</b>。</span>
+  </p>
+
+  <div class="crosslinks">
+    <a href="https://claude.ai/code/artifact/680782eb-2079-4dc1-94e6-7efac2bfa886">
+      <div class="lbl"><span class="en">Companion doc</span><span class="zh">姊妹文档</span></div>
+      <h3><span class="en">Guidebook ↗</span><span class="zh">Guidebook ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/795c53d8-ff1d-45b4-8a28-0faf1ecfb09d">
+      <div class="lbl"><span class="en">Companion doc</span><span class="zh">姊妹文档</span></div>
+      <h3><span class="en">Methods Reference — Foundations ↗</span><span class="zh">方法论文档 —— 基础方法 ↗</span></h3>
+    </a>
+    <a href="https://data-platform.azurewebsites.net">
+      <div class="lbl"><span class="en">Live app</span><span class="zh">在线应用</span></div>
+      <h3><span class="en">Open the platform ↗</span><span class="zh">打开在线平台 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/f6b48887-ff34-4d54-8abf-19ceda8a0dea">
+      <div class="lbl">03</div>
+      <h3><span class="en">Journal Tier & Q1 ↗</span><span class="zh">期刊等级与Q1 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/ab10dc0e-46ca-4aa5-a924-bef8d5aa88ab">
+      <div class="lbl">06</div>
+      <h3><span class="en">Field Analysis ↗</span><span class="zh">学科分析 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/71b6df88-974e-49a4-8719-9a910ea3805c">
+      <div class="lbl">09</div>
+      <h3><span class="en">International Collaboration ↗</span><span class="zh">国际合作 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/1d0c7dea-abbc-42c3-9c64-b10f7b843f8e">
+      <div class="lbl">14</div>
+      <h3><span class="en">Impact Drivers ↗</span><span class="zh">影响力驱动因素 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/09a9ce89-cdca-4caa-852e-0b12440fe268">
+      <div class="lbl">16</div>
+      <h3><span class="en">Go8 Benchmarking ↗</span><span class="zh">Go8对标 ↗</span></h3>
+    </a>
+    <a href="https://claude.ai/code/artifact/20e7499a-db7b-436f-a75c-3fa0de4da6ca">
+      <div class="lbl">17</div>
+      <h3><span class="en">Scenario Analysis ↗</span><span class="zh">情景分析 ↗</span></h3>
+    </a>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span><span class="en">COMP3888_W11_02_P36 · Publication Intelligence & Research Impact Analysis Platform</span><span class="zh">COMP3888_W11_02_P36 · Publication Intelligence & Research Impact Analysis Platform</span></span>
+  <span><span class="en">Coverage manual, generated from the live platform's own question panels · 58/58 sub-questions linked · updated 2026-09-06</span><span class="zh">覆盖手册，内容来自在线平台自身的子问题面板 · 58/58条子问题均已链接 · 2026-09-06更新</span></span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var app = document.getElementById('app');
+  var btn = document.getElementById('langToggle');
+  function apply(lang){
+    app.setAttribute('data-lang', lang);
+    btn.textContent = lang === 'zh' ? 'EN' : '中';
+    try { localStorage.setItem('p36-methods-lang', lang); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('p36-methods-lang'); } catch(e){}
+  apply(saved === 'en' ? 'en' : 'zh');
+  btn.addEventListener('click', function(){
+    apply(app.getAttribute('data-lang') === 'zh' ? 'en' : 'zh');
+  });
+})();
+</script>
+
+</body></html>

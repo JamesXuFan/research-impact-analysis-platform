@@ -1,0 +1,676 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>P36 Dashboard & Charting Close-Reading</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --cream:#F2EEE6; --paper:#FFFFFF; --ink:#1A1A1A; --muted:#6B6A63; --line:#1A1A1A; --hair:#DAD5C8;
+    --red:#DA291C; --blue:#0F4C81; --yellow:#FFC20E;
+    --blue-tint:#E4ECF3; --yellow-tint:#FFF6DC; --red-tint:#FBE6E3;
+    --code-bg:#1A1A1A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+    --font-display:'Archivo Black','Noto Sans SC','Arial Black',sans-serif;
+    --font-body:'Space Grotesk','Noto Sans SC',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+      --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+      --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+      --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+    --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+    --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+    --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-body); line-height:1.65; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--yellow); color:#1A1A1A; }
+  h1,h2,h3{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:-0.01em; text-wrap:balance; margin:0; color:var(--ink); }
+  #app[data-lang="zh"] h1,#app[data-lang="zh"] h2,#app[data-lang="zh"] h3{ text-transform:none; letter-spacing:0; }
+  code{ font-family:var(--font-mono); }
+  a{ color:var(--blue); }
+  #app[data-lang="zh"] .en{ display:none; } #app[data-lang="en"] .zh{ display:none; }
+
+  .langbar{ position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; align-items:center; gap:10px; background:var(--ink); padding:10px 24px; }
+  .langbar .brand{ font-family:var(--font-mono); color:var(--cream); font-size:0.76rem; letter-spacing:0.02em; margin-right:auto; }
+  .langbtn{ font-family:var(--font-mono); font-size:0.74rem; font-weight:600; background:var(--cream); color:var(--ink); border:2px solid var(--cream); padding:7px 12px; cursor:pointer; }
+  .langbtn:hover{ background:var(--yellow); border-color:var(--yellow); }
+  .langbtn:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+
+  header.masthead{ max-width:1000px; margin:0 auto; padding:56px 24px 10px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:0.76rem; color:var(--muted); letter-spacing:0.02em; margin-bottom:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .eyebrow .series{ background:var(--ink); color:var(--cream); padding:2px 8px; font-weight:600; }
+  header.masthead h1{ font-size:clamp(1.9rem,5vw,2.8rem); line-height:1.08; max-width:22ch; }
+  header.masthead .dek{ font-size:1.02rem; color:var(--muted); max-width:64ch; margin-top:16px; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px 100px; }
+
+  .diagram-card{ background:var(--paper); border:2px solid var(--line); padding:22px 22px 8px; margin:34px 0; }
+  .diagram-card .cap{ font-family:var(--font-mono); font-size:0.72rem; color:var(--muted); text-align:center; padding:10px 0 16px; }
+  .mermaid{ display:flex; justify-content:center; }
+
+  nav.toc{ background:var(--paper); border:2px solid var(--line); padding:20px 24px; margin:30px 0 46px; }
+  nav.toc .h{ font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; }
+  #app[data-lang="zh"] nav.toc .h{ text-transform:none; }
+  nav.toc ol{ margin:0; padding:0; list-style:none; columns:2; column-gap:28px; }
+  @media (max-width:640px){ nav.toc ol{ columns:1; } }
+  nav.toc li{ break-inside:avoid; padding:5px 0; font-size:0.9rem; }
+  nav.toc a{ text-decoration:none; color:var(--ink); border-bottom:1.5px dashed var(--hair); }
+  nav.toc a:hover{ color:var(--blue); border-bottom-color:var(--blue); }
+  nav.toc .idx{ font-family:var(--font-mono); color:var(--blue); font-weight:600; margin-right:6px; }
+
+  section.module{ margin-top:64px; padding-top:38px; border-top:4px solid var(--line); scroll-margin-top:24px; }
+  section.module:first-of-type{ margin-top:0; padding-top:0; border-top:none; }
+  .module-head{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .module-head .stage{ font-family:var(--font-display); font-size:1.3rem; color:var(--yellow); -webkit-text-stroke:1.3px var(--ink); flex:none; }
+  .module-head h2{ font-size:1.5rem; }
+  .module-file{ font-family:var(--font-mono); font-size:0.82rem; color:var(--muted); margin-top:8px; }
+  .module-role{ font-size:0.98rem; color:var(--muted); max-width:70ch; margin-top:12px; }
+
+  .fn{ margin-top:40px; scroll-margin-top:24px; }
+  .fn-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .fn-head code.name{ font-family:var(--font-mono); font-size:1.05rem; font-weight:600; background:var(--yellow-tint); padding:2px 8px; border:1.5px solid var(--line); }
+  .fn-what{ font-size:0.94rem; color:var(--ink); max-width:72ch; margin:8px 0 14px; }
+
+  pre.code{ font-family:var(--font-mono); font-size:0.82rem; line-height:1.7; background:var(--code-bg); color:var(--code-ink); padding:16px 18px; margin:0 0 16px; overflow-x:auto; border:2px solid var(--line); white-space:pre; }
+  pre.code .cm{ color:var(--code-muted); font-style:italic; }
+  pre.code .st{ color:var(--code-str); }
+  pre.code .kw{ color:var(--code-kw); }
+
+  .syntax{ margin:0; padding:0; list-style:none; max-width:76ch; }
+  .syntax li{ position:relative; padding:9px 0 9px 24px; font-size:0.9rem; border-bottom:1px solid var(--hair); color:var(--ink); }
+  .syntax li:last-child{ border-bottom:none; }
+  .syntax li::before{ content:"▸"; position:absolute; left:0; color:var(--blue); font-weight:700; }
+  .syntax li code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; font-size:0.86em; }
+  .syntax li b{ color:var(--ink); }
+
+  .note{ background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:76ch; }
+  .note .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--blue); }
+  #app[data-lang="zh"] .note .lbl{ text-transform:none; }
+  .caution{ background:var(--red-tint); border:2px solid var(--line); border-left:8px solid var(--red); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:76ch; }
+  .caution .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--red); }
+  #app[data-lang="zh"] .caution .lbl{ text-transform:none; }
+
+  .demo{ display:flex; align-items:center; gap:14px; border:2px solid var(--line); background:var(--paper); padding:14px 18px; margin:10px 0 18px; }
+  .demo .swatch{ flex:none; width:26px; height:26px; border:1.5px solid var(--line); }
+  .demo .bars{ display:flex; align-items:flex-end; gap:6px; height:52px; flex:none; }
+  .demo .bars span{ display:block; width:14px; border:1.5px solid var(--line); }
+
+  .glossary{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:0 30px; margin-top:10px; }
+  .gterm{ padding:15px 0; border-bottom:1px solid var(--hair); }
+  .gterm dt{ font-family:var(--font-mono); font-weight:600; font-size:0.92rem; color:var(--blue); }
+  .gterm dd{ margin:6px 0 0; font-size:0.86rem; color:var(--muted); line-height:1.6; }
+  .gterm dd code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; }
+
+  .try-list{ margin:0; padding-left:22px; max-width:72ch; }
+  .try-list li{ margin:10px 0; font-size:0.94rem; }
+  .try-list code{ background:var(--paper); border:1px solid var(--hair); padding:1px 6px; }
+
+  .related{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:18px; }
+  .related a{ display:block; text-decoration:none; border:2px solid var(--line); background:var(--paper); padding:16px 18px; transition:transform .1s ease-out, box-shadow .1s ease-out; }
+  .related a:hover{ transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--ink); }
+  .related .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+  #app[data-lang="zh"] .related .lbl{ text-transform:none; }
+  .related h3{ font-size:0.96rem; margin-top:5px; text-transform:none; letter-spacing:0; }
+
+  footer{ max-width:1000px; margin:50px auto 0; padding:32px 24px 60px; font-size:0.8rem; color:var(--muted); border-top:1px solid var(--hair); }
+</style>
+
+<div class="langbar">
+  <span class="brand">P36 DASHBOARD</span>
+  <a href="index.html" style="color:var(--cream); font-family:var(--font-mono); font-size:0.76rem; text-decoration:none; border-bottom:1.5px dashed var(--cream); margin-right:14px;"><span class="en">Docs home</span><span class="zh">文档首页</span></a>
+  <button class="langbtn" id="langToggle" type="button">EN</button>
+</div>
+
+<div id="app" data-lang="zh">
+
+<header class="masthead">
+  <div class="eyebrow"><span class="series"><span class="en">Close-reading series · 02</span><span class="zh">精读系列 · 02</span></span><span class="en">COMP3888_W11_02_P36 · study notes · page structure & Altair charting</span><span class="zh">COMP3888_W11_02_P36 · 学习笔记 · 页面结构与Altair构图</span></div>
+  <h1><span class="en">Dashboard & Charting Close-Reading</span><span class="zh">看板与图表精读</span></h1>
+  <p class="dek">
+    <span class="en">The previous note covered how data goes from Excel to parquet to a
+    DataFrame. This one picks up from there: once a Streamlit page has that DataFrame, how
+    does it get organised into "sections" (headers, sub-question panels, anchors, columns),
+    and how does a pandas Series/DataFrame become an Altair chart? Centred on
+    <code>app/theme.py</code> and <code>app/lib.py</code>, with real page code as worked
+    examples throughout.</span>
+    <span class="zh">上一篇讲的是数据怎么从Excel变成parquet、变成DataFrame。这一篇接着讲：Streamlit
+    页面拿到DataFrame之后，是怎么组织成"板块"（标题、子问题面板、锚点、分栏）、
+    又是怎么把一个pandas的Series/DataFrame变成一张Altair图表的。以 <code>app/theme.py</code>、
+    <code>app/lib.py</code> 为主，穿插几个真实页面里的代码做例子。</span>
+  </p>
+</header>
+
+<main>
+
+  <div class="diagram-card">
+    <pre class="mermaid en">
+flowchart TD
+  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>registers the Altair theme + injects CSS + mounts the cross-page scroll bridge"]
+  B --> C["theme.header(title, caption, shape, color)"]
+  C --> D["theme.question_panel([...])<br/>sub-question checklist, click to jump"]
+  D --> E["lib.get_xxx()<br/>@st.cache_data-wrapped data function"]
+  E --> F["theme.anchor(id) + st.subheader()"]
+  F --> G["alt.Chart(df).mark_X().encode(...)"]
+  G --> H["st.altair_chart(theme.style(chart))"]
+  H --> I["theme.rule()"]
+  I --> F
+    </pre>
+    <pre class="mermaid zh">
+flowchart TD
+  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>注册Altair主题 + 注入CSS + 挂载跨页跳转桥"]
+  B --> C["theme.header(title, caption, shape, color)"]
+  C --> D["theme.question_panel([...])<br/>子问题清单，可点击跳转"]
+  D --> E["lib.get_xxx()<br/>@st.cache_data 包装的数据函数"]
+  E --> F["theme.anchor(id) + st.subheader()"]
+  F --> G["alt.Chart(df).mark_X().encode(...)"]
+  G --> H["st.altair_chart(theme.style(chart))"]
+  H --> I["theme.rule()"]
+  I --> F
+    </pre>
+    <div class="cap">
+      <span class="en">The skeleton shared by all six analysis pages — top to bottom is the order a page script actually executes in; F→I is the loop repeated for "each subsection."</span>
+      <span class="zh">六个分析页面共用的骨架——从上到下是一个页面脚本实际执行的顺序，F→I是"每个小节"会重复的一圈</span>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="h"><span class="en">Contents</span><span class="zh">本页目录</span></div>
+    <ol>
+      <li><span class="idx">01</span><a href="#multipage"><span class="en">How the multipage app is organised</span><span class="zh">多页应用是怎么组织的</span></a></li>
+      <li><span class="idx">02</span><a href="#caching"><span class="en">How data gets "read" — the caching layer</span><span class="zh">数据是怎么"读取"的 — 缓存层</span></a></li>
+      <li><span class="idx">03</span><a href="#sections"><span class="en">How sections are designed — theme.py</span><span class="zh">板块是怎么设计的 — theme.py</span></a></li>
+      <li><span class="idx">04</span><a href="#altair"><span class="en">How a chart gets "built" — Altair syntax</span><span class="zh">图表是怎么"构"出来的 — Altair语法</span></a></li>
+      <li><span class="idx">05</span><a href="#reshape"><span class="en">From pandas to Altair: what shape the data needs</span><span class="zh">从pandas到Altair：数据要长成什么样</span></a></li>
+      <li><span class="idx">06</span><a href="#glossary"><span class="en">Syntax cheat sheet</span><span class="zh">语法速查表</span></a></li>
+      <li><span class="idx">07</span><a href="#try"><span class="en">Try it yourself</span><span class="zh">动手试一遍</span></a></li>
+    </ol>
+  </nav>
+
+  <section class="module" id="multipage">
+    <div class="module-head"><span class="stage">01</span><h2><span class="en">How the Multipage App Is Organised</span><span class="zh">多页应用是怎么组织的</span></h2></div>
+    <div class="module-file">app/Home.py · app/pages/*.py</div>
+    <p class="module-role">
+      <span class="en">Streamlit's multipage mechanism is "convention over configuration": no
+      routing code to write, it's generated automatically from <b>folder structure</b>.</span>
+      <span class="zh">Streamlit的多页机制是"约定优于配置"：不用写路由代码，靠<b>文件夹结构</b>自动生成。</span>
+    </p>
+<pre class="code">app/
+  Home.py                          <span class="cm"># <span class="en">entry file, streamlit run app/Home.py starts it</span><span class="zh">入口文件，streamlit run app/Home.py 启动它</span></span>
+  theme.py                         <span class="cm"># <span class="en">shared visual components (this note's main subject)</span><span class="zh">共用的视觉组件（本篇主角）</span></span>
+  lib.py                           <span class="cm"># <span class="en">shared data-loading functions (this note's main subject)</span><span class="zh">共用的数据加载函数（本篇主角）</span></span>
+  pages/
+    1_Go8_Benchmarking.py          <span class="cm"># <span class="en">sidebar item 1, the numeric prefix and underscores get stripped from the title</span><span class="zh">侧边栏第1项，标题去掉数字前缀和下划线</span></span>
+    2_Journal_Tier.py
+    3_Field_Analysis.py
+    4_International_Collaboration.py
+    5_Impact_Drivers.py
+    6_Scenario_Analysis.py</pre>
+    <ul class="syntax">
+      <li><span class="en"><b>The numeric prefix in filenames</b> (<code>1_</code>, <code>2_</code>...): only controls the sidebar ordering, never shown in the title — when Streamlit reads the <code>pages/</code> folder, it sorts by filename, then strips the number and underscore and swaps remaining underscores for spaces to auto-generate the nav text and URL path. This is also why <code>question_panel()</code>'s cross-page links can be written as <code>"/Field_Analysis#fa-q1-share"</code> — <code>Field_Analysis</code> is exactly what filename <code>3_Field_Analysis.py</code> looks like with the numeric prefix stripped.</span><span class="zh"><b>文件名里的数字前缀</b>(<code>1_</code>、<code>2_</code>...)：只控制侧边栏里的排列顺序，不会显示在标题上——Streamlit读取<code>pages/</code>文件夹时，按文件名排序，再把数字和下划线去掉、下划线换成空格，自动生成导航文字和URL路径。这也是为什么 <code>question_panel()</code> 里的跨页链接能写成 <code>"/Field_Analysis#fa-q1-share"</code>——<code>Field_Analysis</code>就是文件名<code>3_Field_Analysis.py</code>去掉数字前缀后的样子。</span></li>
+      <li><span class="en"><b>How shared code reaches the sub-pages</b>: <code>lib.py</code> opens with these lines —
+<pre class="code">SRC = Path(__file__).resolve().parents[1] / <span class="st">"src"</span>
+<span class="kw">if</span> str(SRC) <span class="kw">not</span> <span class="kw">in</span> sys.path:
+    sys.path.insert(0, str(SRC))</pre>
+      Streamlit automatically adds the entry script's directory (<code>Home.py</code>'s, i.e.
+      <code>app/</code>) to <code>sys.path</code>, so any page can write
+      <code>from lib import ...</code>, <code>import theme</code>. But <code>src/p36/</code>
+      isn't on that automatic path, so <code>lib.py</code> manually inserts <code>src/</code>
+      into <code>sys.path</code> too, so it can internally do
+      <code>from p36.analysis import ...</code> — this only needs doing once, inside
+      <code>lib.py</code>, because every page does <code>from lib import ...</code> and a
+      Python module only ever truly executes once.</span>
+      <span class="zh">共享代码怎么被子页面拿到</b>：<code>lib.py</code>开头有这几行——
+<pre class="code">SRC = Path(__file__).resolve().parents[1] / <span class="st">"src"</span>
+<span class="kw">if</span> str(SRC) <span class="kw">not</span> <span class="kw">in</span> sys.path:
+    sys.path.insert(0, str(SRC))</pre>
+      Streamlit会自动把入口脚本(<code>Home.py</code>)所在目录(<code>app/</code>)加进<code>sys.path</code>，
+      所以任何页面都能写<code>from lib import ...</code>、<code>import theme</code>。但<code>src/p36/</code>
+      不在这条自动路径上，所以<code>lib.py</code>自己手动把<code>src/</code>也插进<code>sys.path</code>，
+      这样它内部才能<code>from p36.analysis import ...</code>——这一步只需要在<code>lib.py</code>
+      里做一次，因为每个页面都会<code>from lib import ...</code>，Python的模块只会真正执行一次。</span></li>
+    </ul>
+  </section>
+
+  <section class="module" id="caching">
+    <div class="module-head"><span class="stage">02</span><h2><span class="en">How Data Gets "Read" — the Caching Layer</span><span class="zh">数据是怎么"读取"的 — 缓存层</span></h2></div>
+    <div class="module-file">app/lib.py</div>
+    <p class="module-role">
+      <span class="en">Streamlit's execution model is "every time the user touches a widget
+      (slider, dropdown...), the whole page script reruns start to finish." If every rerun
+      re-read parquet and re-ran groupby, one slider tick would take several seconds.
+      <code>lib.py</code>'s entire reason for existing is to centralise this caching layer.</span>
+      <span class="zh">Streamlit的执行模型是"每次用户碰一下控件(滑块、下拉框……)，整个页面脚本从头到尾
+      重新跑一遍"。如果每次都重新读parquet、重新groupby，点一下滑块要等好几秒。
+      <code>lib.py</code>存在的唯一理由就是把这一层"缓存"集中管理。</span>
+    </p>
+<pre class="code"><span class="kw">@st</span>.cache_data(show_spinner=<span class="st">"Loading publication data (deduplicated)…"</span>)
+<span class="kw">def</span> <span class="fn">load_deduplicated</span>():
+    <span class="kw">return</span> prepare.prepared_deduplicated()
+
+<span class="kw">@st</span>.cache_data(show_spinner=<span class="st">"Computing Q1 share by university…"</span>)
+<span class="kw">def</span> <span class="fn">get_q1_share_by_university</span>():
+    <span class="kw">return</span> journal_tier.q1_share_by_university(load_deduplicated())</pre>
+    <ul class="syntax">
+      <li><span class="en"><code>@st.cache_data</code>: a decorator — placed one line above a function definition, Streamlit remembers "this function was called once with this set of arguments," and returns the cached result directly on a second call with the <b>same arguments</b> instead of re-running the body. "Same arguments" is decided by hashing them.</span><span class="zh"><code>@st.cache_data</code>：装饰器(decorator)——加在函数定义上面一行，Streamlit会记住"这个函数、用这组参数调用过一次"，第二次用<b>同样的参数</b>调用时直接返回上次缓存的结果，不再重新执行函数体。判断"参数是否相同"是通过给参数计算哈希值实现的。</span></li>
+      <li><span class="en"><code>show_spinner="..."</code>: the spinner text shown while a cache miss is genuinely computing — not required, but with it the user knows exactly what step they're waiting on, instead of a generic blank spinner.</span><span class="zh"><code>show_spinner="..."</code>：缓存未命中、真的在计算时，页面上显示的转圈提示文字——不加也能用，但加了用户能知道"现在具体在等哪一步"，而不是一个空白的通用转圈图标。</span></li>
+      <li><span class="en"><b>Why no function takes a DataFrame argument</b>, calling <code>load_deduplicated()</code> internally to get its own data instead: the comment at the top of <code>lib.py</code> explains this directly — passing a whole DataFrame as an argument to an <code>@st.cache_data</code>-wrapped function forces Streamlit to hash the entire DataFrame just to decide "is this call the same as last time," and that hash itself can be slower than just recomputing the result. Letting a function call another already-cached function internally (<code>load_deduplicated()</code> is itself <code>@st.cache_data</code>) means the two cache layers each hit independently, with no need to pass a large object as an argument.</span><span class="zh"><b>为什么每个函数都不接收DataFrame参数</b>，而是在函数体内部自己调用<code>load_deduplicated()</code>去拿数据：<code>lib.py</code>顶部的注释专门解释了这一点——如果把一整个DataFrame当参数传给一个被<code>@st.cache_data</code>包装的函数，Streamlit得对整个DataFrame算一次哈希才能判断"这次调用和上次是不是同一组参数"，这个哈希计算本身可能比重新算一次结果还慢。让函数自己内部调用另一个同样被缓存的函数（<code>load_deduplicated()</code>本身也是<code>@st.cache_data</code>），两层缓存分别命中，就不需要传大对象当参数。</span></li>
+      <li><span class="en"><b>The call chain is layered</b>: page code calls <code>lib.get_xxx()</code> → <code>lib.get_xxx()</code> calls <code>load_deduplicated()</code> for data, then the real computation function in <code>src/p36/analysis/</code> → the computation function never touches the caching machinery directly. <code>lib.py</code>'s top comment says it plainly: "if a number looks wrong, the bug is in <code>src/p36/</code>, not here" — <code>lib.py</code>'s only job is "catch the result, cache it," no analysis logic of its own.</span><span class="zh"><b>调用链是分层的</b>：页面代码调 <code>lib.get_xxx()</code> → <code>lib.get_xxx()</code> 调 <code>load_deduplicated()</code> 拿数据、再调 <code>src/p36/analysis/</code> 里的真正计算函数 → 计算函数从不直接接触缓存机制。<code>lib.py</code>顶部注释写得很直接："如果一个数字看起来不对，bug在<code>src/p36/</code>里，不在这里"——<code>lib.py</code>只负责"接住结果、缓存住"，不做任何分析逻辑。</span></li>
+    </ul>
+    <div class="note">
+      <span class="lbl"><span class="en">Relation to the previous note</span><span class="zh">跟第一篇的关系</span></span>
+      <span class="en"><code>load_deduplicated()</code> internally calls <code>prepare.prepared_deduplicated()</code>,
+      which underneath that calls the previous note's <code>p36.dataset.load_deduplicated()</code>
+      to read the parquet file — the <code>prepare.py</code> layer additionally applies
+      <code>add_derived_flags()</code> after reading the parquet, so the DataFrame a Streamlit
+      page gets already carries columns like <code>is_q1</code>, <code>is_international</code>,
+      and page code never has to compute them itself.</span>
+      <span class="zh"><code>load_deduplicated()</code> 内部调的 <code>prepare.prepared_deduplicated()</code>，
+      再往下才是第一篇讲过的 <code>p36.dataset.load_deduplicated()</code> 读parquot文件——
+      <code>prepare.py</code>这一层是在读完parquot之后再叠加一次<code>add_derived_flags()</code>，
+      所以Streamlit页面拿到手的DataFrame已经带着<code>is_q1</code>、<code>is_international</code>
+      这些标记列了，不需要页面代码自己再算一次。</span>
+    </div>
+  </section>
+
+  <section class="module" id="sections">
+    <div class="module-head"><span class="stage">03</span><h2><span class="en">How Sections Are Designed</span><span class="zh">板块是怎么设计的</span></h2></div>
+    <div class="module-file">app/theme.py</div>
+    <p class="module-role">
+      <span class="en">Every page opens with the same four-step combo: <code>st.set_page_config(...)</code> →
+      <code>theme.inject()</code> → <code>theme.header(...)</code> →
+      <code>theme.question_panel([...])</code>. Every subsection below that repeats
+      <code>theme.anchor(id)</code> → <code>st.subheader(...)</code> → chart →
+      <code>theme.rule()</code>.</span>
+      <span class="zh">每个页面开头都是同一套四连招：<code>st.set_page_config(...)</code> →
+      <code>theme.inject()</code> → <code>theme.header(...)</code> →
+      <code>theme.question_panel([...])</code>。往下每个小节再重复
+      <code>theme.anchor(id)</code> → <code>st.subheader(...)</code> → 图表 →
+      <code>theme.rule()</code>。</span>
+    </p>
+
+    <div class="fn" id="fn-inject">
+      <div class="fn-head"><code class="name">theme.inject()</code></div>
+      <p class="fn-what"><span class="en">The first function every page calls, doing three things: registering the global Altair theme, injecting one whole block of CSS, and mounting the cross-page-jump "bridge."</span><span class="zh">每页最先调用的函数，做三件事：注册Altair全局主题、注入一整块CSS、挂载跨页跳转的"桥"。</span></p>
+<pre class="code">st.markdown(
+    <span class="st">f"""&lt;style&gt; ... &lt;/style&gt;"""</span>,
+    unsafe_allow_html=<span class="kw">True</span>,
+)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>st.markdown(html string, unsafe_allow_html=True)</code>: Streamlit's <code>st.markdown</code> is meant for "writing documents" (headings, bold, lists), but feeding it a whole <code>&lt;style&gt;...&lt;/style&gt;</code> or <code>&lt;div&gt;...&lt;/div&gt;</code> string, with <code>unsafe_allow_html=True</code> explicitly turned on, lets you insert arbitrary HTML/CSS into the page — this is the underlying trick behind every visual effect in <code>theme.py</code>; <code>header()</code>, <code>question_panel()</code>, <code>anchor()</code>, and <code>rule()</code> are all built on exactly this move.</span><span class="zh"><code>st.markdown(html字符串, unsafe_allow_html=True)</code>：Streamlit本来是把<code>st.markdown</code>当成"写文档"用的(标题、加粗、列表)，但把一整段<code>&lt;style&gt;...&lt;/style&gt;</code>或<code>&lt;div&gt;...&lt;/div&gt;</code>字符串传进去、并显式打开<code>unsafe_allow_html=True</code>，就能往页面里插入任意HTML/CSS——这是整个<code>theme.py</code>视觉效果的底层技巧，<code>header()</code>、<code>question_panel()</code>、<code>anchor()</code>、<code>rule()</code>全都是靠这一招实现的。</span></li>
+        <li><span class="en">CSS selectors heavily use the pattern <code>div[data-testid="stMetric"]</code>: <code>data-testid</code> is an attribute Streamlit's rendered HTML elements carry themselves, specifically designed so external CSS/test code can target a component precisely — far more stable than guessing at class names.</span><span class="zh">CSS选择器大量用<code>div[data-testid="stMetric"]</code>这种写法：<code>data-testid</code>是Streamlit渲染出的HTML元素自带的属性，专门为了"外部CSS/测试代码能精确定位到某个组件"设计的，比瞎猜class名字稳定得多。</span></li>
+      </ul>
+      <div class="caution">
+        <span class="lbl"><span class="en">A detail with genuine technical weight: cross-page anchor jumps</span><span class="zh">一个真正有技术含量的细节：跨页面锚点跳转</span></span>
+        <span class="en">The "answered on another page" questions in <code>question_panel()</code> need to jump
+        to a location on <b>a different</b> page when clicked — plain
+        <code>st.markdown(..., unsafe_allow_html=True)</code> can't do this, because
+        Streamlit's frontend doesn't execute injected <code>&lt;script&gt;</code> tags.
+        <code>inject()</code> ends by calling <code>_cross_page_scroll_bridge()</code>, which
+        uses <code>st.iframe()</code> to render a snippet of inline HTML/JS that genuinely
+        executes — the iframe shares an origin with the main page, so it can reach back and
+        manipulate the real page via <code>window.parent</code>: reading the
+        <code>#anchor</code> in the URL, polling for the target element to appear (after
+        Streamlit switches pages, the new page's elements "stream" in over the websocket
+        rather than being present all at once), and calling <code>scrollIntoView</code> once
+        found. It also records "the hash already handled" on <code>window.parent</code>, so
+        the user interacting with some other widget and triggering a rerun elsewhere on the
+        page doesn't get yanked back to the same anchor a second time.</span>
+        <span class="zh"><code>question_panel()</code>里"answered on another page"的问题，点击后要跳到<b>另一个</b>
+        页面的指定位置——单纯的<code>st.markdown(..., unsafe_allow_html=True)</code>做不到这件事，
+        因为Streamlit的前端不会执行插进去的<code>&lt;script&gt;</code>标签。<code>inject()</code>
+        最后调用了<code>_cross_page_scroll_bridge()</code>，用<code>st.iframe()</code>渲染一段
+        真正会执行的内联HTML/JS——iframe跟主页面同源，能通过<code>window.parent</code>反过来操作
+        真正的页面：读URL里的<code>#锚点</code>，轮询等目标元素出现（Streamlit切换页面后，新页面的
+        元素是通过websocket陆续"流"进来的，不是瞬间全部就位），找到了就<code>scrollIntoView</code>。
+        还在<code>window.parent</code>上记了一个"上次处理过的hash"，防止用户在页面上点别的控件、
+        触发页面重跑时，被同一个锚点再拽回去一次。</span>
+      </div>
+    </div>
+
+    <div class="fn" id="fn-header">
+      <div class="fn-head"><code class="name">theme.header(title, caption, shape, color)</code></div>
+      <p class="fn-what"><span class="en">The "colour block + big title + thick black rule + caption" combo at the top of every page.</span><span class="zh">每页最上面那个"色块 + 大标题 + 粗黑线 + 说明文字"的组合。</span></p>
+      <div class="demo">
+        <div class="swatch" style="background:var(--red);"></div>
+        <div style="font-family:var(--font-display);text-transform:uppercase;font-size:1.1rem;">GO8 BENCHMARKING</div>
+      </div>
+      <ul class="syntax">
+        <li><span class="en">The <code>shape</code> argument only takes three values — square/circle/triangle, mapped to red/blue/yellow respectively — and that's not arbitrary: the source comment says it's a nod to the Bauhaus painter Kandinsky's shape-colour associations (square-red, circle-blue, triangle-yellow); each of the 6 analysis pages has its own fixed shape+colour, so a glance at the colour block tells a user which page they're on.</span><span class="zh"><code>shape</code>参数只有三个取值——square/circle/triangle，分别对应红/蓝/黄——这不是随便选的：源码注释里写明是致敬包豪斯(Bauhaus)画家康定斯基提出的"形状-颜色"对应关系(正方形配红色、圆形配蓝色、三角形配黄色)，6个分析页面各自固定用哪个形状+颜色，让用户扫一眼色块就能区分自己在哪个页面。</span></li>
+        <li><span class="en">Of the three shapes, <code>square</code> and <code>circle</code> are both drawable in plain CSS (<code>border-radius:50%</code> for a circle); <code>triangle</code> is the classic pure-CSS trick — a zero-width, zero-height div, with transparent <code>border-left</code>/<code>border-right</code> and a solid <code>border-bottom</code> drawing a triangle, no image or SVG required.</span><span class="zh">三种形状里，<code>square</code>和<code>circle</code>都是CSS就能画的(<code>border-radius:50%</code>画圆)，<code>triangle</code>是纯CSS的经典技巧——一个宽高为0的div，靠<code>border-left</code>/<code>border-right</code>透明、<code>border-bottom</code>实色画出一个三角形，不需要任何图片或SVG。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-question_panel">
+      <div class="fn-head"><code class="name">theme.question_panel(items)</code></div>
+      <p class="fn-what"><span class="en">The "which sub-questions does this page answer" checklist, where each item may be a clickable jump link.</span><span class="zh">"本页回答哪些子问题"清单，每一项可能是可点击的跳转链接。</span></p>
+<pre class="code">question, status, anchor_id = (*item, <span class="kw">None</span>)[:3]
+<span class="kw">if</span> anchor_id:
+    href = anchor_id <span class="kw">if</span> anchor_id.startswith(<span class="st">"/"</span>) <span class="kw">else</span> <span class="st">f"#{anchor_id}"</span>
+    question_html = <span class="st">f'&lt;a href="{href}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
+<span class="kw">else</span>:
+    question_html = question</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>(*item, None)[:3]</code>: compact but worth unpacking. <code>item</code> may be a 2-tuple (question, status) or a 3-tuple (question, status, anchor). <code>*item</code> first "spreads" the tuple into individual elements, appends one <code>None</code>, forming a new tuple of at least 3 elements, then <code>[:3]</code> takes only the first 3 — so whether the caller passed 2 or 3 elements, the unpacked <code>anchor_id</code> is either a real anchor id or <code>None</code>, without writing an <code>if len(item) == 3</code> check.</span><span class="zh"><code>(*item, None)[:3]</code>：一个紧凑但值得拆开看的写法。<code>item</code>可能是2元组(问题, 状态)或3元组(问题, 状态, 锚点)。<code>*item</code>先把元组"展开"成单个元素，后面补一个<code>None</code>，拼成至少3个元素的新元组，再用<code>[:3]</code>只取前3个——这样不管调用方传了2个还是3个元素，解包出来的<code>anchor_id</code>要么是真的锚点id，要么就是<code>None</code>，不用写<code>if len(item) == 3</code>这种判断。</span></li>
+        <li><span class="en"><b>Two shapes of href</b>: if <code>anchor_id</code> starts with <code>/</code> (e.g. <code>/Field_Analysis#fa-q1-share</code>), it's used as-is as a URL — this is "jump to another page"; otherwise it's assembled into <code>#anchor_id</code> — "jump somewhere within this page," relying purely on the browser's native anchor jump, no JS required.</span><span class="zh"><b>href的两种形态</b>：如果<code>anchor_id</code>以<code>/</code>开头(比如<code>/Field_Analysis#fa-q1-share</code>)，原样当URL用——这是"跳到另一个页面"；否则拼成<code>#锚点id</code>——这是"跳到本页面内的某处"，纯靠浏览器原生的锚点跳转，不需要任何JS。</span></li>
+        <li><span class="en"><code>_STATUS_STYLE</code> is a dict whose keys are status strings (<code>"done"</code>/<code>"partial"</code>/<code>"elsewhere"</code>/<code>"open"</code>) and whose values are a 3-tuple <code>(icon, background, foreground)</code> — each item just looks up the corresponding visual style from the dict, instead of a long if/elif chain.</span><span class="zh"><code>_STATUS_STYLE</code>是一个字典，key是状态字符串(<code>"done"</code>/<code>"partial"</code>/<code>"elsewhere"</code>/<code>"open"</code>)，value是一个三元组<code>(图标, 背景色, 前景色)</code>——每一项直接查字典拿到对应的视觉样式，不用写一长串if/elif。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-anchor-rule">
+      <div class="fn-head"><code class="name">theme.anchor(id) / theme.rule()</code></div>
+      <p class="fn-what"><span class="en">Two functions only a few lines long — a "jump landing spot" and a "divider," respectively.</span><span class="zh">两个只有几行的小函数，分别是"跳转落点"和"分隔线"。</span></p>
+<pre class="code"><span class="kw">def</span> <span class="fn">anchor</span>(anchor_id):
+    st.markdown(<span class="st">f'&lt;div id="{anchor_id}" class="qanchor"&gt;&lt;/div&gt;'</span>, unsafe_allow_html=<span class="kw">True</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en">Just inserts an empty, invisible <code>&lt;div id="..."&gt;</code> — the browser natively supports "jump to the element with this id" (append <code>#that-id</code> to the URL); this function's only job is "put something jumpable in the right place," paired with the <code>scroll-margin-top: 90px</code> CSS in <code>inject()</code>, so the landing spot isn't hidden under Streamlit's own top toolbar after the jump.</span><span class="zh">就是插入一个空的、看不见的<code>&lt;div id="..."&gt;</code>——浏览器原生支持"跳到某个id的元素"这个功能(URL加<code>#那个id</code>)，这个函数只是负责"在正确的位置放一个能被跳到的东西"，配合<code>inject()</code>里CSS的<code>scroll-margin-top: 90px</code>，跳过去的时候不会被Streamlit自己的顶部工具栏挡住标题。</span></li>
+        <li><span class="en">Placement matters: it must sit immediately above the corresponding <code>st.subheader(...)</code>, so the landing spot and the visual heading line up.</span><span class="zh">放置位置很讲究：必须紧挨在对应的<code>st.subheader(...)</code>之上，这样跳转落点和视觉标题对得上。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-layout">
+      <div class="fn-head"><code class="name"><span class="en">st.columns / st.tabs — built-in layout components</span><span class="zh">st.columns / st.tabs — 页面自带的排版组件</span></code></div>
+      <p class="fn-what"><span class="en">Outside of theme.py, the two Streamlit-native components most often used to "split into sections."</span><span class="zh">theme.py之外，Streamlit原生组件里最常用来"分板块"的两个。</span></p>
+<pre class="code">col_a, col_b = st.columns(2)
+<span class="kw">with</span> col_a:
+    st.subheader(<span class="st">"Gap by field"</span>)
+    st.altair_chart(...)
+<span class="kw">with</span> col_b:
+    st.subheader(<span class="st">"Gap by year"</span>)
+    st.altair_chart(...)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>st.columns(2)</code>: splits the current area horizontally into 2 equal parts, returning two "container" objects; a ratio can be passed too, e.g. <code>st.columns([3, 2])</code> for a 3:2 split.</span><span class="zh"><code>st.columns(2)</code>：把当前区域横向切成2等份，返回两个"容器"对象，可以传比例比如<code>st.columns([3, 2])</code>表示3:2。</span></li>
+        <li><span class="en"><code>with col_a:</code>: Python's context manager syntax — every <code>st.xxx()</code> call inside the <code>with</code> block renders into the <code>col_a</code> column, not the full page width.</span><span class="zh"><code>with col_a:</code>：Python的上下文管理器(context manager)语法——<code>with</code>代码块里所有的<code>st.xxx()</code>调用，都会渲染进<code>col_a</code>这一栏，而不是整个页面宽度。</span></li>
+        <li><span class="en"><code>st.tabs(["Strongest partners", "Weakest partners"])</code>: a similar idea, but returns "tabs" rather than "side-by-side columns" — only one shown at a time, switched by clicking the title. The Journal Tier and Scenario Analysis pages use it to hold "over-performing/under-performing" charts for both directions, avoiding two long horizontal bar charts crowding each other.</span><span class="zh"><code>st.tabs(["Strongest partners", "Weakest partners"])</code>：类似的写法，返回的是"标签页"而不是"并排栏"，同一时间只显示一个，用户点标题切换——Journal Tier和Scenario Analysis页面用它来放"跑赢/跑输"两个方向的图表，避免同时塞两张长条形图挤在一起。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="altair">
+    <div class="module-head"><span class="stage">04</span><h2><span class="en">How a Chart Gets "Built"</span><span class="zh">图表是怎么"构"出来的</span></h2></div>
+    <div class="module-file"><span class="en">Altair (Vega-Lite) · theme.py's charting infrastructure</span><span class="zh">Altair(Vega-Lite) · theme.py 的图表基础设施</span></div>
+    <p class="module-role">
+      <span class="en">Every chart on the whole platform uses only Altair (bundled with
+      Streamlit, no extra install). Altair's core idea is called "grammar of graphics": rather
+      than saying "draw a bar," you say "which column maps to the x-axis, which to the y-axis,
+      which to colour," and the library figures out the layout itself.</span>
+      <span class="zh">整个平台图表只用Altair一个库(Streamlit自带，不用额外装)。Altair的核心思想叫
+      "图形语法"(grammar of graphics)：不直接说"画一根柱子"，而是说"数据的哪一列
+      对应x轴、哪一列对应y轴、哪一列对应颜色"，剩下的排布交给库自己算。</span>
+    </p>
+
+    <div class="fn" id="fn-basic-chart">
+      <div class="fn-head"><code class="name"><span class="en">The most basic chart — Go8 Benchmarking's comparison bar</span><span class="zh">最基础的一张图 — Go8 Benchmarking 的对比柱状图</span></code></div>
+<pre class="code">bar = (
+    alt.Chart(bar_df)
+    .mark_bar()
+    .encode(
+        x=alt.X(<span class="st">"university:N"</span>, title=<span class="st">""</span>, sort=<span class="st">"-y"</span>, axis=alt.Axis(labelAngle=-30)),
+        y=alt.Y(<span class="st">f"{metric_choice}:Q"</span>, title=metric_choice.replace(<span class="st">"_"</span>, <span class="st">" "</span>).title()),
+        color=alt.Color(
+            <span class="st">"is_client:N"</span>, legend=<span class="kw">None</span>,
+            scale=alt.Scale(domain=[<span class="kw">True</span>, <span class="kw">False</span>], range=[theme.RED, theme.BLUE]),
+        ),
+        tooltip=[<span class="st">"university"</span>, metric_choice],
+    )
+)
+st.altair_chart(theme.style(bar), use_container_width=<span class="kw">True</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>alt.Chart(bar_df)</code>: tells Altair "this DataFrame is the chart's data source" — every column name written in <code>encode</code> afterwards is pulled from <code>bar_df</code>'s columns.</span><span class="zh"><code>alt.Chart(bar_df)</code>：告诉Altair"图表的数据源是这个DataFrame"——之后所有<code>encode</code>里写的列名，都是从<code>bar_df</code>的列里取。</span></li>
+        <li><span class="en"><code>.mark_bar()</code>: picks the mark — a bar chart. Swap in <code>.mark_line()</code> for a line, <code>.mark_circle()</code> for a scatter, <code>.mark_boxplot()</code> for a box plot, <code>.mark_arc()</code> for a pie/donut — the mark type is decided in this one step, a separate concern from which columns get mapped in <code>encode</code> below.</span><span class="zh"><code>.mark_bar()</code>：选图形——柱状图。换成<code>.mark_line()</code>就是折线图，<code>.mark_circle()</code>是散点图，<code>.mark_boxplot()</code>是箱线图，<code>.mark_arc()</code>是饼图/环形图——图形种类由这一步单独决定，跟下面<code>encode</code>里映射哪些列是分开的两件事。</span></li>
+        <li><span class="en"><code>x=alt.X("university:N", ...)</code>: <b>the letter after the colon is a data-type annotation</b>, mandatory in Altair's syntax — <code>N</code>=nominal (unordered category, e.g. university name), <code>Q</code>=quantitative (numeric), <code>O</code>=ordinal (ordered category, e.g. year), <code>T</code>=temporal (date/time). The same numeric column, marked <code>Q</code> vs. <code>O</code>, produces different axis ticks and sort behaviour — getting the type wrong is the most common beginner mistake in Altair.</span><span class="zh"><code>x=alt.X("university:N", ...)</code>：<b>冒号后面的字母是数据类型标注</b>，Altair的语法里必须写——<code>N</code>=nominal(无序分类，比如大学名)，<code>Q</code>=quantitative(数值)，<code>O</code>=ordinal(有序分类，比如年份)，<code>T</code>=temporal(日期时间)。同一列数字，标成<code>Q</code>和标成<code>O</code>画出来的轴刻度、排序方式都不一样，写错类型是Altair新手最容易踩的坑。</span></li>
+        <li><span class="en"><code>sort="-y"</code>: sorts the x-axis categories descending by the y-axis value — this is why the bar chart is always neatly sorted "highest to lowest" rather than scattered alphabetically by university name.</span><span class="zh"><code>sort="-y"</code>：按y轴的值从大到小排序x轴的类别——这就是柱状图为什么总是"从高到低"排好看，而不是按大学名字母顺序乱排的原因。</span></li>
+        <li><span class="en"><code>axis=alt.Axis(labelAngle=-30)</code>: axis fine-tuning — here rotating the x-axis labels 30° counter-clockwise, since university names would crowd together laid out horizontally.</span><span class="zh"><code>axis=alt.Axis(labelAngle=-30)</code>：坐标轴的细节设置，这里是把x轴标签逆时针转30度，大学名字太长横排会挤在一起。</span></li>
+        <li><span class="en"><b>The binary colour-mapping trick</b>: <code>is_client</code> is a boolean column (is this row Sydney), and <code>scale=alt.Scale(domain=[True, False], range=[theme.RED, theme.BLUE])</code> explicitly pins "True (Sydney) → red, False (other universities) → blue" — without <code>scale</code>, Altair picks colours itself and there's no guarantee Sydney is always red; this "pin a dedicated colour to the key category" pattern shows up in nearly every chart.</span><span class="zh"><b>color的二元映射技巧</b>：<code>is_client</code>是一个布尔列(这一行是不是悉尼)，<code>scale=alt.Scale(domain=[True, False], range=[theme.RED, theme.BLUE])</code>显式规定"True(悉尼)→红色，False(其它大学)→蓝色"——不写<code>scale</code>的话Altair会自己挑颜色，不保证悉尼总是红色，这种"给关键类别固定专属颜色"的写法在几乎每张图里都用了一遍。</span></li>
+        <li><span class="en"><code>tooltip=["university", metric_choice]</code>: which columns show up in the hover tooltip — just a list of column names.</span><span class="zh"><code>tooltip=["university", metric_choice]</code>：鼠标悬停时弹出的提示框里显示哪些列，直接给一个列名的list。</span></li>
+        <li><span class="en"><code>theme.style(bar)</code>: the project's own small wrapper (<code>chart.properties(width="container", height=340)</code>) — makes the chart width auto-fill whatever Streamlit column it's currently in, instead of Altair's default fixed pixel width.</span><span class="zh"><code>theme.style(bar)</code>：项目自己封装的小函数(<code>chart.properties(width="container", height=340)</code>)——让图表宽度跟随Streamlit当前所在的栏(column)自动撑满，而不是Altair默认的固定像素宽度。</span></li>
+        <li><span class="en"><code>st.altair_chart(chart, use_container_width=True)</code>: the call that actually renders the chart — <code>use_container_width=True</code> and <code>theme.style()</code> are used as a pair, one handling width fitting the container, the other giving a consistent default height.</span><span class="zh"><code>st.altair_chart(chart, use_container_width=True)</code>：真正把图表渲染出来的调用——<code>use_container_width=True</code>和<code>theme.style()</code>是配合使用的一对，一个管宽度自适应容器，一个管高度给一个统一的默认值。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-global-theme">
+      <div class="fn-head"><code class="name"><span class="en">theme._register_altair_theme() — the global theme</span><span class="zh">theme._register_altair_theme() — 全局主题</span></code></div>
+      <p class="fn-what"><span class="en">Why most charts don't set colour, font, or gridline styles individually — because they're registered globally once, in <code>inject()</code>.</span><span class="zh">为什么大部分图表都不用逐个设置颜色、字体、网格线样式——因为在<code>inject()</code>里全局注册过一次。</span></p>
+<pre class="code">alt.themes.register(<span class="st">"bauhaus"</span>, _bauhaus)
+alt.themes.enable(<span class="st">"bauhaus"</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>alt.themes.register(name, function returning a config dict)</code>: registers a whole set of default styles (axis colour, font, legend position, bar stroke...) as a reusable "theme" — the dict <code>_bauhaus()</code> returns configures default styles from <code>axis</code> to <code>legend</code> to every mark type (<code>bar</code>/<code>line</code>/<code>arc</code>).</span><span class="zh"><code>alt.themes.register(名字, 返回配置字典的函数)</code>：把一整套默认样式(坐标轴颜色、字体、图例位置、柱状图描边……)注册成一个可复用的"主题"，<code>_bauhaus()</code>函数返回的字典里配置了从<code>axis</code>到<code>legend</code>到<code>bar</code>/<code>line</code>/<code>arc</code>每种图形的默认样式。</span></li>
+        <li><span class="en"><code>alt.themes.enable("bauhaus")</code>: activates the theme — once active, <b>every Altair chart created afterwards</b> on the page automatically picks up this configuration unless it explicitly overrides a style. That's why every chart's axis is the same solid black line, the same font, and page code almost never repeats style settings.</span><span class="zh"><code>alt.themes.enable("bauhaus")</code>：激活这个主题——激活之后，页面上<b>之后创建的每一张</b>Altair图表，只要没有显式覆盖某个样式，都会自动套用这套配置。这就是为什么每张图的坐标轴都是同样的黑色实线、同样的字体，而页面代码里几乎看不到重复的样式设置。</span></li>
+        <li><span class="en"><code>"range": {"category": PALETTE, "ordinal": SEQUENTIAL_RANGE}</code>: even "which colour set to default to when categorical colour isn't explicitly scaled" is configured in the global theme (blue→red→yellow→black→grey, in that order), so a chart like Field Analysis's donut that never hand-writes <code>alt.Scale</code> still doesn't fall back to Vega-Lite's own default blue-orange-green.</span><span class="zh"><code>"range": {"category": PALETTE, "ordinal": SEQUENTIAL_RANGE}</code>：连"没有显式指定scale的分类颜色，默认用哪一组颜色"都在全局主题里配好了(蓝→红→黄→黑→灰这个顺序)，所以像Field Analysis的环形图这种没手动写<code>alt.Scale</code>的图，颜色也不会是Vega-Lite自带的默认蓝橙绿。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-radar">
+      <div class="fn-head"><code class="name"><span class="en">An advanced example: the radar chart is "faked"</span><span class="zh">进阶例子：雷达图是"骗"出来的</span></code></div>
+      <p class="fn-what"><span class="en">Vega-Lite has no polar coordinate system — the Go8 Benchmarking page's radar chart converts "angle + radius" into "x, y" by hand.</span><span class="zh">Vega-Lite没有极坐标系统，Go8 Benchmarking页面的雷达图是手动把"角度+半径"换算成"x,y"画出来的。</span></p>
+<pre class="code">angles = [2 * np.pi * i / n - np.pi / 2 <span class="kw">for</span> i <span class="kw">in</span> range(n)]  <span class="cm"># <span class="en">starting from 12 o'clock, clockwise</span><span class="zh">从12点钟方向开始，顺时针</span></span>
+
+<span class="kw">def</span> <span class="fn">_radar_points</span>(series_name, values):
+    pts = list(zip(values, angles, radar_labels))
+    pts.append(pts[0])  <span class="cm"># <span class="en">close the shape: repeat the first point again at the end</span><span class="zh">闭合图形：把第一个点再重复一次接到末尾</span></span>
+    <span class="kw">return</span> [
+        {<span class="st">"series"</span>: series_name, <span class="st">"order"</span>: i, <span class="st">"r"</span>: r,
+         <span class="st">"x"</span>: r * np.cos(a), <span class="st">"y"</span>: r * np.sin(a)}
+        <span class="kw">for</span> i, (r, a, label) <span class="kw">in</span> enumerate(pts)
+    ]</pre>
+      <ul class="syntax">
+        <li><span class="en">Each metric is first normalised into a 0~1 "radius" <code>r</code> (min-max scaling — the lowest of the 8 universities is 0, the highest is 1), paired with a pre-assigned angle <code>a</code> (dividing the 360° circle evenly among the metrics via <code>2π×index/total</code>).</span><span class="zh">每个指标先归一化成0~1的"半径"<code>r</code>(min-max缩放，8所大学里最低的算0、最高的算1)，再配一个提前分好的角度<code>a</code>(用<code>2π×序号/总数</code>把一圈360度均匀切给几个指标)。</span></li>
+        <li><span class="en"><code>x = r·cos(a)</code>, <code>y = r·sin(a)</code>: the polar-to-Cartesian formula from high-school maths — this is exactly what converts "this metric is ranked such-and-such, and its value is this" into an (x, y) point that a plain scatter/line chart can draw.</span><span class="zh"><code>x = r·cos(a)</code>、<code>y = r·sin(a)</code>：高中学过的极坐标转直角坐标公式——本质上就是把"这个指标排第几、这个指标的值是多少"，转换成一个普通散点图/折线图能画的(x, y)点。</span></li>
+        <li><span class="en"><code>pts.append(pts[0])</code>: a line chart needs to "close into a polygon," so the starting point is deliberately repeated once more at the end — skip this and the shape is missing one edge, a hexagon drawn as an open six-segment line instead.</span><span class="zh"><code>pts.append(pts[0])</code>：折线图要"连成一个封闭的多边形"，所以特意把起点在末尾再重复一遍——不加这一步，图形会缺一条边，六边形会画成一个开口的六段折线。</span></li>
+        <li><span class="en">Once (x, y) is computed, the rest is a plain <code>alt.Chart(radar_df).mark_line(...).encode(x="x:Q", y="y:Q", order="order:Q", color="series:N")</code> — the radar chart "looks like" polar coordinates, but as far as Altair is concerned it's always just an ordinary Cartesian line chart, with coordinates pre-computed in pandas/numpy.</span><span class="zh">算出(x, y)之后，剩下就是普通的<code>alt.Chart(radar_df).mark_line(...).encode(x="x:Q", y="y:Q", order="order:Q", color="series:N")</code>——雷达图"看起来"是极坐标，但对Altair来说，它自始至终只是一张普通的直角坐标折线图，坐标是提前在pandas/numpy里算好的。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="reshape">
+    <div class="module-head"><span class="stage">05</span><h2><span class="en">From pandas to Altair: What Shape the Data Needs</span><span class="zh">从pandas到Altair：数据要长成什么样</span></h2></div>
+    <p class="module-role">
+      <span class="en">Altair requires "tidy data": <b>each row is one observation, each column
+      is one variable</b>. But pandas operations like <code>groupby()</code> and
+      <code>value_counts()</code> often produce a Series (category as the index), or a "wide
+      table" (each category gets its own column) — these usually need a shape change before
+      Altair can eat them.</span>
+      <span class="zh">Altair要求"整洁数据"(tidy data)：<b>每一行是一个观测，每一列是一个变量</b>。
+      但<code>groupby()</code>、<code>value_counts()</code>这些pandas操作算出来的常常是一个
+      Series(用类别当索引)，或者一张"宽表"(每个类别自己占一列)——喂给Altair之前通常要转一次形状。</span>
+    </p>
+
+    <div class="fn" id="fn-series-to-df">
+      <div class="fn-head"><code class="name"><span class="en">Series → two-column DataFrame: </span><code>.rename_axis().reset_index(name=...)</code></code></div>
+<pre class="code">q1_uni = get_q1_share_by_university().sort_values(ascending=<span class="kw">False</span>)
+<span class="cm"># <span class="en">q1_uni is now a Series: the index is university name, the value is Q1 share — Altair can't consume an "index" directly</span><span class="zh">q1_uni 现在是一个Series：索引是大学名，值是Q1份额——Altair不能直接吃"索引"</span></span>
+q1_uni_df = q1_uni.rename_axis(<span class="st">"university"</span>).reset_index(name=<span class="st">"q1_share"</span>)
+<span class="cm"># <span class="en">now it's a two-column table: university | q1_share</span><span class="zh">转完是一张两列的表：university | q1_share</span></span></pre>
+      <ul class="syntax">
+        <li><span class="en"><code>.rename_axis("university")</code>: gives the Series's <b>index</b> a name (it might have had none, or a different one).</span><span class="zh"><code>.rename_axis("university")</code>：给Series的<b>索引</b>起一个名字(原来索引可能没名字，或者叫别的)。</span></li>
+        <li><span class="en"><code>.reset_index(name="q1_share")</code>: "pulls the index off" into a plain column, and <code>name=</code> simultaneously names what was the <b>value</b> column — chained together, a Series with "university name as index" becomes a standard two-column DataFrame with <code>university</code> and <code>q1_share</code>, ready to feed <code>alt.X("university:N")</code> and <code>alt.Y("q1_share:Q")</code>.</span><span class="zh"><code>.reset_index(name="q1_share")</code>：把索引"拆下来"变成普通的一列，<code>name=</code>参数顺便给原来的<b>值</b>那一列起名字——两步连起来，一个"大学名当索引"的Series就变成了一张<code>university</code>、<code>q1_share</code>两列的标准DataFrame，正好可以喂给<code>alt.X("university:N")</code>、<code>alt.Y("q1_share:Q")</code>。</span></li>
+        <li><span class="en">This combination appears dozens of times across the six pages — the most common fixed idiom for "pandas aggregation result → Altair input," worth memorising.</span><span class="zh">这个组合在6个页面里出现了几十次，是"pandas聚合结果 → Altair输入"最常见的固定写法，值得背下来。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-melt">
+      <div class="fn-head"><code class="name"><span class="en">Wide table → long table: </span><code>.melt()</code></code></div>
+      <p class="fn-what"><span class="en">Journal Tier page: two numbers, "highly-cited share" and "uncited share," need to become one grouped, colour-coded bar chart.</span><span class="zh">Journal Tier页面："高被引占比"和"零引用占比"两个数字，要画成同一张图里、按颜色区分的分组柱状图。</span></p>
+<pre class="code">shares_long = quartile_df.melt(
+    id_vars=<span class="st">"quartile"</span>,
+    value_vars=[<span class="st">"top_decile_share"</span>, <span class="st">"uncited_share"</span>],
+    var_name=<span class="st">"metric"</span>, value_name=<span class="st">"share"</span>,
+)
+<span class="cm"># <span class="en">before (wide): quartile | top_decile_share | uncited_share      one row per tier</span><span class="zh">转前(宽表)：quartile | top_decile_share | uncited_share      一行一个分位</span></span>
+<span class="cm"># <span class="en">after (long): quartile | metric | share                         one row per (tier, metric) pair</span><span class="zh">转后(长表)：quartile | metric | share                        一行一个"分位+指标"组合</span></span></pre>
+      <ul class="syntax">
+        <li><span class="en"><code>id_vars="quartile"</code>: the column kept unchanged, used as the "identifier column" during the transform.</span><span class="zh"><code>id_vars="quartile"</code>：转换时保持不变、当"标识列"用的列。</span></li>
+        <li><span class="en"><code>value_vars=[...]</code>: the columns to be "taken apart" — originally two columns side by side, they become different rows of the same <code>share</code> column, with a <code>metric</code> column marking which original column each row came from.</span><span class="zh"><code>value_vars=[...]</code>：要被"拆开"的那几列——原来是两列并排放，拆开之后变成同一列<code>share</code>里的不同行，用<code>metric</code>列标记这一行原来是哪一列。</span></li>
+        <li><span class="en">Why take it apart at all: Altair uses <code>color="metric:N"</code> to assign "highly cited" and "uncited" different colours, paired with <code>xOffset="metric:N"</code> to place the two bars for the same tier side by side — this "group/colour by a column's values" mechanism requires the data to already be a "long table," where each row maps to exactly one colour. If the two numbers were still two columns side by side in the same row, Altair would have no way to pull a colourable category value from a "column name" itself.</span><span class="zh">为什么要拆：Altair用<code>color="metric:N"</code>给"高被引"和"零引用"分配不同颜色、再配<code>xOffset="metric:N"</code>让同一个分位下两根柱子并排放——这套"用一列的值来分组/上色"的机制，前提是数据已经是"长表"，每一行只能对应一种颜色。如果两个数字还并排放在同一行的两列里，Altair没法从"列名"本身取到一个能拿来上色的类别值。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-assign">
+      <div class="fn-head"><code class="name"><span class="en">Compute a column on the fly, then chart it: </span><code>.assign()</code></code></div>
+<pre class="code">highly_cited_df = field_summary.reset_index(names=<span class="st">"field"</span>).assign(
+    highly_cited_count=<span class="kw">lambda</span> d: (d[<span class="st">"publications"</span>] * d[<span class="st">"top_decile_share"</span>]).round().astype(int)
+)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>.reset_index(names="field")</code>: the DataFrame-flavoured version of the earlier <code>rename_axis+reset_index(name=)</code> combo (the index already has a name here, so it's renamed directly via <code>reset_index</code>'s <code>names=</code> argument, no separate <code>rename_axis</code> needed).</span><span class="zh"><code>.reset_index(names="field")</code>：跟前面的<code>rename_axis+reset_index(name=)</code>是同一件事的DataFrame版本(索引本来就有值了，直接在<code>reset_index</code>里用<code>names=</code>参数重命名，不用先<code>rename_axis</code>)。</span></li>
+        <li><span class="en"><code>.assign(new_col=lambda d: expression)</code>: method-chaining style new column — the <code>d</code> inside <code>lambda d: ...</code> refers to the DataFrame at the moment <code>.assign()</code> is called, which lets a whole pipeline be written as one chain (<code>df.reset_index(...).assign(...).sort_values(...)</code>) without repeatedly assigning to temp variables in between. Here it computes "the absolute count of highly-cited papers" = publication count × highly-cited share, rounded to an integer, on the fly.</span><span class="zh"><code>.assign(新列名=lambda d: 表达式)</code>：链式(method chaining)风格新增一列——<code>lambda d: ...</code>里的<code>d</code>指的就是<code>.assign()</code>被调用时那一刻的DataFrame本身，好处是可以写成一整条链(<code>df.reset_index(...).assign(...).sort_values(...)</code>)而不用中间反复赋值给临时变量。这里现算"高被引论文的绝对数量"= 发文量 × 高被引占比，四舍五入取整。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="glossary">
+    <div class="module-head"><span class="stage">06</span><h2><span class="en">Syntax Cheat Sheet</span><span class="zh">语法速查表</span></h2></div>
+    <dl class="glossary">
+      <div class="gterm"><dt>@st.cache_data</dt><dd><span class="en">Decorator: on a second call with the same arguments, returns the cached result directly instead of re-running the body. Functions shouldn't take a DataFrame as an argument (hashing it is expensive) — they should fetch their own data internally instead.</span><span class="zh">装饰器：同样参数第二次调用直接返回缓存结果，不重新执行函数体。函数不要接收DataFrame做参数(哈希代价高)，应在函数体内部自己去拿数据。</span></dd></div>
+      <div class="gterm"><dt>st.markdown(html, unsafe_allow_html=True)</dt><dd><span class="en">Nominally a component for rendering Markdown text; with this switch on it can insert arbitrary HTML/CSS, and is the underlying implementation for almost every visual component in theme.py.</span><span class="zh">本来是渲染Markdown文本的组件，打开这个开关后能插入任意HTML/CSS，是theme.py几乎所有视觉组件的底层实现方式。</span></dd></div>
+      <div class="gterm"><dt>st.columns(n) / st.tabs([...])</dt><dd><span class="en">"Side-by-side columns" and "tab switching" respectively, paired with <code>with container:</code> syntax to confine rendered content to one column/tab.</span><span class="zh">分别是"并排栏"和"标签页切换"，配合<code>with 容器:</code>语法把渲染内容限定在某一栏/某一个标签页里。</span></dd></div>
+      <div class="gterm"><dt>alt.Chart(df).mark_X().encode(...)</dt><dd><span class="en">Altair's three-part structure: data source → mark type (bar/line/circle/boxplot/arc...) → mapping column names to visual channels (x/y/color/size/tooltip).</span><span class="zh">Altair三段式：数据源 → 图形种类(bar/line/circle/boxplot/arc...) → 把列名映射到视觉通道(x/y/color/size/tooltip)。</span></dd></div>
+      <div class="gterm"><dt>":N" / ":Q" / ":O" / ":T"</dt><dd><span class="en">Altair's data-type annotations, written after the colon following a column name in encode — nominal (unordered category)/quantitative/ordinal (ordered category)/temporal. Get the type wrong and both axis ticks and sort order go wrong with it.</span><span class="zh">Altair的数据类型标注，写在encode里列名冒号后面——名义(无序分类)/数值/有序分类/时间。类型标错，坐标轴刻度和排序方式会跟着错。</span></dd></div>
+      <div class="gterm"><dt>alt.Scale(domain=..., range=...)</dt><dd><span class="en">Explicitly specifies the "data value → visual attribute (colour/size)" mapping rule, often used to pin a dedicated colour to one category (e.g. the client university) instead of letting the library auto-assign one.</span><span class="zh">显式指定"数据值→视觉属性(颜色/大小)"的映射规则，常用来给某个类别(比如客户大学)固定专属颜色，而不是让库自动分配。</span></dd></div>
+      <div class="gterm"><dt>alt.themes.register / enable</dt><dd><span class="en">Registers a whole default-style set as a reusable global theme and activates it; charts created afterwards pick it up automatically, no need to repeat settings per chart.</span><span class="zh">把一整套默认样式注册成可复用的全局主题并激活，之后创建的图表自动套用，不用每张图重复设置。</span></dd></div>
+      <div class="gterm"><dt>sort="-y" / sort="-x"</dt><dd><span class="en">Sorts the category axis descending by the corresponding axis's value — how a bar chart gets laid out "highest to lowest."</span><span class="zh">按对应轴的值降序排列类别轴——柱状图"从高到低"排列的实现方式。</span></dd></div>
+      <div class="gterm"><dt>.rename_axis(name).reset_index(name=value_col_name)</dt><dd><span class="en">Turns a "category as index" Series into a two-column DataFrame Altair can consume directly.</span><span class="zh">把一个"类别当索引"的Series转成Altair能直接使用的两列DataFrame。</span></dd></div>
+      <div class="gterm"><dt>.melt(id_vars=, value_vars=, var_name=, value_name=)</dt><dd><span class="en">Wide-to-long: splits side-by-side columns into a "category column + value column" pair, the standard reshape before drawing a grouped/colour-coded bar chart.</span><span class="zh">宽表转长表——把并排的几列拆成"类别列+数值列"，是画分组/分色柱状图前的标准数据整形步骤。</span></dd></div>
+      <div class="gterm"><dt>.assign(new_col=lambda d: expression)</dt><dd><span class="en">Chain-style new column; <code>d</code> inside <code>lambda</code> refers to the DataFrame at that point in the chain, letting multi-step processing be written as one chain.</span><span class="zh">链式新增一列，<code>lambda</code>里的<code>d</code>指调用时刻的DataFrame本身，便于把多步处理写成一条链。</span></dd></div>
+      <div class="gterm"><dt>theme.style(chart) + use_container_width=True</dt><dd><span class="en">The project's own responsive-sizing wrapper — width fills its container, height gets a consistent default.</span><span class="zh">项目自定义的响应式尺寸封装——宽度撑满所在容器，高度给统一默认值。</span></dd></div>
+      <div class="gterm"><dt><span class="en">with container:</span><span class="zh">with 容器:</span></dt><dd><span class="en">Python's context-manager syntax — st.xxx() calls inside the block render into that container (a column/a tab) rather than the full page width.</span><span class="zh">Python上下文管理器语法，代码块内的st.xxx()调用都会渲染进这个容器(某一栏/某个标签页)而不是整页宽度。</span></dd></div>
+    </dl>
+  </section>
+
+  <section class="module" id="try">
+    <div class="module-head"><span class="stage">07</span><h2><span class="en">Try It Yourself</span><span class="zh">动手试一遍</span></h2></div>
+    <p class="module-role"><span class="en">Running it locally is far more intuitive than just reading the code:</span><span class="zh">建议直接在本地跑起来看，比单看代码直观得多：</span></p>
+    <ol class="try-list">
+      <li><span class="en">Run <code>streamlit run app/Home.py</code>, open any analysis page, click one of the underlined questions in the "Sub-questions this page answers" panel, and watch the page smooth-scroll to the corresponding chart.</span><span class="zh"><code>streamlit run app/Home.py</code>，打开任意一个分析页面，点一下"Sub-questions this page answers"面板里带下划线的问题，观察页面怎么平滑滚动到对应图表。</span></li>
+      <li><span class="en">Swap the order in <code>app/theme.py</code>'s <code>PALETTE</code> list (e.g. put yellow first), refresh, and see which charts' colours changed along with it — a direct feel for how far the "global theme"'s reach extends.</span><span class="zh">在<code>app/theme.py</code>的<code>PALETTE</code>列表里把顺序换一下(比如黄色放第一个)，刷新页面，看哪些图表的颜色跟着变了——能直接感受到"全局主题"影响范围有多大。</span></li>
+      <li><span class="en">Find a bar chart using <code>sort="-y"</code>, change it to <code>sort=None</code>, refresh, and compare the readability difference before/after.</span><span class="zh">找一张用<code>sort="-y"</code>的柱状图，改成<code>sort=None</code>再刷新，对比排序前后的可读性差异。</span></li>
+      <li><span class="en">Pick a <code>get_xxx()</code> function in <code>lib.py</code>, temporarily comment out its <code>@st.cache_data</code> decorator, then drag a slider on a slider-driven page (e.g. Scenario Analysis) and feel the difference in click responsiveness "uncached" vs. "cached."</span><span class="zh">挑一个<code>lib.py</code>里的<code>get_xxx()</code>函数，临时把它的<code>@st.cache_data</code>装饰器注释掉，在滑块类页面(比如Scenario Analysis)里拖动滑块，感受一下"没缓存"和"有缓存"点击响应速度的差别。</span></li>
+    </ol>
+  </section>
+
+  <div class="related">
+    <a href="data-pipeline.html">
+      <div class="lbl"><span class="en">Close-reading series · 01</span><span class="zh">精读系列 01</span></div>
+      <h3><span class="en">Data Pipeline Close-Reading ↗</span><span class="zh">数据管道精读 ↗</span></h3>
+    </a>
+    <a href="coverage-manual.html">
+      <div class="lbl"><span class="en">Companion doc</span><span class="zh">同项目文档</span></div>
+      <h3>Coverage Manual ↗</h3>
+    </a>
+    <a href="https://data-platform.azurewebsites.net">
+      <div class="lbl"><span class="en">Live app</span><span class="zh">在线应用</span></div>
+      <h3><span class="en">Open the platform ↗</span><span class="zh">打开平台 ↗</span></h3>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <span class="en">COMP3888_W11_02_P36 · close-reading series · personal study notes covering the
+  section design of app/theme.py and app/lib.py, and Altair (Vega-Lite) charting syntax ·
+  code snippets taken from the current version of the repo — the source files are
+  authoritative.</span>
+  <span class="zh">COMP3888_W11_02_P36 · 精读系列02 · 个人学习笔记，覆盖 app/theme.py、app/lib.py 的板块设计，
+  以及Altair(Vega-Lite)构图语法 · 代码片段摘自仓库当前版本，完整实现以源文件为准。</span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var app = document.getElementById('app');
+  var btn = document.getElementById('langToggle');
+  function apply(lang){
+    app.setAttribute('data-lang', lang);
+    btn.textContent = lang === 'zh' ? 'EN' : '中';
+    try { localStorage.setItem('p36-methods-lang', lang); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('p36-methods-lang'); } catch(e){}
+  apply(saved === 'en' ? 'en' : 'zh');
+  btn.addEventListener('click', function(){
+    apply(app.getAttribute('data-lang') === 'zh' ? 'en' : 'zh');
+  });
+})();
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+
+</body></html>

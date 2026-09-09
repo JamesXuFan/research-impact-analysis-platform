@@ -1,0 +1,38 @@
+name: Deploy docs site to GitHub Pages
+
+# Publishes site/ (the P36 documentation site — Task Map, Coverage Manual, and the
+# three close-reading docs) to GitHub Pages on every push to main that touches it.
+# This is the docs-site workflow only; it has no relation to the platform app itself,
+# which is local-deployment-only (see README.md > Deployment).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

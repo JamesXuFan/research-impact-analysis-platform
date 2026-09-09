@@ -1,0 +1,657 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>P36 Sub-Question Navigation Close-Reading</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --cream:#F2EEE6; --paper:#FFFFFF; --ink:#1A1A1A; --muted:#6B6A63; --line:#1A1A1A; --hair:#DAD5C8;
+    --red:#DA291C; --blue:#0F4C81; --yellow:#FFC20E;
+    --blue-tint:#E4ECF3; --yellow-tint:#FFF6DC; --red-tint:#FBE6E3;
+    --code-bg:#1A1A1A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+    --font-display:'Archivo Black','Noto Sans SC','Arial Black',sans-serif;
+    --font-body:'Space Grotesk','Noto Sans SC',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+      --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+      --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+      --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+    --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+    --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+    --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E; --code-kw:#7FB4E8;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-body); line-height:1.65; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--yellow); color:#1A1A1A; }
+  h1,h2,h3{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:-0.01em; text-wrap:balance; margin:0; color:var(--ink); }
+  #app[data-lang="zh"] h1,#app[data-lang="zh"] h2,#app[data-lang="zh"] h3{ text-transform:none; letter-spacing:0; }
+  code{ font-family:var(--font-mono); }
+  a{ color:var(--blue); }
+  #app[data-lang="zh"] .en{ display:none; } #app[data-lang="en"] .zh{ display:none; }
+
+  .langbar{ position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; align-items:center; gap:10px; background:var(--ink); padding:10px 24px; }
+  .langbar .brand{ font-family:var(--font-mono); color:var(--cream); font-size:0.76rem; letter-spacing:0.02em; margin-right:auto; }
+  .langbtn{ font-family:var(--font-mono); font-size:0.74rem; font-weight:600; background:var(--cream); color:var(--ink); border:2px solid var(--cream); padding:7px 12px; cursor:pointer; }
+  .langbtn:hover{ background:var(--yellow); border-color:var(--yellow); }
+  .langbtn:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+
+  header.masthead{ max-width:1000px; margin:0 auto; padding:56px 24px 10px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:0.76rem; color:var(--muted); letter-spacing:0.02em; margin-bottom:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .eyebrow .series{ background:var(--ink); color:var(--cream); padding:2px 8px; font-weight:600; }
+  header.masthead h1{ font-size:clamp(1.9rem,5vw,2.7rem); line-height:1.08; max-width:24ch; }
+  header.masthead .dek{ font-size:1.02rem; color:var(--muted); max-width:64ch; margin-top:16px; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px 100px; }
+
+  .diagram-card{ background:var(--paper); border:2px solid var(--line); padding:22px 22px 8px; margin:34px 0; }
+  .diagram-card .cap{ font-family:var(--font-mono); font-size:0.72rem; color:var(--muted); text-align:center; padding:10px 0 16px; }
+  .mermaid{ display:flex; justify-content:center; }
+
+  nav.toc{ background:var(--paper); border:2px solid var(--line); padding:20px 24px; margin:30px 0 46px; }
+  nav.toc .h{ font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; }
+  #app[data-lang="zh"] nav.toc .h{ text-transform:none; }
+  nav.toc ol{ margin:0; padding:0; list-style:none; columns:2; column-gap:28px; }
+  @media (max-width:640px){ nav.toc ol{ columns:1; } }
+  nav.toc li{ break-inside:avoid; padding:5px 0; font-size:0.9rem; }
+  nav.toc a{ text-decoration:none; color:var(--ink); border-bottom:1.5px dashed var(--hair); }
+  nav.toc a:hover{ color:var(--blue); border-bottom-color:var(--blue); }
+  nav.toc .idx{ font-family:var(--font-mono); color:var(--blue); font-weight:600; margin-right:6px; }
+
+  section.module{ margin-top:64px; padding-top:38px; border-top:4px solid var(--line); scroll-margin-top:24px; }
+  section.module:first-of-type{ margin-top:0; padding-top:0; border-top:none; }
+  .module-head{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .module-head .stage{ font-family:var(--font-display); font-size:1.3rem; color:var(--yellow); -webkit-text-stroke:1.3px var(--ink); flex:none; }
+  .module-head h2{ font-size:1.5rem; }
+  .module-file{ font-family:var(--font-mono); font-size:0.82rem; color:var(--muted); margin-top:8px; }
+  .module-role{ font-size:0.98rem; color:var(--muted); max-width:70ch; margin-top:12px; }
+
+  .fn{ margin-top:40px; scroll-margin-top:24px; }
+  .fn-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .fn-head code.name{ font-family:var(--font-mono); font-size:1.05rem; font-weight:600; background:var(--yellow-tint); padding:2px 8px; border:1.5px solid var(--line); }
+  .fn-what{ font-size:0.94rem; color:var(--ink); max-width:72ch; margin:8px 0 14px; }
+
+  pre.code{ font-family:var(--font-mono); font-size:0.82rem; line-height:1.7; background:var(--code-bg); color:var(--code-ink); padding:16px 18px; margin:0 0 16px; overflow-x:auto; border:2px solid var(--line); white-space:pre; }
+  pre.code .cm{ color:var(--code-muted); font-style:italic; }
+  pre.code .st{ color:var(--code-str); }
+  pre.code .kw{ color:var(--code-kw); }
+
+  .syntax{ margin:0; padding:0; list-style:none; max-width:76ch; }
+  .syntax li{ position:relative; padding:9px 0 9px 24px; font-size:0.9rem; border-bottom:1px solid var(--hair); color:var(--ink); }
+  .syntax li:last-child{ border-bottom:none; }
+  .syntax li::before{ content:"▸"; position:absolute; left:0; color:var(--blue); font-weight:700; }
+  .syntax li code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; font-size:0.86em; }
+  .syntax li b{ color:var(--ink); }
+
+  .note{ background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:76ch; }
+  .note .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--blue); }
+  #app[data-lang="zh"] .note .lbl{ text-transform:none; }
+  .caution{ background:var(--red-tint); border:2px solid var(--line); border-left:8px solid var(--red); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:76ch; }
+  .caution .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--red); }
+  #app[data-lang="zh"] .caution .lbl{ text-transform:none; }
+
+  .statusgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:14px 0; }
+  .schip{ display:flex; align-items:flex-start; gap:10px; border:2px solid var(--line); background:var(--paper); padding:10px 12px; }
+  .schip .ico{ flex:none; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:0.78rem; border:1.5px solid var(--line); }
+  .schip.done .ico{ background:var(--blue); color:#fff; }
+  .schip.partial .ico{ background:var(--yellow); color:var(--ink); }
+  .schip.elsewhere .ico{ background:var(--muted); color:#fff; }
+  .schip.open .ico{ background:var(--paper); color:var(--ink); }
+  .schip .txt{ font-size:0.84rem; }
+  .schip .txt b{ display:block; font-size:0.9rem; }
+
+  .trace{ counter-reset:step; margin:14px 0; padding:0; list-style:none; max-width:78ch; }
+  .trace li{ counter-increment:step; position:relative; padding:0 0 20px 42px; font-size:0.92rem; }
+  .trace li:last-child{ padding-bottom:0; }
+  .trace li::before{ content:counter(step); position:absolute; left:0; top:0; width:28px; height:28px; background:var(--ink); color:var(--cream); font-family:var(--font-mono); font-weight:700; font-size:0.8rem; display:flex; align-items:center; justify-content:center; }
+  .trace li::after{ content:""; position:absolute; left:13.5px; top:28px; bottom:0; width:2px; background:var(--hair); }
+  .trace li:last-child::after{ display:none; }
+  .trace li code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; }
+
+  .glossary{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:0 30px; margin-top:10px; }
+  .gterm{ padding:15px 0; border-bottom:1px solid var(--hair); }
+  .gterm dt{ font-family:var(--font-mono); font-weight:600; font-size:0.92rem; color:var(--blue); }
+  .gterm dd{ margin:6px 0 0; font-size:0.86rem; color:var(--muted); line-height:1.6; }
+  .gterm dd code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; }
+
+  .try-list{ margin:0; padding-left:22px; max-width:72ch; }
+  .try-list li{ margin:10px 0; font-size:0.94rem; }
+  .try-list code{ background:var(--paper); border:1px solid var(--hair); padding:1px 6px; }
+
+  .related{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:18px; }
+  .related a{ display:block; text-decoration:none; border:2px solid var(--line); background:var(--paper); padding:16px 18px; transition:transform .1s ease-out, box-shadow .1s ease-out; }
+  .related a:hover{ transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--ink); }
+  .related .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+  #app[data-lang="zh"] .related .lbl{ text-transform:none; }
+  .related h3{ font-size:0.96rem; margin-top:5px; text-transform:none; letter-spacing:0; }
+
+  footer{ max-width:1000px; margin:50px auto 0; padding:32px 24px 60px; font-size:0.8rem; color:var(--muted); border-top:1px solid var(--hair); }
+</style>
+
+<div class="langbar">
+  <span class="brand">P36 NAVIGATION</span>
+  <a href="index.html" style="color:var(--cream); font-family:var(--font-mono); font-size:0.76rem; text-decoration:none; border-bottom:1.5px dashed var(--cream); margin-right:14px;"><span class="en">Docs home</span><span class="zh">文档首页</span></a>
+  <button class="langbtn" id="langToggle" type="button">EN</button>
+</div>
+
+<div id="app" data-lang="zh">
+
+<header class="masthead">
+  <div class="eyebrow"><span class="series"><span class="en">Close-reading series · 03</span><span class="zh">精读系列 · 03</span></span><span class="en">COMP3888_W11_02_P36 · study notes · how a sub-question becomes a click-to-jump link</span><span class="zh">COMP3888_W11_02_P36 · 学习笔记 · 子问题是怎么变成一个可点击跳转的链接的</span></div>
+  <h1><span class="en">Sub-Question Navigation Close-Reading</span><span class="zh">子问题跳转机制精读</span></h1>
+  <p class="dek">
+    <span class="en">Every platform page opens with a "Sub-questions this page answers"
+    panel, and every question in it that has somewhere to go is a live link — click it and
+    the page smooth-scrolls to the exact chart, on the same page or, if the honest answer
+    lives elsewhere, on a different one entirely. This note takes that one feature apart in
+    full: the two-layer data model behind it, the same-page jump (pure CSS, zero JS), and
+    the cross-page jump (a genuinely non-trivial trick using <code>st.iframe</code> to
+    escape Streamlit's own sandbox).</span>
+    <span class="zh">平台每个页面开头都有一个"本页回答的子问题"面板，面板里凡是有地方可去的
+    问题都是一个真正能点的链接——点一下，页面会平滑滚动到具体那张图，可能是本页内，也可能
+    是——如果诚实的答案在别处——完全跳到另一个页面。这份笔记把这一个功能彻底拆开讲：背后
+    两层的数据模型、同页跳转（纯CSS，零JS）、以及跨页跳转（一个真正有技术含量的技巧，
+    用<code>st.iframe</code>逃出Streamlit自己的沙箱）。</span>
+  </p>
+</header>
+
+<main>
+
+  <div class="diagram-card">
+    <pre class="mermaid en">
+sequenceDiagram
+    participant U as User
+    participant P1 as Journal_Tier page
+    participant B as browser URL / hash
+    participant P2 as Field_Analysis page
+    participant IF as bridge iframe (st.iframe)
+    U->>P1: clicks "Which fields have<br/>the highest Q1 success rate?"
+    P1->>B: navigate to<br/>/Field_Analysis#fa-q1-share
+    B->>P2: Streamlit loads the new page<br/>(elements stream in over websocket)
+    P2->>IF: inject() mounts the bridge<br/>on every page, always
+    IF->>B: reads window.parent.location.hash
+    loop poll every 200ms, up to 30x
+        IF->>P2: getElementById("fa-q1-share")
+    end
+    P2-->>IF: element now exists
+    IF->>B: el.scrollIntoView({behavior:"smooth"})
+    IF->>B: window.parent.__qjumpLastHash = hash
+    </pre>
+    <pre class="mermaid zh">
+sequenceDiagram
+    participant U as 用户
+    participant P1 as Journal_Tier 页面
+    participant B as 浏览器URL/hash
+    participant P2 as Field_Analysis 页面
+    participant IF as 桥接iframe (st.iframe)
+    U->>P1: 点击"哪些学科的Q1<br/>成功率最高？"
+    P1->>B: 导航到<br/>/Field_Analysis#fa-q1-share
+    B->>P2: Streamlit加载新页面<br/>（元素通过websocket陆续流入）
+    P2->>IF: inject()挂载桥接组件<br/>（每个页面都会调用）
+    IF->>B: 读取 window.parent.location.hash
+    loop 每200ms轮询一次，最多30次
+        IF->>P2: getElementById("fa-q1-share")
+    end
+    P2-->>IF: 元素现在存在了
+    IF->>B: el.scrollIntoView({behavior:"smooth"})
+    IF->>B: window.parent.__qjumpLastHash = hash
+    </pre>
+    <div class="cap">
+      <span class="en">A cross-page click, start to finish — the part pure browser navigation can't do on its own is everything from "Streamlit loads the new page" onward.</span>
+      <span class="zh">一次跨页点击的完整过程——纯浏览器导航机制自己做不到的部分，是"Streamlit加载新页面"往后的所有步骤。</span>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="h"><span class="en">Contents</span><span class="zh">本页目录</span></div>
+    <ol>
+      <li><span class="idx">01</span><a href="#twolayer"><span class="en">Two layers: brief items → pages, sub-questions → charts</span><span class="zh">两层结构：大问题→页面，子问题→图表</span></a></li>
+      <li><span class="idx">02</span><a href="#panel"><span class="en">question_panel() taken apart</span><span class="zh">question_panel() 拆解</span></a></li>
+      <li><span class="idx">03</span><a href="#samepage"><span class="en">anchor() and the same-page jump</span><span class="zh">anchor() 与同页跳转</span></a></li>
+      <li><span class="idx">04</span><a href="#crosspage"><span class="en">The cross-page bridge, in full</span><span class="zh">跨页跳转桥完整拆解</span></a></li>
+      <li><span class="idx">05</span><a href="#trace"><span class="en">Worked example: one click, traced end to end</span><span class="zh">完整实例：一次点击的全过程追踪</span></a></li>
+      <li><span class="idx">06</span><a href="#glossary"><span class="en">Technique cheat sheet</span><span class="zh">技术点速查表</span></a></li>
+      <li><span class="idx">07</span><a href="#try"><span class="en">Try it yourself</span><span class="zh">动手试一遍</span></a></li>
+    </ol>
+  </nav>
+
+  <section class="module" id="twolayer">
+    <div class="module-head"><span class="stage">01</span><h2><span class="en">Two Layers</span><span class="zh">两层结构</span></h2></div>
+    <div class="module-file">README.md · app/pages/*.py · app/theme.py</div>
+    <p class="module-role">
+      <span class="en">"Question and sub-question navigation" is really two separate,
+      independent layers stacked on top of each other — worth naming clearly before diving
+      into code, because the two use completely different mechanisms.</span>
+      <span class="zh">"问题和子问题的导向"其实是两层完全独立、叠在一起的东西——先把两层
+      分清楚再看代码，因为两层用的是完全不同的机制。</span>
+    </p>
+    <div class="statusgrid" style="grid-template-columns:1fr 1fr;">
+      <div class="schip done">
+        <span class="ico">1</span>
+        <span class="txt"><b><span class="en">Item → page</span><span class="zh">大问题 → 页面</span></b>
+          <span class="en">Static, one-to-one, decided at file-creation time. README Analysis item 16 <i>is</i> <code>app/pages/1_Go8_Benchmarking.py</code> — <code>theme.header(title, caption, ...)</code> just states this in the caption text. No navigation logic here at all.</span>
+          <span class="zh">静态的、一对一的，文件建立的时候就定死了。README第16项<i>就是</i>
+          <code>app/pages/1_Go8_Benchmarking.py</code>——<code>theme.header(title, caption, ...)</code>
+          只是把这个事实写在说明文字里。这一层完全没有导航逻辑。</span>
+        </span>
+      </div>
+      <div class="schip elsewhere">
+        <span class="ico">2</span>
+        <span class="txt"><b><span class="en">Sub-question → chart</span><span class="zh">子问题 → 图表</span></b>
+          <span class="en">Dynamic, many-to-one or many-to-many, and this is the layer with actual click-to-jump behaviour — built entirely by <code>theme.question_panel()</code>, <code>theme.anchor()</code>, and <code>theme._cross_page_scroll_bridge()</code>, the subject of the rest of this note.</span>
+          <span class="zh">动态的、多对一或多对多，也是真正带"点击跳转"行为的一层——完全由
+          <code>theme.question_panel()</code>、<code>theme.anchor()</code>、
+          <code>theme._cross_page_scroll_bridge()</code>三个函数搭起来的，是这份笔记
+          接下来全部内容的主题。</span>
+        </span>
+      </div>
+    </div>
+    <p class="module-role" style="margin-top:6px;">
+      <span class="en">The four states a sub-question can be in — and only the first two ever
+      carry a link that goes somewhere on <i>this platform</i>, "elsewhere" links off to a
+      different page, "open" has nowhere to go at all:</span>
+      <span class="zh">子问题可能处于的四种状态——只有前两种会带一个真正指向<i>这个平台内部</i>
+      某处的链接，"elsewhere"是链接到另一个页面，"open"则完全没有地方可跳：</span>
+    </p>
+    <div class="statusgrid">
+      <div class="schip done"><span class="ico">✓</span><span class="txt"><b>done</b><span class="en">answered directly below — same-page link</span><span class="zh">本页直接回答——同页链接</span></span></div>
+      <div class="schip partial"><span class="ico">~</span><span class="txt"><b>partial</b><span class="en">aggregate/qualitative only — usually still same-page</span><span class="zh">只是聚合/定性层面——通常也是同页链接</span></span></div>
+      <div class="schip elsewhere"><span class="ico">→</span><span class="txt"><b>elsewhere</b><span class="en">answered on a different page — cross-page link</span><span class="zh">在其它页面回答——跨页链接</span></span></div>
+      <div class="schip open"><span class="ico">?</span><span class="txt"><b>open</b><span class="en">not built anywhere — plain text, no link</span><span class="zh">平台尚未实现——纯文字，没有链接</span></span></div>
+    </div>
+  </section>
+
+  <section class="module" id="panel">
+    <div class="module-head"><span class="stage">02</span><h2><span class="en">question_panel() Taken Apart</span><span class="zh">question_panel() 拆解</span></h2></div>
+    <div class="module-file">app/theme.py</div>
+    <p class="module-role">
+      <span class="en">The function every page calls once, right after <code>theme.header()</code>, with a list describing every sub-question the page's brief item includes.</span>
+      <span class="zh">每个页面在<code>theme.header()</code>之后立刻调用一次的函数，传入一份列表，描述这一页对应的brief条目里的每一个子问题。</span>
+    </p>
+
+    <div class="fn" id="fn-datashape">
+      <div class="fn-head"><code class="name"><span class="en">Input shape</span><span class="zh">输入的数据形状</span></code></div>
+<pre class="code">theme.question_panel([
+    (<span class="st">"Do Q1 publications receive more citations than Q2, Q3 or Q4?"</span>, <span class="st">"done"</span>, <span class="st">"jt-quartile"</span>),
+    (<span class="st">"Which faculties/fields have the highest success rates in Q1 publishing?"</span>,
+     <span class="st">"elsewhere"</span>, <span class="st">"/Field_Analysis#fa-q1-share"</span>),
+    (<span class="st">"Are particular publication strategies more successful in some fields?"</span>, <span class="st">"open"</span>),  <span class="cm"># <span class="en">2-tuple: no anchor</span><span class="zh">2元组：没有锚点</span></span>
+])</pre>
+      <ul class="syntax">
+        <li><span class="en">A list of tuples, each 2 or 3 elements: <code>(question_text, status)</code> or <code>(question_text, status, anchor_id)</code>. The third element decides everything about click behaviour — omit it (a bare 2-tuple, typically an "open" item, or a "partial" answered by a synthesis of several sections) and the question renders as plain, non-clickable text.</span><span class="zh">一份元组列表，每个元组2个或3个元素：<code>(问题文字, 状态)</code>或
+        <code>(问题文字, 状态, 锚点id)</code>。第三个元素决定了点击行为的一切——省略它
+        （2元组，通常是"open"状态，或者是靠综合几个部分回答的"partial"），问题就渲染成
+        普通、不可点的文字。</span></li>
+        <li><span class="en"><code>"jt-quartile"</code> — a bare id, no leading slash: same-page jump.</span><span class="zh"><code>"jt-quartile"</code>——不带斜杠的裸id：同页跳转。</span></li>
+        <li><span class="en"><code>"/Field_Analysis#fa-q1-share"</code> — starts with <code>/</code>: cross-page jump, to another page's own anchor.</span><span class="zh"><code>"/Field_Analysis#fa-q1-share"</code>——以<code>/</code>开头：跨页跳转，跳到另一个页面自己的锚点。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-unpack">
+      <div class="fn-head"><code class="name"><span class="en">The unpacking trick</span><span class="zh">解包技巧</span></code></div>
+<pre class="code"><span class="kw">for</span> item <span class="kw">in</span> items:
+    question, status, anchor_id = (*item, <span class="kw">None</span>)[:3]
+    icon, bg, fg = _STATUS_STYLE[status]
+    <span class="kw">if</span> anchor_id:
+        href = anchor_id <span class="kw">if</span> anchor_id.startswith(<span class="st">"/"</span>) <span class="kw">else</span> <span class="st">f"#{anchor_id}"</span>
+        question_html = <span class="st">f'&lt;a href="{href}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
+    <span class="kw">else</span>:
+        question_html = question</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>(*item, None)[:3]</code>: worth unpacking slowly. <code>*item</code> spreads the tuple (2 or 3 elements) into individual values; appending one <code>None</code> guarantees at least 3 values are now available; <code>[:3]</code> keeps only the first 3. Whether the caller wrote 2 or 3 elements, <code>anchor_id</code> ends up either the real anchor string or <code>None</code> — no <code>if len(item) == 3</code> branch needed anywhere.</span><span class="zh"><code>(*item, None)[:3]</code>：值得慢慢拆开看。<code>*item</code>把元组
+        （2或3个元素）展开成单个值；后面补一个<code>None</code>，保证至少有3个值可用；
+        <code>[:3]</code>只保留前3个。不管调用方写的是2个还是3个元素，
+        <code>anchor_id</code>最后要么是真的锚点字符串，要么是<code>None</code>——
+        任何地方都不需要写<code>if len(item) == 3</code>这种判断。</span></li>
+        <li><span class="en"><code>_STATUS_STYLE[status]</code>: a plain dict lookup — keys are the 4 status strings, values a 3-tuple <code>(icon, background, foreground)</code> — swapping a long if/elif chain for one dict access.</span><span class="zh"><code>_STATUS_STYLE[status]</code>：一次普通的字典查找——key是4个状态字符串，
+        value是三元组<code>(图标, 背景色, 前景色)</code>——用一次字典访问代替了一长串
+        if/elif。</span></li>
+        <li><span class="en"><code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>: the entire routing decision for "same page or different page" is this one line — a leading <code>/</code> is treated as a real URL path (Streamlit's own page routing understands it), anything else gets an <code>#</code> prepended and becomes a same-page fragment.</span><span class="zh"><code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>：
+        "跳本页还是跳别的页"这整个路由判断就是这一行——带前导<code>/</code>的当成真正的URL
+        路径处理（Streamlit自己的页面路由认得），其它情况前面补一个<code>#</code>变成同页
+        片段。</span></li>
+        <li><span class="en">The generated <code>&lt;a href="..." class="qjump"&gt;</code> is a completely ordinary anchor tag — every bit of the click behaviour that follows is the browser and (for cross-page links) the bridge component reacting to a normal link, not any special widget or callback.</span><span class="zh">生成出来的<code>&lt;a href="..." class="qjump"&gt;</code>是一个完全普通的
+        锚点标签——接下来所有的点击行为，都是浏览器（以及跨页链接情况下的桥接组件）对一个
+        普通链接做出的反应，不是什么特殊组件或回调函数。</span></li>
+      </ul>
+      <div class="note">
+        <span class="lbl"><span class="en">Styling, not routing</span><span class="zh">这是样式，不是路由</span></span>
+        <span class="en"><code>class="qjump"</code> only exists so <code>inject()</code>'s CSS
+        (<code>a.qjump { border-bottom: 1.5px dashed ... }</code>) can give clickable questions
+        a dashed underline that turns solid blue on hover — visually marking "this one goes
+        somewhere" versus the plain-text "open" items sitting right next to it in the same
+        panel.</span>
+        <span class="zh"><code>class="qjump"</code>存在的唯一理由是让<code>inject()</code>里的CSS
+        （<code>a.qjump { border-bottom: 1.5px dashed ... }</code>）能给可点击的问题加一条
+        虚线下划线、悬停变实心蓝色——用视觉上标出"这一条能点"，跟同一个面板里紧挨着的
+        纯文字"open"条目区分开。</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="samepage">
+    <div class="module-head"><span class="stage">03</span><h2><span class="en">anchor() and the Same-Page Jump</span><span class="zh">anchor() 与同页跳转</span></h2></div>
+    <div class="module-file">app/theme.py</div>
+    <p class="module-role">
+      <span class="en">The landing side of a same-page link — an invisible marker placed exactly where a jump should land.</span>
+      <span class="zh">同页链接的"落点"那一侧——一个放在跳转该落地的精确位置上的、看不见的标记。</span>
+    </p>
+<pre class="code"><span class="kw">def</span> <span class="fn">anchor</span>(anchor_id: str) -&gt; <span class="kw">None</span>:
+    st.markdown(<span class="st">f'&lt;div id="{anchor_id}" class="qanchor"&gt;&lt;/div&gt;'</span>, unsafe_allow_html=<span class="kw">True</span>)</pre>
+    <ul class="syntax">
+      <li><span class="en">Called right above the <code>st.subheader(...)</code> a question should land on — e.g. <code>theme.anchor("fa-q1-share")</code> then <code>st.subheader("Q1 share by field")</code> immediately after, on the Field Analysis page.</span><span class="zh">调用位置紧挨在某个问题该落地的<code>st.subheader(...)</code>正上方——比如
+      Field Analysis页面里<code>theme.anchor("fa-q1-share")</code>紧接着就是
+      <code>st.subheader("Q1 share by field")</code>。</span></li>
+      <li><span class="en">This is where the browser's <b>completely native</b> anchor-jump behaviour takes over: any <code>&lt;a href="#some-id"&gt;</code>, clicked anywhere on the page, makes the browser scroll to the element with <code>id="some-id"</code> — a feature of HTML itself, decades old, nothing Streamlit- or Python-specific about it.</span><span class="zh">这里靠的是浏览器<b>完全原生</b>的锚点跳转行为：任何一个
+      <code>&lt;a href="#some-id"&gt;</code>，在页面任何地方被点击，浏览器都会自动滚动到
+      <code>id="some-id"</code>的元素——这是HTML本身的功能，存在了几十年，跟Streamlit或
+      Python完全没关系。</span></li>
+      <li><span class="en"><code>scroll-margin-top: 90px</code> (set on <code>.qanchor</code> in <code>inject()</code>'s injected CSS) is the one piece of styling this needs: without it, the anchor would land exactly at the very top of the viewport, tucked directly under Streamlit's own sticky header — the extra margin leaves room for that header not to cover the landing spot.</span><span class="zh"><code>scroll-margin-top: 90px</code>（在<code>inject()</code>注入的CSS里，加在
+      <code>.qanchor</code>上）是唯一需要的样式补丁：没有它，锚点会正好落在视口最顶部，
+      直接被Streamlit自己的粘性顶栏挡住——这个额外的边距留出空间，让顶栏不会盖住落点。</span></li>
+      <li><span class="en"><code>html { scroll-behavior: smooth; }</code> (also in <code>inject()</code>) is what turns the jump from an instant snap into a smooth scroll — a one-line, page-wide CSS switch, no JavaScript involved anywhere in this same-page path.</span><span class="zh"><code>html { scroll-behavior: smooth; }</code>（同样在<code>inject()</code>里）
+      是让跳转从"瞬间跳过去"变成"平滑滚动过去"的开关——一行、全页生效的CSS，同页跳转这条
+      路径上完全没有涉及任何JavaScript。</span></li>
+    </ul>
+  </section>
+
+  <section class="module" id="crosspage">
+    <div class="module-head"><span class="stage">04</span><h2><span class="en">The Cross-Page Bridge, in Full</span><span class="zh">跨页跳转桥完整拆解</span></h2></div>
+    <div class="module-file">app/theme.py — <code>_cross_page_scroll_bridge()</code></div>
+    <p class="module-role">
+      <span class="en">The part of this feature that's genuinely non-trivial — same-page anchors are a browser default; making a click land on a specific chart on a <i>different</i> Streamlit page needed solving from scratch.</span>
+      <span class="zh">这个功能里真正有技术含量的部分——同页锚点是浏览器自带的默认行为；让点击落在
+      <i>另一个</i>Streamlit页面的具体某张图上，是需要从头解决的问题。</span>
+    </p>
+
+    <div class="fn" id="fn-why-fails">
+      <div class="fn-head"><code class="name"><span class="en">Why the same trick doesn't just carry over</span><span class="zh">为什么同一套技巧不能直接照搬</span></code></div>
+      <ul class="syntax">
+        <li><span class="en"><b>Problem 1 — timing.</b> When the browser follows a link like <code>/Field_Analysis#fa-q1-share</code>, it tries to jump to <code>#fa-q1-share</code> the instant the new page's HTML is parsed. But Streamlit doesn't render a whole page at once — it streams elements in one by one over a WebSocket as the script runs. At the moment the browser tries to jump, the target <code>&lt;div id="fa-q1-share"&gt;</code> very likely doesn't exist in the DOM yet, so the native jump silently does nothing and is never retried.</span><span class="zh"><b>问题一——时机。</b>浏览器跟随<code>/Field_Analysis#fa-q1-share</code>这样的链接时，
+        会在新页面HTML刚解析完的那一刻就尝试跳到<code>#fa-q1-share</code>。但Streamlit不是
+        一次性渲染整个页面的——它是在脚本运行的过程中，通过WebSocket把元素一个个"流"进来的。
+        浏览器尝试跳转的那一刻，目标<code>&lt;div id="fa-q1-share"&gt;</code>很可能压根还不
+        存在于DOM里，于是原生跳转悄悄什么也不做，而且不会重试。</span></li>
+        <li><span class="en"><b>Problem 2 — no script execution.</b> The obvious fix would be "wait for the element, then scroll to it with JavaScript" — but <code>st.markdown(html, unsafe_allow_html=True)</code> inserts its HTML through a code path in Streamlit's frontend that does not execute any embedded <code>&lt;script&gt;</code> tag. A hand-written retry loop dropped into a markdown string simply never runs.</span><span class="zh"><b>问题二——脚本不会执行。</b>显而易见的修法是"等元素出现，再用JavaScript滚过去"——
+        但<code>st.markdown(html, unsafe_allow_html=True)</code>插入HTML走的是Streamlit
+        前端的一条代码路径，这条路径不会执行任何插进去的<code>&lt;script&gt;</code>标签。
+        手写一个重试循环塞进markdown字符串里，根本不会被执行。</span></li>
+      </ul>
+      <div class="caution">
+        <span class="lbl"><span class="en">The escape hatch: st.iframe</span><span class="zh">逃生舱口：st.iframe</span></span>
+        <span class="en"><code>st.iframe(html_string, height=1)</code> renders a genuine
+        <code>&lt;iframe&gt;</code> element, and unlike <code>st.markdown</code>'s HTML
+        injection path, the browser treats an iframe's content as a real, independent
+        document — its <code>&lt;script&gt;</code> tags execute normally. Because the iframe
+        is served from the same origin as the main Streamlit app, it isn't sandboxed away
+        from it: code running inside the iframe can reach <code>window.parent</code> and
+        manipulate the <i>actual</i> page — not the 1-pixel-tall iframe itself.</span>
+        <span class="zh"><code>st.iframe(html_string, height=1)</code>渲染出的是一个真正的
+        <code>&lt;iframe&gt;</code>元素，跟<code>st.markdown</code>插入HTML的那条路径不同，
+        浏览器把iframe里的内容当成一个真正独立的文档——里面的<code>&lt;script&gt;</code>
+        标签会正常执行。因为这个iframe跟主Streamlit应用同源，不会被沙箱隔离开：iframe内部
+        跑的代码能拿到<code>window.parent</code>，操作<i>真正的</i>页面——不是这个高度只有
+        1像素的iframe自己。</span>
+      </div>
+    </div>
+
+    <div class="fn" id="fn-bridge-code">
+      <div class="fn-head"><code class="name">_cross_page_scroll_bridge()</code></div>
+      <p class="fn-what"><span class="en">Called once, unconditionally, at the end of every page's <code>inject()</code> — because any page might be the target of a cross-page link, every page needs to be ready to receive one.</span><span class="zh">在每个页面的<code>inject()</code>末尾无条件调用一次——因为任何页面都可能是
+      跨页链接的目标，所以每个页面都得随时准备好接收一次跳转。</span></p>
+<pre class="code">st.iframe(
+    <span class="st">"""</span>
+    &lt;script&gt;
+    (function () {
+        <span class="kw">try</span> {
+            var hash = window.parent.location.hash;
+            <span class="kw">if</span> (!hash || window.parent.__qjumpLastHash === hash) <span class="kw">return</span>;
+            var id = decodeURIComponent(hash.slice(1));
+            var attemptsLeft = 30;
+            (function tryScroll() {
+                var el = window.parent.document.getElementById(id);
+                <span class="kw">if</span> (el) {
+                    el.scrollIntoView({behavior: <span class="st">"smooth"</span>, block: <span class="st">"start"</span>});
+                    window.parent.__qjumpLastHash = hash;
+                } <span class="kw">else if</span> (attemptsLeft &gt; 0) {
+                    attemptsLeft -= 1;
+                    setTimeout(tryScroll, 200);
+                }
+            })();
+        } <span class="kw">catch</span> (e) {}
+    })();
+    &lt;/script&gt;
+    <span class="st">"""</span>,
+    height=<span class="kw">1</span>,  <span class="cm"># <span class="en">st.iframe requires a positive integer — this component has no visible content</span><span class="zh">st.iframe要求正整数——这个组件没有可见内容</span></span>
+)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>window.parent.location.hash</code>: reads the URL fragment (<code>#fa-q1-share</code>) off the <i>real</i> page — <code>window.parent</code>, not <code>window</code>, is the whole trick; called without it, this would read the iframe's own (blank) location instead.</span><span class="zh"><code>window.parent.location.hash</code>：从<i>真正的</i>页面上读取URL片段
+        （<code>#fa-q1-share</code>）——用<code>window.parent</code>而不是<code>window</code>
+        正是整个技巧的关键；不加这个，读到的会是iframe自己那个(空白的)location。</span></li>
+        <li><span class="en"><code>window.parent.__qjumpLastHash === hash</code>: the de-dupe guard. This component <b>remounts on every Streamlit rerun</b> (every widget interaction re-executes the whole page script, including the <code>inject()</code> call), but <code>window.parent</code> itself persists across reruns — so a value stashed there survives even though the component that wrote it gets torn down and rebuilt. Without this check, clicking any unrelated button elsewhere on the target page would silently yank the view back to the same anchor every single time.</span><span class="zh"><code>window.parent.__qjumpLastHash === hash</code>：去重防护。这个组件<b>每次
+        Streamlit重跑都会重新挂载</b>（每次控件交互都会重新执行整个页面脚本，包括
+        <code>inject()</code>那次调用），但<code>window.parent</code>本身在多次重跑之间是
+        持续存在的——所以存在它上面的值，即便写入它的那个组件被拆掉重建了，也依然留着。
+        没有这个检查，点一下目标页面上任何一个不相关的按钮，都会每次都悄悄把视图拽回同一个
+        锚点。</span></li>
+        <li><span class="en">The <code>tryScroll()</code> polling loop: checks for the target element every 200ms, up to 30 times (6 seconds total) — this is the direct fix for Problem 1 above, giving Streamlit's own streamed rendering time to catch up before giving up.</span><span class="zh"><code>tryScroll()</code>轮询循环：每200毫秒检查一次目标元素是否出现，最多试30次
+        （总共6秒）——这是对上面"问题一"最直接的修法，给Streamlit自己的流式渲染留出追上来
+        的时间，再放弃。</span></li>
+        <li><span class="en"><code>el.scrollIntoView({behavior: "smooth", block: "start"})</code>: a browser-native DOM method, the JS equivalent of the same-page path's CSS <code>scroll-behavior: smooth</code> — <code>block: "start"</code> aligns the element to the top of the viewport rather than centring it.</span><span class="zh"><code>el.scrollIntoView({behavior: "smooth", block: "start"})</code>：浏览器
+        原生的DOM方法，是同页跳转那条路径里CSS <code>scroll-behavior: smooth</code>的JS
+        等价物——<code>block: "start"</code>让元素对齐到视口顶部，而不是居中。</span></li>
+        <li><span class="en"><code>try { ... } catch (e) {}</code>: swallows any error silently — this is a nice-to-have UX enhancement, not core functionality; if <code>window.parent</code> access ever throws (e.g. a stricter embedding context), the page should simply not scroll, never show a broken error to the user.</span><span class="zh"><code>try { ... } catch (e) {}</code>：静默吞掉任何错误——这是一个锦上添花的
+        体验增强，不是核心功能；如果<code>window.parent</code>访问哪天抛出了异常（比如更
+        严格的嵌入环境），页面应该只是不滚动而已，绝不该给用户看一个报错。</span></li>
+        <li><span class="en"><code>height=1</code>: <code>st.iframe</code> requires a positive integer height (<code>height=0</code> raises <code>StreamlitInvalidHeightError</code>) — this component renders no visible content, so 1 pixel is the practical minimum.</span><span class="zh"><code>height=1</code>：<code>st.iframe</code>要求高度是正整数
+        （<code>height=0</code>会报<code>StreamlitInvalidHeightError</code>）——这个组件
+        没有任何可见内容，所以1像素是实际能用的最小值。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="trace">
+    <div class="module-head"><span class="stage">05</span><h2><span class="en">Worked Example: One Click, Traced End to End</span><span class="zh">完整实例：一次点击的全过程追踪</span></h2></div>
+    <p class="module-role">
+      <span class="en">On the Journal Tier page, "Which faculties/fields have the highest
+      success rates in Q1 publishing?" is marked <code>elsewhere</code>, pointing at
+      <code>"/Field_Analysis#fa-q1-share"</code>. Here's exactly what happens between the
+      click and the screen settling on the right chart.</span>
+      <span class="zh">在Journal Tier页面，"哪些院系/学科的Q1成功率最高？"这个问题标的是
+      <code>elsewhere</code>，指向<code>"/Field_Analysis#fa-q1-share"</code>。下面是从
+      点击到画面最终停在正确图表上，中间具体发生的每一步。</span>
+    </p>
+    <ol class="trace">
+      <li><span class="en"><b>Render:</b> <code>question_panel()</code> on the Journal Tier page sees a 3-tuple whose anchor starts with <code>/</code>, so it builds <code>&lt;a href="/Field_Analysis#fa-q1-share" class="qjump"&gt;...&lt;/a&gt;</code> — an ordinary link, styled with a dashed underline.</span><span class="zh"><b>渲染：</b>Journal Tier页面的<code>question_panel()</code>看到一个锚点以
+      <code>/</code>开头的3元组，于是拼出<code>&lt;a href="/Field_Analysis#fa-q1-share"
+      class="qjump"&gt;...&lt;/a&gt;</code>——一个普通链接，样式是虚线下划线。</span></li>
+      <li><span class="en"><b>Click:</b> the browser follows the link. Streamlit intercepts this internally as a request to switch to its <code>Field_Analysis</code> page (the multipage routing convention covered in the Dashboard & Charting note), carrying the <code>#fa-q1-share</code> fragment along in the URL.</span><span class="zh"><b>点击：</b>浏览器跟随这个链接。Streamlit内部把它拦截成"切换到
+      <code>Field_Analysis</code>页面"的请求（多页路由的约定，见"看板与图表精读"），URL里
+      的<code>#fa-q1-share</code>片段也一起带过去。</span></li>
+      <li><span class="en"><b>New page starts rendering:</b> Field Analysis's script begins executing top to bottom. Its own <code>theme.inject()</code> call mounts a fresh copy of the bridge iframe — this instance has no memory of anything from before, since the whole component just remounted.</span><span class="zh"><b>新页面开始渲染：</b>Field Analysis的脚本从头到尾开始执行。它自己的
+      <code>theme.inject()</code>调用挂载了一份全新的桥接iframe——这一份对之前发生的任何
+      事都没有记忆，因为整个组件刚刚重新挂载。</span></li>
+      <li><span class="en"><b>Bridge reads the hash:</b> inside the iframe, JS reads <code>window.parent.location.hash</code> → <code>"#fa-q1-share"</code>. It's non-empty and doesn't match <code>window.parent.__qjumpLastHash</code> (nothing set it yet on this page load), so it proceeds.</span><span class="zh"><b>桥接组件读取hash：</b>iframe内部，JS读取
+      <code>window.parent.location.hash</code> → <code>"#fa-q1-share"</code>。非空，
+      也不等于<code>window.parent.__qjumpLastHash</code>（这次页面加载还没人设过这个值），
+      于是继续往下走。</span></li>
+      <li><span class="en"><b>Polling:</b> at this instant, <code>&lt;div id="fa-q1-share"&gt;</code> may or may not exist yet, depending on how far Field Analysis's script has streamed in. The loop tries <code>getElementById</code>, and if it's not there yet, waits 200ms and tries again — for up to 30 attempts.</span><span class="zh"><b>轮询：</b>这一刻，<code>&lt;div id="fa-q1-share"&gt;</code>存不存在，取决于
+      Field Analysis的脚本流式渲染到哪一步了。循环调用<code>getElementById</code>，如果
+      还没出现，等200毫秒再试一次——最多试30次。</span></li>
+      <li><span class="en"><b>Found:</b> once <code>theme.anchor("fa-q1-share")</code> has rendered (placed directly above the "Q1 share by field" <code>st.subheader()</code>), <code>getElementById</code> succeeds, the loop calls <code>scrollIntoView</code>, and the browser smooth-scrolls the real page — the same native mechanism the same-page path uses, just triggered from JS instead of a plain link click.</span><span class="zh"><b>找到了：</b>一旦<code>theme.anchor("fa-q1-share")</code>渲染出来了
+      （放在"Q1 share by field"这个<code>st.subheader()</code>正上方），
+      <code>getElementById</code>成功，循环调用<code>scrollIntoView</code>，浏览器平滑
+      滚动真正的页面——用的是同页跳转那条路径同样的原生机制，只是这次是由JS触发的，
+      不是靠一次普通的链接点击。</span></li>
+      <li><span class="en"><b>Guard set:</b> <code>window.parent.__qjumpLastHash = "#fa-q1-share"</code> is recorded. If the user now clicks a dropdown or slider elsewhere on Field Analysis, the page reruns, the bridge remounts, reads the same hash again — and this time exits immediately at step 4, leaving the view exactly where the user scrolled it.</span><span class="zh"><b>设置防护：</b>记录下<code>window.parent.__qjumpLastHash = "#fa-q1-share"</code>。
+      如果用户现在在Field Analysis页面上点了别的下拉框或滑块，页面重跑，桥接组件重新挂载，
+      再次读到同一个hash——这次会在第4步就直接退出，视图保持在用户当前滚动到的位置不变。</span></li>
+    </ol>
+  </section>
+
+  <section class="module" id="glossary">
+    <div class="module-head"><span class="stage">06</span><h2><span class="en">Technique Cheat Sheet</span><span class="zh">技术点速查表</span></h2></div>
+    <dl class="glossary">
+      <div class="gterm"><dt><span class="en">Native anchor jump <code>#id</code></span><span class="zh">原生锚点跳转 <code>#id</code></span></dt><dd><span class="en">Built into HTML itself — any link to <code>#some-id</code> makes the browser scroll to the element with that id, no JS required. Only works reliably when the target already exists in the DOM.</span><span class="zh">HTML自带的功能——任何指向<code>#some-id</code>的链接，都会让浏览器滚动到那个id的元素，不需要JS。只有目标已经存在于DOM里时才能可靠工作。</span></dd></div>
+      <div class="gterm"><dt><code>scroll-behavior: smooth</code></dt><dd><span class="en">A one-line, page-wide CSS switch turning every native jump (anchor click or JS <code>scrollIntoView</code>) from an instant snap into an animated scroll.</span><span class="zh">一行全页生效的CSS开关，把每一次原生跳转（点锚点链接或JS调用<code>scrollIntoView</code>）从瞬间跳变改成带动画的平滑滚动。</span></dd></div>
+      <div class="gterm"><dt><code>scroll-margin-top</code></dt><dd><span class="en">Reserves space above an anchor target so a page's own sticky header doesn't cover it after a jump — the CSS-only fix for "landed exactly under the toolbar."</span><span class="zh">在锚点目标上方预留空间，避免跳转后被页面自己的粘性顶栏挡住——纯CSS修复"正好落在工具栏下面"的问题。</span></dd></div>
+      <div class="gterm"><dt>st.markdown(html, unsafe_allow_html=True)</dt><dd><span class="en">Injects arbitrary HTML/CSS into a Streamlit page — but not <code>&lt;script&gt;</code> execution, which is exactly why this path alone can't build a cross-page jump.</span><span class="zh">往Streamlit页面里注入任意HTML/CSS——但不会执行<code>&lt;script&gt;</code>，这正是单靠这条路径没法实现跨页跳转的原因。</span></dd></div>
+      <div class="gterm"><dt>st.iframe(html, height=n)</dt><dd><span class="en">Renders a real, script-executing <code>&lt;iframe&gt;</code>, same-origin with the main app — the escape hatch that lets injected JS actually run.</span><span class="zh">渲染一个真正会执行脚本的<code>&lt;iframe&gt;</code>，跟主应用同源——让注入的JS真正能跑起来的逃生舱口。</span></dd></div>
+      <div class="gterm"><dt>window.parent</dt><dd><span class="en">From inside a same-origin iframe, a reference to the actual outer page — the difference between manipulating the invisible iframe itself and manipulating the real, visible document.</span><span class="zh">在同源iframe内部，指向外层真正页面的引用——是操作那个看不见的iframe自己、还是操作真正可见文档，这两者的差别就在这一个引用上。</span></dd></div>
+      <div class="gterm"><dt>Polling with setTimeout</dt><dd><span class="en">Repeatedly checking for a condition (here, "does this element exist yet") on a timer, with a maximum attempt count — a standard pattern for "wait for something that will eventually appear, but might not be ready right now."</span><span class="zh">用定时器反复检查某个条件（这里是"这个元素出现了没有"），并设一个最多尝试次数——是"等待一个终将出现、但现在可能还没准备好的东西"的标准写法。</span></dd></div>
+      <div class="gterm"><dt><span class="en">De-dupe guard via a persisted flag</span><span class="zh">用一个持续存在的标记做去重</span></dt><dd><span class="en">Stashing "the last hash already handled" on an object that survives across Streamlit reruns (<code>window.parent</code>), even though the component writing to it gets torn down and rebuilt every rerun.</span><span class="zh">把"上一次已经处理过的hash"存在一个跨Streamlit重跑依然存在的对象上（<code>window.parent</code>），哪怕写入它的那个组件每次重跑都会被拆掉重建。</span></dd></div>
+      <div class="gterm"><dt><span class="en">Tuple unpacking with a spread + slice</span><span class="zh">展开+切片的元组解包</span></dt><dd><span class="en"><code>(*item, None)[:3]</code> — pads a variable-length tuple out to a fixed length before unpacking, avoiding a manual length check.</span><span class="zh"><code>(*item, None)[:3]</code>——在解包前把一个长度不固定的元组补齐到固定长度，避免手写长度判断。</span></dd></div>
+      <div class="gterm"><dt>el.scrollIntoView(options)</dt><dd><span class="en">The JS/DOM method equivalent of a native anchor jump — <code>{behavior:"smooth", block:"start"}</code> animates the scroll and aligns the element to the top of the viewport.</span><span class="zh">JS/DOM方法版本的原生锚点跳转——<code>{behavior:"smooth", block:"start"}</code>让滚动带动画，并把元素对齐到视口顶部。</span></dd></div>
+    </dl>
+  </section>
+
+  <section class="module" id="try">
+    <div class="module-head"><span class="stage">07</span><h2><span class="en">Try It Yourself</span><span class="zh">动手试一遍</span></h2></div>
+    <p class="module-role"><span class="en">Run <code>streamlit run app/Home.py</code> and:</span><span class="zh">跑起来<code>streamlit run app/Home.py</code>，然后：</span></p>
+    <ol class="try-list">
+      <li><span class="en">Open the Journal Tier page and click an <code>elsewhere</code>-status question (dashed underline). Watch the page switch and, a beat later, smooth-scroll into place — that beat is the polling loop working.</span><span class="zh">打开Journal Tier页面，点一个<code>elsewhere</code>状态的问题（虚线下划线）。
+      观察页面先切换，隔了一小拍之后再平滑滚动到位——那一小拍就是轮询循环在起作用。</span></li>
+      <li><span class="en">After it lands, click any unrelated widget (a dropdown, a slider) on the destination page. Confirm the view does <i>not</i> jump back — that's the <code>__qjumpLastHash</code> guard.</span><span class="zh">跳过去之后，在目标页面点任意一个不相关的控件（下拉框、滑块）。确认视图<i>不会</i>
+      再跳回去——这就是<code>__qjumpLastHash</code>防护在起作用。</span></li>
+      <li><span class="en">Open your browser's dev tools, throttle the network to "Slow 3G," and repeat the cross-page click — with a slower stream, you should be able to see the scroll land noticeably later, still within the 30-attempt/6-second budget. Push the throttle further and, past that budget, watch the jump silently give up.</span><span class="zh">打开浏览器开发者工具，把网络限速调成"Slow 3G"，重复一次跨页点击——在更慢的
+      流式加载下，应该能明显看到滚动落地延迟了，但仍在30次/6秒的预算之内。把限速调得更极端，
+      超出这个预算之后，观察跳转是怎么悄悄放弃的。</span></li>
+      <li><span class="en">In <code>theme.py</code>, temporarily change <code>attemptsLeft = 30</code> to <code>attemptsLeft = 1</code>, rerun, and try a cross-page click on a page whose target chart takes a moment to compute (uncached) — a good way to feel why 30 attempts, not 1, was the chosen budget.</span><span class="zh">在<code>theme.py</code>里，临时把<code>attemptsLeft = 30</code>改成
+      <code>attemptsLeft = 1</code>，重跑，试一次目标图表需要一点计算时间（未缓存）的跨页
+      点击——能直接感受到为什么选的是30次而不是1次。</span></li>
+    </ol>
+  </section>
+
+  <div class="related">
+    <a href="dashboard-charting.html">
+      <div class="lbl"><span class="en">Close-reading series · 02</span><span class="zh">精读系列 · 02</span></div>
+      <h3><span class="en">Dashboard &amp; Charting Close-Reading ↗</span><span class="zh">看板与图表精读 ↗</span></h3>
+    </a>
+    <a href="data-pipeline.html">
+      <div class="lbl"><span class="en">Close-reading series · 01</span><span class="zh">精读系列 · 01</span></div>
+      <h3><span class="en">Data Pipeline Close-Reading ↗</span><span class="zh">数据管道精读 ↗</span></h3>
+    </a>
+    <a href="coverage-manual.html">
+      <div class="lbl"><span class="en">Companion doc</span><span class="zh">同项目文档</span></div>
+      <h3>Coverage Manual ↗</h3>
+    </a>
+    <a href="https://data-platform.azurewebsites.net">
+      <div class="lbl"><span class="en">Live app</span><span class="zh">在线应用</span></div>
+      <h3><span class="en">Open the platform ↗</span><span class="zh">打开平台 ↗</span></h3>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <span class="en">COMP3888_W11_02_P36 · close-reading series 03 · personal study notes
+  covering theme.py's question_panel(), anchor(), and _cross_page_scroll_bridge() in full —
+  code snippets taken from the current version of the repo, the source files are
+  authoritative.</span>
+  <span class="zh">COMP3888_W11_02_P36 · 精读系列03 · 个人学习笔记，完整覆盖theme.py的
+  question_panel()、anchor()、_cross_page_scroll_bridge()三个函数 · 代码片段摘自仓库
+  当前版本，完整实现以源文件为准。</span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var app = document.getElementById('app');
+  var btn = document.getElementById('langToggle');
+  function apply(lang){
+    app.setAttribute('data-lang', lang);
+    btn.textContent = lang === 'zh' ? 'EN' : '中';
+    try { localStorage.setItem('p36-methods-lang', lang); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('p36-methods-lang'); } catch(e){}
+  apply(saved === 'en' ? 'en' : 'zh');
+  btn.addEventListener('click', function(){
+    apply(app.getAttribute('data-lang') === 'zh' ? 'en' : 'zh');
+  });
+})();
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+
+</body></html>

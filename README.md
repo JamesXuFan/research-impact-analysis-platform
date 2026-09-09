@@ -10,11 +10,12 @@
 </p>
 
 <p>
-  <a href="https://claude.ai/code/artifact/ec303ff3-caf2-4c24-9c3b-2bdefee6da3f"><img alt="Task Map" src="https://img.shields.io/badge/🧩-Task%20Map-0F4C81?style=for-the-badge"></a>
-  <a href="https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688"><img alt="Coverage Manual" src="https://img.shields.io/badge/📋-Coverage%20Manual-DA291C?style=for-the-badge"></a>
-  <a href="https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42"><img alt="Data Pipeline Close-Reading" src="https://img.shields.io/badge/🐼-Data%20Pipeline-0F4C81?style=for-the-badge"></a>
-  <a href="https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47"><img alt="Dashboard & Charting Close-Reading" src="https://img.shields.io/badge/📐-Dashboard%20%26%20Charting-FFC20E?style=for-the-badge&labelColor=1A1A1A"></a>
-  <a href="https://claude.ai/code/artifact/e5ecb45e-a7b8-49c8-973e-1b823945d576"><img alt="Sub-Question Navigation Close-Reading" src="https://img.shields.io/badge/🧭-Navigation-0F4C81?style=for-the-badge"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/"><img alt="Docs site" src="https://img.shields.io/badge/📖-Docs%20Site-1A1A1A?style=for-the-badge"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html"><img alt="Task Map" src="https://img.shields.io/badge/🧩-Task%20Map-0F4C81?style=for-the-badge"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html"><img alt="Coverage Manual" src="https://img.shields.io/badge/📋-Coverage%20Manual-DA291C?style=for-the-badge"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html"><img alt="Data Pipeline Close-Reading" src="https://img.shields.io/badge/🐼-Data%20Pipeline-0F4C81?style=for-the-badge"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html"><img alt="Dashboard & Charting Close-Reading" src="https://img.shields.io/badge/📐-Dashboard%20%26%20Charting-FFC20E?style=for-the-badge&labelColor=1A1A1A"></a>
+  <a href="https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html"><img alt="Sub-Question Navigation Close-Reading" src="https://img.shields.io/badge/🧭-Navigation-0F4C81?style=for-the-badge"></a>
 </p>
 
 **COMP3888 Capstone · Team W11_02_P36**
@@ -48,20 +49,22 @@ answers.
 
 | Document | What it's for |
 | --- | --- |
-| [Task Map](https://claude.ai/code/artifact/ec303ff3-caf2-4c24-9c3b-2bdefee6da3f) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the 5 direct task-to-task imports that don't route through the shared core — for splitting work without two people colliding on the same file |
-| [Coverage Manual](https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
-| [Data Pipeline Close-Reading](https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
-| [Dashboard & Charting Close-Reading](https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
-| [Sub-Question Navigation Close-Reading](https://claude.ai/code/artifact/e5ecb45e-a7b8-49c8-973e-1b823945d576) | How a sub-question becomes a click-to-jump link — the same-page anchor jump and the `st.iframe`-based cross-page scroll bridge, taken apart in full with a traced worked example |
-| [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the artifacts above if they ever drift |
+| [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the 5 direct task-to-task imports that don't route through the shared core — for splitting work without two people colliding on the same file |
+| [Coverage Manual](https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
+| [Data Pipeline Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
+| [Dashboard & Charting Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
+| [Sub-Question Navigation Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html) | How a sub-question becomes a click-to-jump link — the same-page anchor jump and the `st.iframe`-based cross-page scroll bridge, taken apart in full with a traced worked example |
+| [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the docs site above if they ever drift |
 | [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | Every raw and derived column, with data-quality notes |
 
 > [!NOTE]
-> The five linked pages above are private Claude Artifacts, not part of this
-> git repo — share them from the page's own share menu if a teammate without
-> access needs to open them. They're not hosted as a GitHub Pages site because
-> this repo is private and GitHub's free plan only serves Pages from public
-> repositories; revisit if the repo's visibility ever changes.
+> The five docs above are static copies published from [`site/`](site/) via
+> [GitHub Pages](https://jamesxufan.github.io/research-impact-analysis-platform/),
+> rebuilt automatically by [`.github/workflows/pages.yml`](.github/workflows/pages.yml)
+> on every push to `main` that touches `site/`. They started life as Claude
+> Artifacts and may still be edited that way — see the artifact URLs in git
+> history if you need to republish one — but the Pages copies in `site/` are
+> what the badges above actually link to.
 
 ## Overview
 

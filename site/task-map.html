@@ -1,0 +1,863 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>P36 Task Map</title>
+<style>
+  :root{
+    --bg:#F2EEE6;
+    --surface:#FFFFFF;
+    --ink:#1A1A1A;
+    --ink-soft:#6E6A5E;
+    --hair:#E5E1D8;
+    --red:#DA291C;
+    --blue:#0F4C81;
+    --yellow:#FFC20E;
+    --core-fill:#1A1A1A;
+    --core-ink:#F2EEE6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#18140F; --surface:#221D15; --ink:#F2EEE6; --ink-soft:#A69C87; --hair:#3A3226;
+      --red:#FF7A63; --blue:#6FA8DC; --yellow:#FFC20E; --core-fill:#F2EEE6; --core-ink:#18140F;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#18140F; --surface:#221D15; --ink:#F2EEE6; --ink-soft:#A69C87; --hair:#3A3226;
+    --red:#FF7A63; --blue:#6FA8DC; --yellow:#FFC20E; --core-fill:#F2EEE6; --core-ink:#18140F;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--ink);}
+  .wrap{
+    max-width:940px; margin:0 auto; padding:36px 24px 80px;
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    color:var(--ink);
+  }
+  [lang="zh"]{ font-family:'Noto Sans SC','Space Grotesk',sans-serif; }
+
+  /* language toggle: hide whichever language isn't active */
+  #page[data-lang="en"] [lang="zh"]{ display:none; }
+  #page[data-lang="zh"] [lang="en"]{ display:none; }
+
+  h1,h2,h3{
+    font-family:'Archivo Black', 'Space Grotesk', sans-serif;
+    text-transform:uppercase; letter-spacing:-0.01em; color:var(--ink);
+    text-wrap:balance; margin:0;
+  }
+  h1 [lang="zh"], h2 [lang="zh"], h3 [lang="zh"]{ font-family:'Noto Sans SC',sans-serif; }
+  code, .mono{ font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:0.82em; }
+
+  /* ---------- header ---------- */
+  .page-head{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px;}
+  .title-row{display:flex; align-items:center; gap:16px;}
+  .shape{ width:30px; height:30px; flex-shrink:0; background:var(--blue); }
+  .page-head h1{font-size:2.05rem;}
+  .rule{height:8px; background:var(--ink); margin:14px 0 10px;}
+  .lede{ font-size:1.02rem; color:var(--ink); max-width:64ch; line-height:1.55; margin-bottom:28px;}
+  .lede b{color:var(--ink);}
+
+  .lang-switch{ display:flex; border:2px solid var(--ink); flex-shrink:0; }
+  .lang-btn{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase;
+    font-size:0.78rem; letter-spacing:0.04em; padding:8px 16px; border:none; cursor:pointer;
+    background:var(--surface); color:var(--ink); transition:background 0.12s ease-out, color 0.12s ease-out;
+  }
+  .lang-btn:nth-child(2){ border-left:2px solid var(--ink); }
+  .lang-btn[aria-pressed="true"]{ background:var(--ink); color:var(--bg); }
+  .lang-btn:hover:not([aria-pressed="true"]){ background:var(--yellow); }
+
+  /* ---------- stat tiles ---------- */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:40px;}
+  .stat{ background:var(--surface); border:2px solid var(--ink); border-left:10px solid var(--red); padding:12px 16px; }
+  .stat:nth-child(2){border-left-color:var(--blue);}
+  .stat:nth-child(3){border-left-color:var(--yellow);}
+  .stat .label{ text-transform:uppercase; font-weight:700; font-size:0.72rem; letter-spacing:0.06em; color:var(--ink-soft); }
+  .stat .value{font-family:'Archivo Black',sans-serif; font-size:1.7rem; line-height:1.3; margin-top:2px;}
+  .stat .sub{font-size:0.78rem; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+
+  /* ---------- section headings ---------- */
+  section{margin-bottom:44px;}
+  .section-head{margin-bottom:8px;}
+  .section-head h2{font-size:1.3rem;}
+  .section-note{font-size:0.9rem; color:var(--ink-soft); max-width:66ch; line-height:1.5; margin-bottom:18px;}
+
+  /* ---------- task cards ---------- */
+  .task-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(270px,1fr)); gap:14px; }
+  .task-card{ background:var(--surface); border:2px solid var(--ink); padding:14px 16px 16px; display:flex; flex-direction:column; gap:8px; }
+  .task-card.cat-analysis{border-left:8px solid var(--blue);}
+  .task-card.cat-layout{border-left:8px solid var(--yellow);}
+  .task-card.cat-database{border-left:8px solid var(--red);}
+  .task-tag{ font-size:0.66rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-weight:700; }
+  .task-card h3{font-size:1.0rem; line-height:1.25;}
+  .task-files{display:flex; flex-direction:column; gap:2px; color:var(--ink-soft); font-size:0.76rem;}
+  .task-files .own-tag{ font-size:0.64rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-top:4px; font-family:'Space Grotesk',sans-serif; }
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:2px;}
+  .chip{ font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; padding:3px 7px; border:1.5px solid var(--ink); color:var(--ink); }
+  .chip.on{background:var(--ink); color:var(--bg);}
+  .chip.partial{background:var(--yellow); border-color:var(--ink); color:#1A1A1A;}
+  .chip.off{opacity:0.35;}
+  .imports{ margin-top:2px; border-top:1px dashed var(--hair); padding-top:8px; display:flex; flex-direction:column; gap:4px; }
+  .imports .imports-h{ font-size:0.64rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); font-weight:700; }
+  .imports code{ display:block; font-size:0.7rem; line-height:1.5; color:var(--ink); word-break:break-word; white-space:pre-wrap; }
+  .imports code.none{ color:var(--ink-soft); font-style:italic; font-family:'Space Grotesk',sans-serif; }
+  .task-note{font-size:0.8rem; line-height:1.5; color:var(--ink); border-top:1px solid var(--hair); padding-top:8px; margin-top:2px;}
+  .task-note b{color:var(--ink); font-weight:700;}
+
+  /* ---------- shared core band ---------- */
+  .core-band{ background:var(--core-fill); color:var(--core-ink); display:grid; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); gap:0; border:2px solid var(--ink); }
+  .core-item{ padding:18px 18px 20px; border-left:1px solid rgba(128,128,128,0.35); }
+  .core-item:first-child{border-left:none;}
+  .core-item .path{font-family:ui-monospace,monospace; font-size:0.86rem; font-weight:700; margin-bottom:6px;}
+  .core-item .owner{font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; opacity:0.7; margin-bottom:8px;}
+  .core-item p{margin:0; font-size:0.82rem; line-height:1.5; opacity:0.95;}
+  .core-item .fact{ margin-top:10px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.03em; font-weight:700; opacity:0.75; }
+  .core-item .imports{ border-top-color:rgba(128,128,128,0.35); }
+  .core-item .imports .imports-h{ color:var(--core-ink); opacity:0.6; }
+  .core-item .imports code{ color:var(--core-ink); opacity:0.85; }
+
+  /* ---------- figures ---------- */
+  figure{margin:0;}
+  .fig-frame{ background:var(--surface); border:2px solid var(--ink); padding:16px; overflow-x:auto; }
+  .fig-frame svg{display:block; width:100%; height:auto; max-width:100%;}
+  figcaption{font-size:0.85rem; color:var(--ink); margin-top:10px; line-height:1.5;}
+  .legend{display:flex; gap:18px; flex-wrap:wrap; font-size:0.76rem; color:var(--ink-soft); margin-top:8px;}
+  .legend span.item{display:inline-flex; align-items:center; gap:6px;}
+  .legend .swatch{width:22px; height:0; border-top:2px solid var(--ink); display:inline-block;}
+  .legend .swatch.dash{border-top-style:dashed;}
+
+  .callout{ background:var(--surface); border:2px solid var(--ink); border-left:10px solid var(--yellow); padding:14px 18px; font-size:0.88rem; line-height:1.55; margin-top:16px; }
+  .callout b{font-weight:700;}
+
+  .whole-project{ background:var(--surface); border:2px dashed var(--ink-soft); padding:16px 18px; margin-top:14px; }
+  .whole-project .files{ display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:10px; font-size:0.76rem; color:var(--ink-soft); }
+  .whole-project .files code{color:var(--ink);}
+
+  footer{ font-size:0.78rem; color:var(--ink-soft); border-top:1px solid var(--hair); padding-top:16px; margin-top:8px; line-height:1.6;}
+
+  @media (max-width:600px){ .stats{grid-template-columns:1fr;} .page-head{flex-direction:column; align-items:flex-start;} }
+</style>
+
+<div class="wrap" id="page" data-lang="en">
+
+  <div class="page-head">
+    <div class="title-row">
+      <div class="shape"></div>
+      <h1><span lang="en">P36 Task Map</span><span lang="zh">P36 任务地图</span></h1>
+      <a href="index.html" style="font-family:var(--font-mono); font-size:0.76rem; color:var(--ink-soft); text-decoration:none; border-bottom:1.5px dashed var(--ink-soft); margin-left:6px;"><span lang="en">Docs home</span><span lang="zh">文档首页</span></a>
+    </div>
+    <div class="lang-switch" role="group" aria-label="Language / 语言">
+      <button type="button" class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
+  </div>
+  <div class="rule"></div>
+
+  <p class="lede">
+    <span lang="en">
+      Eight build tasks split the P36 codebase — six analysis items, plus layout and
+      database. All eight quietly pass through the same <b>four shared files</b>
+      (<code>config.py</code>, <code>metrics.py</code>, <code>prepare.py</code>,
+      <code>lib.py</code>), and each task now lists every file that belongs to it
+      exclusively — not just its page and its analysis module — plus, new in this
+      revision, the <b>exact <code>import</code> line</b> behind every lit chip, so
+      "Config: on" isn't a guess anyone has to go verify in the source.
+    </span>
+    <span lang="zh">
+      P36 代码库拆成八个建设任务——六个 analysis 项目,加上排版和数据库。八个任务都会
+      经过同样的<b>四个公共文件</b>(<code>config.py</code>、<code>metrics.py</code>、
+      <code>prepare.py</code>、<code>lib.py</code>),现在每个任务也列出了完全专属于它
+      的文件——不只是页面和分析模块这两个——本次修订新增的是,每一个点亮的 chip
+      背后<b>具体的 <code>import</code> 那一行</b>,这样"Config: 已用"就不再是一句
+      需要自己去源码里核实的猜测。
+    </span>
+  </p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label"><span lang="en">Build tasks</span><span lang="zh">建设任务</span></div>
+      <div class="value">8</div>
+      <div class="sub">
+        <span lang="en">6 analysis · layout · database</span>
+        <span lang="zh">6个分析 · 排版 · 数据库</span>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="label"><span lang="en">Shared core files</span><span lang="zh">公共文件</span></div>
+      <div class="value">4</div>
+      <div class="sub">
+        <span lang="en">every task touches at least one</span>
+        <span lang="zh">每个任务至少用到一个</span>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="label"><span lang="en">Cross-task deps</span><span lang="zh">跨任务依赖</span></div>
+      <div class="value">5</div>
+      <div class="sub">
+        <span lang="en">4 direct imports + 1 glued in lib.py</span>
+        <span lang="zh">4 个直接 import + 1 个在 lib.py 里拼接</span>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2><span lang="en">The eight tasks</span><span lang="zh">八个任务</span></h2>
+    </div>
+    <p class="section-note">
+      <span lang="en">
+        Page number and README item number are both real identifiers already used in
+        the codebase. Each card's file list is exhaustive, and the <b>Imports</b> block
+        underneath is the literal <code>from ... import ...</code> lines traced from
+        that task's page and analysis module — not a summary, the actual statements.
+      </span>
+      <span lang="zh">
+        页码和 README 题号都是代码库里本来就在用的真实编号。每张卡片的文件清单是
+        完整的,下面的<b>Imports</b>区块是从这个任务的页面和分析模块里追出来的、
+        逐字的 <code>from ... import ...</code> 那一行——不是概括,是原样的语句。
+      </span>
+    </p>
+    <div class="task-grid">
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 1 · README item 16</div>
+        <h3><span lang="en">Go8 / Peer Benchmarking</span><span lang="zh">Go8 同行对标</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/1_Go8_Benchmarking.py</span>
+          <span class="mono">src/p36/analysis/go8_benchmarking.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Config</span><span class="chip on">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import (CLIENT_UNIVERSITY, caveat, get_benchmark_summary,
+    get_field_gap_vs_peers, get_growth_by_university, get_journal_pattern,
+    get_top_countries, load_raw)</code>
+          <code>from p36.config import (CLIENT_UNIVERSITY, GO8_UNIVERSITIES,
+    HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, MAIN_YEAR_RANGE)</code>
+          <code>from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share</code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            Reads Field Analysis's <b>FIELD_COLUMN_EXPLODED</b> for the by-field gap
+            chart. Its own <b>institution_partner_flag()</b> is imported directly by
+            Scenario Analysis — the only outgoing edge in this map.
+          </span>
+          <span lang="zh">
+            学科差距图要用到 Field Analysis 的 <b>FIELD_COLUMN_EXPLODED</b>。自己产出的
+            <b>institution_partner_flag()</b> 被 Scenario Analysis 直接 import——这是
+            本图里唯一一条"出边"。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 2 · README item 3</div>
+        <h3><span lang="en">Journal Tier &amp; Q1 Analysis</span><span lang="zh">期刊分层与 Q1 分析</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/2_Journal_Tier.py</span>
+          <span class="mono">src/p36/analysis/journal_tier.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Config</span><span class="chip on">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import (CLIENT_UNIVERSITY, get_citescore_percentile_distribution,
+    get_citescore_percentile_series, get_impact_by_citescore_quartile,
+    get_overperforming_sources, get_q1_advantage_by_field,
+    get_q1_definition_agreement, get_q1_share_by_university,
+    get_q1_share_by_year, provisional)</code>
+          <code>from p36.config import (MAIN_YEAR_RANGE, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS,
+    Q1_CITESCORE_PERCENTILE_MAX)  <span lang="en"># page-level, plus this in journal_tier.py itself:</span><span lang="zh"># 页面自己 import；journal_tier.py 内部还有这一行：</span></code>
+          <code>from p36.config import OVERPERFORMING_SOURCE_MIN_PUBLICATIONS</code>
+          <code>from p36.metrics import mean_fwci, q1_share, top_decile_share</code>
+          <code>from p36.metrics.metrics import CITESCORE_PERCENTILE_COL, citescore_quartile</code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            Also reads Field Analysis's <b>FIELD_COLUMN_EXPLODED</b>. Its
+            <b>source_performance_flag()</b> feeds Scenario Analysis too — but glued in
+            at <code>app/lib.py</code>, not imported inside
+            <code>scenario_analysis.py</code>.
+          </span>
+          <span lang="zh">
+            同样要读 Field Analysis 的 <b>FIELD_COLUMN_EXPLODED</b>。自己的
+            <b>source_performance_flag()</b> 也会喂给 Scenario Analysis——但是在
+            <code>app/lib.py</code> 里拼接进去的,不是 <code>scenario_analysis.py</code>
+            自己 import 的。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 3 · README item 6</div>
+        <h3><span lang="en">Research Field Analysis</span><span lang="zh">研究领域分析</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/3_Field_Analysis.py</span>
+          <span class="mono">src/p36/analysis/field_analysis.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Config</span><span class="chip on">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import (caveat, get_collaboration_approach_by_field, get_field_growth,
+    get_field_summary, get_field_trend, get_fwci_by_field,
+    load_exploded_deduplicated)</code>
+          <code>from p36.analysis import field_analysis</code>
+          <code>from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED</code>
+          <code>from p36.config import FRACTIONAL_FIELD_COUNTING  <span lang="en"># page-level; field_analysis.py itself:</span><span lang="zh"># 页面自己 import；field_analysis.py 内部：</span></code>
+          <code>from p36.config import FRACTIONAL_FIELD_COUNTING, MAIN_YEAR_RANGE</code>
+          <code>from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share</code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            The de facto fifth shared file: <b>FIELD_COLUMN_EXPLODED</b> is imported
+            directly by three other analysis modules. Changing its shape ripples
+            further than any other task's.
+          </span>
+          <span lang="zh">
+            事实上的"第五个公共文件":<b>FIELD_COLUMN_EXPLODED</b> 被另外三个 analysis
+            模块直接 import。改动它的形状,波及范围比其他任何一个任务都大。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 4 · README item 9</div>
+        <h3><span lang="en">International Collaboration</span><span lang="zh">国际合作分析</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/4_International_Collaboration.py</span>
+          <span class="mono">src/p36/analysis/international_collaboration.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Config</span><span class="chip on">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import (CLIENT_UNIVERSITY, caveat, get_collaboration_rate_trend,
+    get_fwci_by_collaboration_status, get_impact_by_collaboration_breadth,
+    get_impact_by_collaboration_status, get_impact_gap_by_field,
+    get_impact_gap_by_year, get_top_countries, load_raw)</code>
+          <code>from p36.config import CITATION_WINDOW_TRAILING_YEARS_EXCLUDED  <span lang="en"># page-level; international_collaboration.py itself:</span><span lang="zh"># 页面自己 import；international_collaboration.py 内部：</span></code>
+          <code>from p36.config import (CITATION_WINDOW_TRAILING_YEARS_EXCLUDED,
+    COLLABORATION_BREADTH_BINS, MAIN_YEAR_RANGE)</code>
+          <code>from p36.metrics import mean_fwci, q1_share, top_decile_share</code>
+          <code>from p36.metrics.metrics import COUNTRIES_COL</code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            Third and last direct importer of Field Analysis's
+            <b>FIELD_COLUMN_EXPLODED</b>. No other task imports from this one.
+          </span>
+          <span lang="zh">
+            第三个、也是最后一个直接 import Field Analysis
+            <b>FIELD_COLUMN_EXPLODED</b> 的模块。没有其他任务反过来 import 它。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 5 · README item 14</div>
+        <h3><span lang="en">Integrated Impact Drivers</span><span lang="zh">影响力驱动因素分析</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/5_Impact_Drivers.py</span>
+          <span class="mono">src/p36/analysis/impact_drivers.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Metrics</span><span class="chip partial">Config*</span>
+          <span class="chip off">Prepare</span><span class="chip partial">Lib*</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import load_deduplicated</code>
+          <code>from p36.analysis import impact_drivers</code>
+          <code class="none"><span lang="en"># impact_drivers.py itself: only numpy, pandas, statsmodels.formula.api —
+# zero p36.config / p36.metrics imports, the one exception in this map</span><span lang="zh"># impact_drivers.py 内部：只 import 了 numpy、pandas、statsmodels.formula.api ——
+# 一个 p36.config / p36.metrics 的 import 都没有，是本图里唯一的例外</span></code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            <b>The one exception in this map.</b> Never imports
+            <code>p36.config</code> directly (only indirectly via
+            <code>prepare.py</code>'s <code>add_derived_flags</code>), and skips
+            <code>app/lib.py</code> almost entirely — it fits a statsmodels object, so
+            it defines its own <code>@st.cache_resource</code> wrappers locally
+            instead.
+          </span>
+          <span lang="zh">
+            <b>本图里唯一的例外。</b>从不直接 import <code>p36.config</code>(只通过
+            <code>prepare.py</code> 的 <code>add_derived_flags</code> 间接用到),也几乎
+            不走 <code>app/lib.py</code>——因为要缓存一个 statsmodels 拟合对象,所以
+            直接在页面里自己写了 <code>@st.cache_resource</code>。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-analysis">
+        <div class="task-tag">Page 6 · README item 17</div>
+        <h3><span lang="en">Scenario Analysis</span><span lang="zh">情景分析</span></h3>
+        <div class="task-files">
+          <span class="mono">app/pages/6_Scenario_Analysis.py</span>
+          <span class="mono">src/p36/analysis/scenario_analysis.py</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">Config</span><span class="chip off">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from lib import (CLIENT_UNIVERSITY, get_client_institution_scenario,
+    get_institution_partner_performance, get_scenario_table)</code>
+          <code>from p36.config import (HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS,
+    SCENARIO_DEFAULT_DELTA_PP)  <span lang="en"># page-level; scenario_analysis.py itself:</span><span lang="zh"># 页面自己 import；scenario_analysis.py 内部：</span></code>
+          <code>from p36.config import SCENARIO_DEFAULT_DELTA_PP</code>
+          <code>from p36.analysis import go8_benchmarking  <span lang="en"># local import, inside client_institution_scenario() only</span><span lang="zh"># 函数内部的局部 import，只在 client_institution_scenario() 里出现</span></code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            Imports <code>go8_benchmarking</code> directly for
+            <b>institution_partner_flag()</b> — the only module-to-module import in
+            the codebase that isn't routed through <code>app/lib.py</code>.
+          </span>
+          <span lang="zh">
+            直接 import <code>go8_benchmarking</code> 拿
+            <b>institution_partner_flag()</b>——是整个代码库里唯一一处不经过
+            <code>app/lib.py</code> 的模块间 import。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-layout">
+        <div class="task-tag"><span lang="en">Cross-cutting</span><span lang="zh">跨任务基础设施</span></div>
+        <h3><span lang="en">Layout</span><span lang="zh">排版</span></h3>
+        <div class="task-files">
+          <span class="own-tag"><span lang="en">Owns</span><span lang="zh">专属</span></span>
+          <span class="mono">app/theme.py</span>
+          <span class="mono">app/Home.py</span>
+          <span class="mono">app/generate_favicon.py</span>
+          <span class="mono">app/static/favicon.png</span>
+          <span class="mono">.streamlit/config.toml</span>
+        </div>
+        <div class="chips">
+          <span class="chip off">Config</span><span class="chip off">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip partial">Lib*</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code class="none"><span lang="en"># theme.py: from pathlib import Path; import altair as alt; import streamlit as st —
+# zero p36.* imports, the only file besides config.py itself that touches none of the four</span><span lang="zh"># theme.py：from pathlib import Path；import altair as alt；import streamlit as st——
+# 一个 p36.* 的 import 都没有，是除了 config.py 自己之外唯一一个四个公共文件都不碰的文件</span></code>
+          <code>from lib import (CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat,
+    get_overlap_by_university, load_deduplicated, load_raw)  <span lang="en"># Home.py only</span><span lang="zh"># 只有 Home.py 有这行</span></code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            <code>theme.py</code> imports nothing from <code>p36</code> at all — pure
+            Streamlit/Altair styling every one of the other 7 pages calls.
+            <code>.streamlit/config.toml</code> mirrors the same red/cream/black
+            palette at the Streamlit-server level. Only <code>Home.py</code> reaches
+            into <code>lib.py</code>, for its own KPI tiles.
+          </span>
+          <span lang="zh">
+            <code>theme.py</code> 完全不 import <code>p36</code> 下任何东西——纯
+            Streamlit/Altair 样式,另外 7 个页面全都调它。
+            <code>.streamlit/config.toml</code> 在 Streamlit 服务端层面复刻了同一套
+            红/米白/黑配色。只有 <code>Home.py</code> 会用到 <code>lib.py</code>,为了
+            首页自己的 KPI 卡片。
+          </span>
+        </div>
+      </div>
+
+      <div class="task-card cat-database">
+        <div class="task-tag"><span lang="en">Cross-cutting</span><span lang="zh">跨任务基础设施</span></div>
+        <h3><span lang="en">Database</span><span lang="zh">数据库</span></h3>
+        <div class="task-files">
+          <span class="own-tag"><span lang="en">Owns</span><span lang="zh">专属</span></span>
+          <span class="mono">src/p36/ingest.py</span>
+          <span class="mono">src/p36/cleaning/</span>
+          <span class="mono">src/p36/dataset.py</span>
+          <span class="mono">src/p36/build_dataset.py</span>
+          <span class="mono">src/p36/config.py</span>
+          <span class="mono">data/dictionary/data_dictionary.md</span>
+        </div>
+        <div class="chips">
+          <span class="chip off">Config**</span><span class="chip off">Metrics</span>
+          <span class="chip off">Prepare</span><span class="chip off">Lib</span>
+        </div>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from p36.config import MISSING_VALUE_CODES  <span lang="en"># ingest.py — the one place this task reads its own config.py back</span><span lang="zh"># ingest.py——这个任务里唯一一处反过来读自己写的 config.py 的地方</span></code>
+          <code class="none"><span lang="en"># dataset.py: import os; from pathlib import Path; import pandas as pd — no p36 imports
+# cleaning/dtypes.py: import pandas as pd only — no p36 imports
+# config.py itself: no imports from any other p36 module — it's the root of the graph</span><span lang="zh"># dataset.py：import os；from pathlib import Path；import pandas as pd——没有 p36 的 import
+# cleaning/dtypes.py：只有 import pandas as pd——没有 p36 的 import
+# config.py 自己：不 import 任何其它 p36 模块——它是整张依赖图的根</span></code>
+        </div>
+        <div class="task-note">
+          <span lang="en">
+            Zero incoming chips on purpose — this task sits <b>underneath</b> the
+            shared core, not beside it. It writes <code>config.py</code> (shown again
+            in the shared core below, since everyone else reads it) and
+            <code>data_dictionary.md</code>, the client deliverable that must stay in
+            sync with <code>ingest.py</code>/<code>cleaning/</code>.
+          </span>
+          <span lang="zh">
+            没有一个 chip 亮着,是故意的——这个任务在共享核心<b>下面</b>,不是旁边。
+            它编写 <code>config.py</code>(下面"公共文件"里会再出现一次,因为其他任务
+            都在读它)和 <code>data_dictionary.md</code>——这份客户交付物必须和
+            <code>ingest.py</code>/<code>cleaning/</code> 保持同步。
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2><span lang="en">The shared core</span><span lang="zh">公共文件</span></h2>
+    </div>
+    <p class="section-note">
+      <span lang="en">
+        Four files no single task owns outright — change one, and every task with a
+        lit chip above needs a look before merging. Each item's <b>Imports</b> line
+        is what that shared file itself pulls in — not who calls it, but what it
+        depends on.
+      </span>
+      <span lang="zh">
+        没有任何一个任务能独占的四个文件——改动其中一个,上面 chip 亮着的每个任务合并
+        前都得看一眼。每一项的<b>Imports</b>是这个公共文件自己依赖了什么——不是谁
+        调用它,而是它自己依赖谁。
+      </span>
+    </p>
+    <div class="core-band">
+      <div class="core-item">
+        <div class="path">config.py</div>
+        <div class="owner"><span lang="en">Written by Database</span><span lang="zh">数据库任务编写</span></div>
+        <p>
+          <span lang="en">Every named threshold and scope constant — PROVISIONAL ones
+          flagged, never a magic number buried in a module.</span>
+          <span lang="zh">每个有名字的阈值和范围常量——PROVISIONAL 的会标出来,绝不是
+          埋在某个模块里的魔法数字。</span>
+        </p>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code class="none"><span lang="en"># none — no imports from any other p36 module, by design</span><span lang="zh"># 无——刻意不 import 任何其它 p36 模块</span></code>
+        </div>
+        <div class="fact"><span lang="en">5 of 6 analysis tasks read it directly</span><span lang="zh">5/6 分析任务直接读取</span></div>
+      </div>
+      <div class="core-item">
+        <div class="path">metrics.py</div>
+        <div class="owner"><span lang="en">No single owner</span><span lang="zh">没有单一负责人</span></div>
+        <p>
+          <span lang="en">The one true implementation of every metric. Must stay in
+          lockstep with docs/methodology.md.</span>
+          <span lang="zh">每个指标唯一的真实实现。必须和 docs/methodology.md 保持
+          同步。</span>
+        </p>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from p36.config import (CITESCORE_QUARTILE_BOUNDS, CITESCORE_QUARTILE_LABELS,
+    EXCLUDE_RETRACTED, INSTITUTIONAL_COLLABORATION_MIN_INSTITUTIONS,
+    INTERNATIONAL_COLLABORATION_MIN_COUNTRIES, OPEN_ACCESS_NULL_MEANS_NOT_OA,
+    Q1_CITESCORE_PERCENTILE_MAX, TOP_1_PERCENT_PERCENTILE_MAX,
+    TOP_DECILE_PERCENTILE_MAX)</code>
+        </div>
+        <div class="fact"><span lang="en">5 of 6 analysis tasks read it directly</span><span lang="zh">5/6 分析任务直接读取</span></div>
+      </div>
+      <div class="core-item">
+        <div class="path">prepare.py</div>
+        <div class="owner"><span lang="en">No single owner</span><span lang="zh">没有单一负责人</span></div>
+        <p>
+          <span lang="en">Scope-filters the dataset and adds derived flags once, so six
+          modules don't each write a slightly different cleanup.</span>
+          <span lang="zh">对数据集做范围过滤并加派生列,只做一次,免得六个模块各写一套
+          稍有出入的清洗逻辑。</span>
+        </p>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from p36 import dataset</code>
+          <code>from p36.metrics import add_derived_flags, exclude_out_of_scope</code>
+        </div>
+        <div class="fact"><span lang="en">1 importer in the whole repo: lib.py</span><span lang="zh">全仓库只有 1 个调用者</span></div>
+      </div>
+      <div class="core-item">
+        <div class="path">lib.py</div>
+        <div class="owner"><span lang="en">Read by Layout</span><span lang="zh">排版任务读取</span></div>
+        <p>
+          <span lang="en">One <code>@st.cache_data</code> wrapper per analysis output
+          — the only thing every page is allowed to call directly.</span>
+          <span lang="zh">每个 analysis 输出配一个 <code>@st.cache_data</code> 包装函数
+          ——每个页面唯一被允许直接调用的东西。</span>
+        </p>
+        <div class="imports">
+          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
+          <code>from p36.analysis import (field_analysis, go8_benchmarking, journal_tier,
+    prepare, scenario_analysis)</code>
+          <code>from p36.analysis import international_collaboration as intl</code>
+          <code>from p36.config import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, MAIN_YEAR_RANGE</code>
+        </div>
+        <div class="fact"><span lang="en">6 of 7 pages, direct + 1 partial</span><span lang="zh">6/7 页面直接调用 + 1 个部分调用</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2><span lang="en">Who depends on the shared core</span><span lang="zh">谁依赖公共文件</span></h2>
+    </div>
+    <p class="section-note">
+      <span lang="en">Every line here is a real <code>import</code> traced from the
+      source. Dashed = indirect, or an exception worth reading the task card for.</span>
+      <span lang="zh">图里每一条线都是从源码里追出来的真实 <code>import</code>。虚线 =
+      间接依赖,或者值得回去看一眼任务卡片说明的例外情况。</span>
+    </p>
+    <figure class="fig-frame">
+      <svg viewBox="0 0 760 520" role="img" aria-label="Bipartite diagram: eight tasks on the left connect to the shared files they import on the right — config.py, metrics.py, prepare.py, lib.py. Config and metrics are touched by five analysis tasks each; lib.py by six pages directly and one partially; prepare.py has zero direct callers, only lib.py reaches it; the database task has no connections to any of the four. 双语说明: 左侧八个任务连向右侧它们导入的公共文件；config.py 和 metrics.py 各被五个分析任务触及；lib.py 被六个页面直接调用、一个部分调用；prepare.py 没有任何任务直接调用，只有 lib.py 触达它；数据库任务与四个公共文件都没有连线。">
+        <defs>
+          <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path>
+          </marker>
+        </defs>
+        <g stroke="currentColor" stroke-opacity="0.5" fill="none">
+          <line x1="240" y1="33" x2="500" y2="47" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="33" x2="500" y2="177" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="33" x2="500" y2="440" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="97" x2="500" y2="47" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="97" x2="500" y2="177" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="97" x2="500" y2="440" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="161" x2="500" y2="47" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="161" x2="500" y2="177" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="161" x2="500" y2="440" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="225" x2="500" y2="47" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="225" x2="500" y2="177" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="225" x2="500" y2="440" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="289" x2="500" y2="177" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="289" x2="500" y2="47" stroke-dasharray="4 3" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="289" x2="500" y2="440" stroke-dasharray="4 3" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="353" x2="500" y2="47" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="353" x2="500" y2="440" marker-end="url(#arrow)"></line>
+          <line x1="240" y1="417" x2="500" y2="440" marker-end="url(#arrow)"></line>
+        </g>
+        <g font-family="'Space Grotesk', sans-serif" font-size="12">
+          <rect x="20" y="16" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="16" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="38" fill="currentColor">Go8 Benchmarking (1)</text>
+          <rect x="20" y="80" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="80" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="102" fill="currentColor">Journal Tier (2)</text>
+          <rect x="20" y="144" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="144" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="166" fill="currentColor">Field Analysis (3)</text>
+          <rect x="20" y="208" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="208" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="230" fill="currentColor">Intl. Collaboration (4)</text>
+          <rect x="20" y="272" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="272" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="294" fill="currentColor">Impact Drivers (5)</text>
+          <rect x="20" y="336" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="336" width="6" height="34" fill="var(--blue)"></rect>
+          <text x="38" y="358" fill="currentColor">Scenario Analysis (6)</text>
+          <rect x="20" y="400" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="400" width="6" height="34" fill="var(--yellow)"></rect>
+          <text x="38" y="422" fill="currentColor">Layout · 排版</text>
+          <rect x="20" y="464" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"></rect>
+          <rect x="20" y="464" width="6" height="34" fill="var(--red)"></rect>
+          <text x="38" y="486" fill="currentColor">Database · 数据库</text>
+        </g>
+        <g font-family="'Space Grotesk', sans-serif">
+          <rect x="500" y="20" width="200" height="54" fill="var(--core-fill)"></rect>
+          <text x="516" y="42" font-size="13" font-weight="700" fill="var(--core-ink)">config.py</text>
+          <text x="516" y="60" font-size="10" fill="var(--core-ink)" opacity="0.75">5 direct + 1 indirect</text>
+          <rect x="500" y="150" width="200" height="54" fill="var(--core-fill)"></rect>
+          <text x="516" y="172" font-size="13" font-weight="700" fill="var(--core-ink)">metrics.py</text>
+          <text x="516" y="190" font-size="10" fill="var(--core-ink)" opacity="0.75">5 of 6 analysis tasks</text>
+          <rect x="500" y="280" width="200" height="54" fill="var(--core-fill)"></rect>
+          <text x="516" y="302" font-size="13" font-weight="700" fill="var(--core-ink)">prepare.py</text>
+          <text x="516" y="320" font-size="10" fill="var(--core-ink)" opacity="0.75">0 direct — only lib.py</text>
+          <rect x="500" y="410" width="200" height="60" fill="var(--core-fill)"></rect>
+          <text x="516" y="432" font-size="13" font-weight="700" fill="var(--core-ink)">lib.py</text>
+          <text x="516" y="450" font-size="10" fill="var(--core-ink)" opacity="0.75">6 direct + 2 partial</text>
+        </g>
+      </svg>
+    </figure>
+    <div class="legend">
+      <span class="item"><span class="swatch"></span><span lang="en">direct import</span><span lang="zh">直接 import</span></span>
+      <span class="item"><span class="swatch dash"></span><span lang="en">indirect / exception</span><span lang="zh">间接依赖或例外</span></span>
+    </div>
+    <figcaption>
+      <span lang="en">
+        Config and metrics fan out to almost every analysis task; lib.py fans in from
+        almost every page. Prepare.py sits isolated on purpose — one caller in the
+        whole repo. Database has no lines at all: the foundation the other four are
+        built on, not a peer that imports them (see README.md's "Analysis pipeline"
+        section for that lower layer).
+      </span>
+      <span lang="zh">
+        config 和 metrics 几乎扇出到每个 analysis 任务;lib.py 几乎从每个页面扇入。
+        prepare.py 故意孤立——全仓库只有一个调用者。database 完全没有连线:它是另外
+        四个文件立足的地基,不是反过来 import 它们的同级任务(那一层在 README.md 的
+        "Analysis pipeline" 一节里)。
+      </span>
+    </figcaption>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2><span lang="en">Direct task-to-task imports</span><span lang="zh">任务之间的直接 import</span></h2>
+    </div>
+    <p class="section-note">
+      <span lang="en">Everything above went through the shared core. These five don't
+      — one task's module reaches directly into another's.</span>
+      <span lang="zh">上面都是经过公共文件的依赖。这五条不是——一个任务的模块直接伸进
+      另一个任务的模块。</span>
+    </p>
+    <figure class="fig-frame">
+      <svg viewBox="0 0 700 320" role="img" aria-label="Flow diagram: Scenario Analysis imports Go8 Benchmarking directly for institution_partner_flag, and depends on Journal Tier's source_performance_flag indirectly through a merge in lib.py. Go8 Benchmarking, Journal Tier, and International Collaboration all import Field Analysis directly for its FIELD_COLUMN_EXPLODED column. 双语说明: 情景分析直接导入 Go8 对标的 institution_partner_flag，并通过 lib.py 的合并间接依赖期刊分层的 source_performance_flag；Go8 对标、期刊分层、国际合作三个模块都直接导入研究领域分析的 FIELD_COLUMN_EXPLODED。">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path>
+          </marker>
+        </defs>
+        <g stroke="currentColor" fill="none">
+          <line x1="170" y1="150" x2="260" y2="42" marker-end="url(#arrow2)"></line>
+          <line x1="170" y1="170" x2="260" y2="160" stroke-dasharray="4 3" marker-end="url(#arrow2)"></line>
+          <line x1="430" y1="40" x2="520" y2="150" marker-end="url(#arrow2)"></line>
+          <line x1="430" y1="160" x2="520" y2="160" marker-end="url(#arrow2)"></line>
+          <line x1="430" y1="280" x2="520" y2="172" marker-end="url(#arrow2)"></line>
+        </g>
+        <g font-family="'Space Grotesk', sans-serif" font-size="12">
+          <rect x="20" y="140" width="150" height="40" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="20" y="140" width="6" height="40" fill="var(--blue)"></rect>
+          <text x="34" y="165" fill="currentColor">Scenario (6)</text>
+          <rect x="260" y="20" width="170" height="40" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="260" y="20" width="6" height="40" fill="var(--blue)"></rect>
+          <text x="276" y="45" fill="currentColor">Go8 Benchmarking (1)</text>
+          <rect x="260" y="140" width="170" height="40" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="260" y="140" width="6" height="40" fill="var(--blue)"></rect>
+          <text x="276" y="165" fill="currentColor">Journal Tier (2)</text>
+          <rect x="260" y="260" width="170" height="40" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="260" y="260" width="6" height="40" fill="var(--blue)"></rect>
+          <text x="276" y="285" fill="currentColor">Intl. Collab (4)</text>
+          <rect x="520" y="140" width="160" height="40" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
+          <rect x="520" y="140" width="6" height="40" fill="var(--blue)"></rect>
+          <text x="536" y="165" fill="currentColor">Field Analysis (3)</text>
+        </g>
+        <g font-family="'Space Grotesk', sans-serif" font-size="10.5" fill="currentColor" opacity="0.75">
+          <text x="180" y="88">institution_partner_flag()</text>
+          <text x="180" y="200">source_performance_flag()</text>
+          <text x="180" y="212">· merged in lib.py</text>
+          <text x="440" y="115">FIELD_COLUMN_EXPLODED</text>
+          <text x="440" y="127">(imported 3×)</text>
+        </g>
+      </svg>
+    </figure>
+    <div class="legend">
+      <span class="item"><span class="swatch"></span><span lang="en">direct Python import</span><span lang="zh">直接 import</span></span>
+      <span class="item"><span class="swatch dash"></span><span lang="en">glued in lib.py, not a module import</span><span lang="zh">在 lib.py 拼接,不是模块 import</span></span>
+    </div>
+    <figcaption>
+      <span lang="en">
+        Field Analysis is the most-depended-on analysis module — three others reach
+        into it. Scenario Analysis is the most dependent — one flag from Go8 directly,
+        another from Journal Tier by way of <code>app/lib.py</code>'s
+        <code>get_scenario_table()</code>, which merges the two before calling
+        <code>scenario_analysis.scenario_table()</code>.
+      </span>
+      <span lang="zh">
+        Field Analysis 是被依赖最多的 analysis 模块——另外三个都要伸进来。Scenario
+        Analysis 是依赖最多的一个——一个 flag 直接从 Go8 拿,另一个通过
+        <code>app/lib.py</code> 的 <code>get_scenario_table()</code> 从 Journal Tier
+        间接拿,两者在调用 <code>scenario_analysis.scenario_table()</code> 之前先被
+        合并进同一张表。
+      </span>
+    </figcaption>
+  </section>
+
+  <div class="callout">
+    <p>
+      <span lang="en">
+        <b>Practical read for splitting the work:</b> whoever owns Field Analysis (3)
+        is a dependency for whoever owns Go8 (1), Journal Tier (2), and International
+        Collaboration (4) — land its <code>FIELD_COLUMN_EXPLODED</code> shape first.
+        Whoever owns Scenario (6) is downstream of both Go8 and Journal Tier and
+        should freeze its interface last. Database has no upward callers to
+        coordinate with — its risk is entirely in the four
+        <code>config.py</code>/<code>metrics.py</code> consumers below it moving
+        before its schema settles.
+      </span>
+      <span lang="zh">
+        <b>分工时的实操提示:</b>负责 Field Analysis(3)的人是负责 Go8(1)、Journal
+        Tier(2)、International Collaboration(4)的人的上游——先把
+        <code>FIELD_COLUMN_EXPLODED</code> 的形状定下来。负责 Scenario(6)的人在 Go8
+        和 Journal Tier 下游,接口应该最后再定。数据库任务没有上游要协调——它的风险
+        全在于下面四个 <code>config.py</code>/<code>metrics.py</code> 的消费者会不会在
+        它的 schema 定稳之前就先动了。
+      </span>
+    </p>
+  </div>
+
+  <div class="whole-project">
+    <div class="task-tag"><span lang="en">Not owned by any single task</span><span lang="zh">不属于任何单一任务</span></div>
+    <p class="section-note" style="margin-top:8px; margin-bottom:0;">
+      <span lang="en">Repo-wide files nobody's chart above claims — administrative, or
+      genuinely shared by the whole project rather than one task.</span>
+      <span lang="zh">上面任何一张图都没有认领的全仓库文件——要么是行政性的,要么是
+      真正属于整个项目而非某一个任务的。</span>
+    </p>
+    <div class="files">
+      <code>README.md</code><code>Group contract.md</code><code>requirements.txt</code>
+      <code>.gitignore</code><code>.github/workflows/azure-deploy.yml</code>
+      <code>docs/deployment-azure.md</code><code>docs/methodology.md</code>
+      <code>docs/meeting-notes/</code><code>src/p36/__init__.py</code>
+      <code>src/p36/analysis/__init__.py</code><code>src/p36/metrics/__init__.py</code>
+    </div>
+  </div>
+
+  <footer>
+    <span lang="en">
+      Traced from actual <code>import</code> statements in the repo, not the file
+      tree — see the "Analysis pipeline" section of <code>README.md</code> for how
+      the same four files sit inside the full raw-data-to-page flow.
+    </span>
+    <span lang="zh">
+      追踪自仓库里真实的 <code>import</code> 语句,不是文件树——同样这四个文件在完整的
+      "原始数据 → 页面"流程里怎么摆放,见 <code>README.md</code> 的 "Analysis
+      pipeline" 一节。
+    </span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var page = document.getElementById('page');
+  var buttons = document.querySelectorAll('.lang-btn');
+  var saved = null;
+  try { saved = localStorage.getItem('p36-task-map-lang'); } catch (e) {}
+  var lang = (saved === 'zh' || saved === 'en') ? saved : 'en';
+
+  function apply(l) {
+    page.setAttribute('data-lang', l);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false');
+    });
+    try { localStorage.setItem('p36-task-map-lang', l); } catch (e) {}
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-lang')); });
+  });
+
+  apply(lang);
+})();
+</script>
+
+</body></html>

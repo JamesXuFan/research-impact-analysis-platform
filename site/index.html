@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P36 Docs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --cream:#F2EEE6; --paper:#FFFFFF; --ink:#1A1A1A; --muted:#6B6A63; --line:#1A1A1A; --hair:#DAD5C8;
+    --red:#DA291C; --blue:#0F4C81; --yellow:#FFC20E;
+    --blue-tint:#E4ECF3; --yellow-tint:#FFF6DC; --red-tint:#FBE6E3;
+    --font-display:'Archivo Black','Noto Sans SC','Arial Black',sans-serif;
+    --font-body:'Space Grotesk','Noto Sans SC',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+      --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+      --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+    --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+    --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-body); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  h1,h2{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:-0.01em; text-wrap:balance; margin:0; color:var(--ink); }
+  #app[data-lang="zh"] h1,#app[data-lang="zh"] h2{ text-transform:none; letter-spacing:0; }
+  code{ font-family:var(--font-mono); }
+  a{ color:inherit; }
+  #app[data-lang="zh"] .en{ display:none; } #app[data-lang="en"] .zh{ display:none; }
+
+  .langbar{ position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; align-items:center; gap:10px; background:var(--ink); padding:10px 24px; }
+  .langbar .brand{ font-family:var(--font-mono); color:var(--cream); font-size:0.76rem; letter-spacing:0.02em; margin-right:auto; }
+  .langbtn{ font-family:var(--font-mono); font-size:0.74rem; font-weight:600; background:var(--cream); color:var(--ink); border:2px solid var(--cream); padding:7px 12px; cursor:pointer; }
+  .langbtn:hover{ background:var(--yellow); border-color:var(--yellow); }
+  .langbtn:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+
+  header.masthead{ max-width:1000px; margin:0 auto; padding:60px 24px 12px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:0.76rem; color:var(--muted); letter-spacing:0.02em; margin-bottom:14px; }
+  header.masthead h1{ font-size:clamp(2rem,5.5vw,3.1rem); line-height:1.06; max-width:22ch; }
+  header.masthead .dek{ font-size:1.02rem; color:var(--muted); max-width:64ch; margin-top:16px; }
+
+  main{ max-width:1000px; margin:0 auto; padding:20px 24px 100px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:30px; }
+  .card{ display:block; text-decoration:none; border:2px solid var(--line); background:var(--paper); padding:20px 22px; transition:transform .1s ease-out, box-shadow .1s ease-out; }
+  .card:hover{ transform:translate(-3px,-3px); box-shadow:5px 5px 0 var(--ink); }
+  .card .n{ font-family:var(--font-display); font-size:1.1rem; color:var(--yellow); -webkit-text-stroke:1.3px var(--ink); }
+  .card h2{ font-size:1.15rem; margin-top:8px; }
+  .card p{ font-size:0.88rem; color:var(--muted); margin:10px 0 0; }
+  .card.c1{ border-left:8px solid var(--blue); }
+  .card.c2{ border-left:8px solid var(--red); }
+  .card.c3{ border-left:8px solid var(--blue); }
+  .card.c4{ border-left:8px solid var(--yellow); }
+  .card.c5{ border-left:8px solid var(--red); }
+
+  .external{ margin-top:44px; border:2px solid var(--line); background:var(--blue-tint); padding:18px 22px; font-size:0.9rem; }
+  .external b{ display:block; font-family:var(--font-mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--blue); margin-bottom:8px; }
+  #app[data-lang="zh"] .external b{ text-transform:none; }
+  .external a{ color:var(--blue); text-decoration:underline; }
+
+  footer{ max-width:1000px; margin:40px auto 0; padding:26px 24px 60px; font-size:0.8rem; color:var(--muted); border-top:1px solid var(--hair); }
+  footer a{ color:var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="langbar">
+  <span class="brand">P36 DOCS</span>
+  <button class="langbtn" id="langToggle" type="button">EN</button>
+</div>
+
+<div id="app" data-lang="zh">
+
+<header class="masthead">
+  <div class="eyebrow">
+    <span class="en">COMP3888_W11_02_P36 · supplementary documentation site</span>
+    <span class="zh">COMP3888_W11_02_P36 · 补充文档站点</span>
+  </div>
+  <h1><span class="en">P36 Docs</span><span class="zh">P36 文档</span></h1>
+  <p class="dek">
+    <span class="en">Five reference documents for the Publication Intelligence &amp; Research
+    Impact Analysis Platform — what each build task owns, exactly which brief sub-question
+    each part of the platform answers, and function-by-function close readings of the data
+    pipeline, the dashboard/charting layer, and the sub-question jump-navigation mechanism.</span>
+    <span class="zh">Publication Intelligence &amp; Research Impact Analysis Platform 的五份参考文档——
+    每个建设任务专属哪些文件、平台每一部分具体回答了任务书里的哪个子问题，以及数据管道、
+    看板/图表层、子问题跳转导航机制的逐函数精读。</span>
+  </p>
+</header>
+
+<main>
+  <div class="grid">
+    <a class="card c1" href="task-map.html">
+      <div class="n">🧩</div>
+      <h2><span class="en">Task Map</span><span class="zh">任务地图</span></h2>
+      <p>
+        <span class="en">Which files each of the 8 build tasks owns exclusively, the 4
+        shared core files, and the 5 direct task-to-task imports.</span>
+        <span class="zh">8个建设任务各自专属哪些文件、4个公共核心文件、以及5条任务间直接
+        import 关系。</span>
+      </p>
+    </a>
+    <a class="card c2" href="coverage-manual.html">
+      <div class="n">📋</div>
+      <h2><span class="en">Coverage Manual</span><span class="zh">覆盖手册</span></h2>
+      <p>
+        <span class="en">What the platform implements and exactly which brief sub-question
+        each part answers — with the exact table/column/comparison behind every one of the
+        58 sub-questions.</span>
+        <span class="zh">平台实现了什么、每一部分具体回答哪个子问题——58条子问题的每一条
+        都点名了具体的表格/列/对比方式。</span>
+      </p>
+    </a>
+    <a class="card c3" href="data-pipeline.html">
+      <div class="n">🐼</div>
+      <h2><span class="en">Data Pipeline Close-Reading</span><span class="zh">数据管道精读</span></h2>
+      <p>
+        <span class="en">Function-by-function walkthrough of <code>ingest.py</code> →
+        <code>metrics.py</code>, for learning the pandas patterns this codebase leans on.</span>
+        <span class="zh">从 <code>ingest.py</code> 到 <code>metrics.py</code> 的逐函数精读，
+        学习这个代码库常用的 pandas 写法。</span>
+      </p>
+    </a>
+    <a class="card c4" href="dashboard-charting.html">
+      <div class="n">📐</div>
+      <h2><span class="en">Dashboard &amp; Charting Close-Reading</span><span class="zh">看板与图表精读</span></h2>
+      <p>
+        <span class="en"><code>theme.py</code>'s section components and Altair's grammar of
+        graphics — the radar chart's polar-coordinate trick worked in full.</span>
+        <span class="zh"><code>theme.py</code> 的板块组件与 Altair 图形语法——雷达图的极坐标
+        技巧完整拆解。</span>
+      </p>
+    </a>
+    <a class="card c5" href="navigation.html">
+      <div class="n">🧭</div>
+      <h2><span class="en">Sub-Question Navigation Close-Reading</span><span class="zh">子问题跳转机制精读</span></h2>
+      <p>
+        <span class="en">How a sub-question becomes a click-to-jump link — the same-page
+        anchor jump and the <code>st.iframe</code>-based cross-page scroll bridge.</span>
+        <span class="zh">子问题是怎么变成一个可点击跳转链接的——同页锚点跳转与基于
+        <code>st.iframe</code> 的跨页跳转桥。</span>
+      </p>
+    </a>
+  </div>
+
+  <div class="external">
+    <b><span class="en">Not on this site</span><span class="zh">本站未收录</span></b>
+    <span class="en">The Methods Reference, Guidebook, and per-analysis Methods notes remain
+    private Claude Artifacts, linked from the repo's README for the project team only. This
+    site covers the five documents listed above.</span>
+    <span class="zh">Methods Reference、Guidebook 以及各分析方法笔记仍然是私有的 Claude
+    Artifact，只在仓库 README 里链接给项目组内部使用。本站点只收录上面这五份文档。</span>
+  </div>
+</main>
+
+<footer>
+  <span class="en">COMP3888_W11_02_P36 · Publication Intelligence &amp; Research Impact
+  Analysis Platform — see the <a href="https://github.com/JamesXuFan/research-impact-analysis-platform">source repository</a> for the platform code itself.</span>
+  <span class="zh">COMP3888_W11_02_P36 · Publication Intelligence &amp; Research Impact
+  Analysis Platform ——平台代码本身见<a href="https://github.com/JamesXuFan/research-impact-analysis-platform">源代码仓库</a>。</span>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var btn = document.getElementById('langToggle');
+  var saved = null;
+  try { saved = localStorage.getItem('p36-methods-lang'); } catch (e) {}
+  var lang = (saved === 'zh' || saved === 'en') ? saved : 'zh';
+
+  function apply(l) {
+    app.setAttribute('data-lang', l);
+    btn.textContent = l === 'zh' ? 'EN' : '中文';
+    try { localStorage.setItem('p36-methods-lang', l); } catch (e) {}
+  }
+
+  btn.addEventListener('click', function () {
+    apply(app.getAttribute('data-lang') === 'zh' ? 'en' : 'zh');
+  });
+
+  apply(lang);
+})();
+</script>
+
+</body>
+</html>

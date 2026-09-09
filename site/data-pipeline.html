@@ -1,0 +1,664 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>P36 Data Pipeline Close-Reading</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --cream:#F2EEE6; --paper:#FFFFFF; --ink:#1A1A1A; --muted:#6B6A63; --line:#1A1A1A; --hair:#DAD5C8;
+    --red:#DA291C; --blue:#0F4C81; --yellow:#FFC20E;
+    --blue-tint:#E4ECF3; --yellow-tint:#FFF6DC; --red-tint:#FBE6E3;
+    --code-bg:#1A1A1A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E;
+    --font-display:'Archivo Black','Noto Sans SC','Arial Black',sans-serif;
+    --font-body:'Space Grotesk','Noto Sans SC',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+      --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+      --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+      --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#17150F; --paper:#211E17; --ink:#F2EEE6; --muted:#A6A196; --line:#F2EEE6; --hair:#3A362B;
+    --red:#FF5B49; --blue:#5B9BD8; --yellow:#FFC20E;
+    --blue-tint:#1C2C3A; --yellow-tint:#3A2F0F; --red-tint:#3A211D;
+    --code-bg:#0E0D0A; --code-ink:#F2EEE6; --code-muted:#8E897C; --code-str:#FFC20E;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--font-body); line-height:1.65; -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--yellow); color:#1A1A1A; }
+  h1,h2,h3{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:-0.01em; text-wrap:balance; margin:0; color:var(--ink); }
+  #app[data-lang="zh"] h1,#app[data-lang="zh"] h2,#app[data-lang="zh"] h3{ text-transform:none; letter-spacing:0; }
+  code{ font-family:var(--font-mono); }
+  a{ color:var(--blue); }
+  #app[data-lang="zh"] .en{ display:none; } #app[data-lang="en"] .zh{ display:none; }
+
+  .langbar{ position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; align-items:center; gap:10px; background:var(--ink); padding:10px 24px; }
+  .langbar .brand{ font-family:var(--font-mono); color:var(--cream); font-size:0.76rem; letter-spacing:0.02em; margin-right:auto; }
+  .langbtn{ font-family:var(--font-mono); font-size:0.74rem; font-weight:600; background:var(--cream); color:var(--ink); border:2px solid var(--cream); padding:7px 12px; cursor:pointer; }
+  .langbtn:hover{ background:var(--yellow); border-color:var(--yellow); }
+  .langbtn:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+
+  header.masthead{ max-width:1000px; margin:0 auto; padding:56px 24px 10px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:0.76rem; color:var(--muted); letter-spacing:0.02em; margin-bottom:14px; }
+  header.masthead h1{ font-size:clamp(1.9rem,5vw,2.8rem); line-height:1.08; max-width:22ch; }
+  header.masthead .dek{ font-size:1.02rem; color:var(--muted); max-width:62ch; margin-top:16px; }
+
+  main{ max-width:1000px; margin:0 auto; padding:0 24px 100px; }
+
+  .diagram-card{ background:var(--paper); border:2px solid var(--line); padding:22px 22px 8px; margin:34px 0; }
+  .diagram-card .cap{ font-family:var(--font-mono); font-size:0.72rem; color:var(--muted); text-align:center; padding:10px 0 16px; }
+  .mermaid{ display:flex; justify-content:center; }
+
+  nav.toc{ background:var(--paper); border:2px solid var(--line); padding:20px 24px; margin:30px 0 46px; }
+  nav.toc .h{ font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; }
+  #app[data-lang="zh"] nav.toc .h{ text-transform:none; }
+  nav.toc ol{ margin:0; padding:0; list-style:none; columns:2; column-gap:28px; }
+  @media (max-width:640px){ nav.toc ol{ columns:1; } }
+  nav.toc li{ break-inside:avoid; padding:5px 0; font-size:0.9rem; }
+  nav.toc a{ text-decoration:none; color:var(--ink); border-bottom:1.5px dashed var(--hair); }
+  nav.toc a:hover{ color:var(--blue); border-bottom-color:var(--blue); }
+  nav.toc .idx{ font-family:var(--font-mono); color:var(--blue); font-weight:600; margin-right:6px; }
+
+  section.module{ margin-top:64px; padding-top:38px; border-top:4px solid var(--line); scroll-margin-top:24px; }
+  section.module:first-of-type{ margin-top:0; padding-top:0; border-top:none; }
+  .module-head{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .module-head .stage{ font-family:var(--font-display); font-size:1.3rem; color:var(--yellow); -webkit-text-stroke:1.3px var(--ink); flex:none; }
+  .module-head h2{ font-size:1.5rem; }
+  .module-file{ font-family:var(--font-mono); font-size:0.82rem; color:var(--muted); margin-top:8px; }
+  .module-role{ font-size:0.98rem; color:var(--muted); max-width:68ch; margin-top:12px; }
+
+  .fn{ margin-top:40px; scroll-margin-top:24px; }
+  .fn-head{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .fn-head code.name{ font-family:var(--font-mono); font-size:1.05rem; font-weight:600; background:var(--yellow-tint); padding:2px 8px; border:1.5px solid var(--line); }
+  .fn-what{ font-size:0.94rem; color:var(--ink); max-width:70ch; margin:8px 0 14px; }
+
+  pre.code{ font-family:var(--font-mono); font-size:0.82rem; line-height:1.7; background:var(--code-bg); color:var(--code-ink); padding:16px 18px; margin:0 0 16px; overflow-x:auto; border:2px solid var(--line); white-space:pre; }
+  pre.code .cm{ color:var(--code-muted); font-style:italic; }
+  pre.code .st{ color:var(--code-str); }
+  pre.code .kw{ color:#7FB4E8; }
+
+  .syntax{ margin:0; padding:0; list-style:none; max-width:74ch; }
+  .syntax li{ position:relative; padding:9px 0 9px 24px; font-size:0.9rem; border-bottom:1px solid var(--hair); color:var(--ink); }
+  .syntax li:last-child{ border-bottom:none; }
+  .syntax li::before{ content:"▸"; position:absolute; left:0; color:var(--blue); font-weight:700; }
+  .syntax li code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; font-size:0.86em; }
+  .syntax li b{ color:var(--ink); }
+
+  .note{ background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:74ch; }
+  .note .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--blue); }
+  #app[data-lang="zh"] .note .lbl{ text-transform:none; }
+  .caution{ background:var(--red-tint); border:2px solid var(--line); border-left:8px solid var(--red); padding:14px 18px; margin:16px 0; font-size:0.88rem; max-width:74ch; }
+  .caution .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; margin-bottom:6px; display:block; color:var(--red); }
+  #app[data-lang="zh"] .caution .lbl{ text-transform:none; }
+
+  .glossary{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:0 30px; margin-top:10px; }
+  .gterm{ padding:15px 0; border-bottom:1px solid var(--hair); }
+  .gterm dt{ font-family:var(--font-mono); font-weight:600; font-size:0.92rem; color:var(--blue); }
+  .gterm dd{ margin:6px 0 0; font-size:0.86rem; color:var(--muted); line-height:1.6; }
+  .gterm dd code{ background:var(--paper); border:1px solid var(--hair); padding:1px 5px; }
+
+  .try-list{ margin:0; padding-left:22px; max-width:70ch; }
+  .try-list li{ margin:10px 0; font-size:0.94rem; }
+  .try-list code{ background:var(--paper); border:1px solid var(--hair); padding:1px 6px; }
+
+  .related{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:18px; }
+  .related a{ display:block; text-decoration:none; border:2px solid var(--line); background:var(--paper); padding:16px 18px; transition:transform .1s ease-out, box-shadow .1s ease-out; }
+  .related a:hover{ transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--ink); }
+  .related .lbl{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+  #app[data-lang="zh"] .related .lbl{ text-transform:none; }
+  .related h3{ font-size:0.96rem; margin-top:5px; text-transform:none; letter-spacing:0; }
+
+  footer{ max-width:1000px; margin:50px auto 0; padding:32px 24px 60px; font-size:0.8rem; color:var(--muted); border-top:1px solid var(--hair); }
+</style>
+
+<div class="langbar">
+  <span class="brand">P36 PIPELINE</span>
+  <a href="index.html" style="color:var(--cream); font-family:var(--font-mono); font-size:0.76rem; text-decoration:none; border-bottom:1.5px dashed var(--cream); margin-right:14px;"><span class="en">Docs home</span><span class="zh">文档首页</span></a>
+  <button class="langbtn" id="langToggle" type="button">EN</button>
+</div>
+
+<div id="app" data-lang="zh">
+
+<header class="masthead">
+  <div class="eyebrow">
+    <span class="en">COMP3888_W11_02_P36 · study notes · ingest → clean → dedupe → persist → metrics</span>
+    <span class="zh">COMP3888_W11_02_P36 · 学习笔记 · 数据摄入 → 清洗 → 去重 → 持久化 → 指标</span>
+  </div>
+  <h1><span class="en">Data Pipeline Close-Reading</span><span class="zh">数据管道精读</span></h1>
+  <p class="dek">
+    <span class="en">From 8 raw Excel files to a DataFrame you can use directly on a Streamlit
+    page, there are 5 layers of code and 18 functions in between. These notes take them apart
+    function by function — what each one does, which pandas syntax it uses, and why it's
+    written this way rather than the more "obvious" alternative. Read it in code order and
+    you'll have covered pandas' most common operations (boolean indexing, groupby, astype,
+    pd.cut, mask/where...) end to end.</span>
+    <span class="zh">从8个原始Excel文件到能在Streamlit页面上直接用的DataFrame，中间一共5层代码、
+    18个函数。这份笔记逐个函数拆开讲——每个函数在做什么、用到了哪些pandas语法、
+    以及为什么这么写而不是更"直觉"的写法。跟着代码顺序读一遍，pandas里最常用的那批
+    操作（布尔索引、groupby、astype、pd.cut、mask/where……）基本就覆盖全了。</span>
+  </p>
+</header>
+
+<main>
+
+  <div class="diagram-card">
+    <pre class="mermaid en">
+flowchart LR
+  A["8 raw .xlsx<br/>exports"] --> B["load_all_universities()<br/>ingest.py"]
+  B --> C["apply_canonical_dtypes()<br/>cleaning/dtypes.py"]
+  C --> D["deduplicate_by_eid()<br/>ingest.py"]
+  C -.writes.-> E[("publications_raw.parquet")]
+  D -.writes.-> F[("publications_deduplicated.parquet")]
+  E --> G["load_raw()<br/>dataset.py"]
+  F --> H["load_deduplicated()<br/>dataset.py"]
+  G --> I["add_derived_flags() etc.<br/>metrics/metrics.py"]
+  H --> I
+  I --> J["Analysis modules / Streamlit pages"]
+    </pre>
+    <pre class="mermaid zh">
+flowchart LR
+  A["8 个 .xlsx<br/>原始导出"] --> B["load_all_universities()<br/>ingest.py"]
+  B --> C["apply_canonical_dtypes()<br/>cleaning/dtypes.py"]
+  C --> D["deduplicate_by_eid()<br/>ingest.py"]
+  C -.写入.-> E[("publications_raw.parquet")]
+  D -.写入.-> F[("publications_deduplicated.parquet")]
+  E --> G["load_raw()<br/>dataset.py"]
+  F --> H["load_deduplicated()<br/>dataset.py"]
+  G --> I["add_derived_flags() 等<br/>metrics/metrics.py"]
+  H --> I
+  I --> J["分析模块 / Streamlit 页面"]
+    </pre>
+    <div class="cap">
+      <span class="en">Five layers: build_dataset.py chains A→D into a one-off script; E/F are the finished files on disk; G→J is the part called over and over on every analysis.</span>
+      <span class="zh">五层管道：build_dataset.py 把 A→D 串成一次性脚本；E/F 是磁盘上的成品；G→J 是每次分析时反复调用的部分</span>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="h"><span class="en">Contents · in pipeline order</span><span class="zh">本页目录 · 按管道顺序</span></div>
+    <ol>
+      <li><span class="idx">01</span><a href="#ingest"><span class="en">Ingest layer — ingest.py (4 functions)</span><span class="zh">摄入层 — ingest.py（4个函数）</span></a></li>
+      <li><span class="idx">02</span><a href="#dtypes"><span class="en">Dtype cleanup — cleaning/dtypes.py (1 function)</span><span class="zh">类型清洗 — cleaning/dtypes.py（1个函数）</span></a></li>
+      <li><span class="idx">03</span><a href="#build"><span class="en">Build script — build_dataset.py (1 function)</span><span class="zh">构建脚本 — build_dataset.py（1个函数）</span></a></li>
+      <li><span class="idx">04</span><a href="#dataset"><span class="en">Read layer — dataset.py (2 functions)</span><span class="zh">读取层 — dataset.py（2个函数）</span></a></li>
+      <li><span class="idx">05</span><a href="#metrics"><span class="en">Metrics layer — metrics/metrics.py (10 functions)</span><span class="zh">指标层 — metrics/metrics.py（10个函数）</span></a></li>
+      <li><span class="idx">06</span><a href="#glossary"><span class="en">pandas syntax cheat sheet</span><span class="zh">pandas 语法速查表</span></a></li>
+      <li><span class="idx">07</span><a href="#try"><span class="en">Try it yourself</span><span class="zh">动手试一遍</span></a></li>
+    </ol>
+  </nav>
+
+  <section class="module" id="ingest">
+    <div class="module-head"><span class="stage">01</span><h2><span class="en">Ingest layer</span><span class="zh">摄入层</span></h2></div>
+    <div class="module-file">src/p36/ingest.py</div>
+    <p class="module-role">
+      <span class="en">Reads each of the 8 universities' Excel files, handling three traps that
+      would otherwise quietly corrupt every downstream analysis — "the header isn't row 1,"
+      "Excel guesses ID columns are numbers," "missing values are written as a dash" — and
+      concatenates them into one big table.</span>
+      <span class="zh">把8个大学各自的Excel文件读进来，处理"表头不在第一行""ID列被Excel猜成数字"
+      "缺失值写成短横线"这三类会让后面所有分析悄悄算错的坑，拼成一张大表。</span>
+    </p>
+
+    <div class="fn" id="fn-load_university_export">
+      <div class="fn-head"><code class="name">load_university_export(path)</code></div>
+      <p class="fn-what"><span class="en">Reads one university's Excel file, returns a clean DataFrame.</span><span class="zh">读一个大学的Excel文件，返回干净的DataFrame。</span></p>
+<pre class="code"><span class="cm"># <span class="en">the arguments to pd.read_excel(...) are what actually control how it's read — this is the core of the function</span><span class="zh">df = pd.read_excel(...) 的参数控制怎么读，是这个函数的核心</span></span>
+df = pd.read_excel(
+    path,
+    sheet_name=<span class="st">"Sheet0"</span>,
+    header=HEADER_ROW,                 <span class="cm"># <span class="en">= 19, the real column names are on row 20 (0-indexed 19)</span><span class="zh">= 19，真正的列名在第20行(0-indexed第19行)</span></span>
+    na_values=MISSING_VALUE_CODES,     <span class="cm"># <span class="en">= ["-"], recognises the string "-" as missing</span><span class="zh">= ["-"]，把字符串"-"识别成缺失值</span></span>
+    dtype={col: str for col in ID_COLUMNS},  <span class="cm"># <span class="en">dict comprehension: force these columns to read as strings</span><span class="zh">字典推导式：强制这些列读成字符串</span></span>
+)
+df = df[df[<span class="st">"EID"</span>].notna()].reset_index(drop=True)
+<span class="kw">return</span> df</pre>
+      <ul class="syntax">
+        <li><span class="en"><b>header=19</b>: tells pandas "skip the first 19 rows of blurb, row 19 (counting from 0) is the real column names" — omit it and the blurb gets read as a fake header.</span><span class="zh"><b>header=19</b>：告诉pandas"跳过前19行说明文字，第19行(从0数)才是列名"——不写会把说明文字当成假表头。</span></li>
+        <li><span class="en"><b>na_values=["-"]</b>: the source file writes missing values as the dash string, not a native empty Excel cell; without this argument "-" would be read as a genuine string, and every missing-value count would be wrong.</span><span class="zh"><b>na_values=["-"]</b>：源文件缺失值写的是短横线字符串，不是Excel原生空单元格；不加这个参数，"-"会被当成一个真实字符串，缺失统计全错。</span></li>
+        <li><span class="en"><code>dtype={col: str for col in ID_COLUMNS}</code>: a dict comprehension, equivalent to writing out <code>{"EID": str, "Source ID": str, ...}</code> by hand. It forces these ID columns to read as strings — without it, a column whose "single-value rows" Excel stores as int but whose "pipe-delimited rows" it stores as text ends up as a dirty mixed-type column pandas can't cleanly write to parquet later.</span><span class="zh"><code>dtype={col: str for col in ID_COLUMNS}</code>：字典推导式，等价于手写一长串<code>{"EID": str, "Source ID": str, ...}</code>。强制这些ID列读成字符串——不强制的话，同一列里"纯数字的行"会被Excel存成int、"带竖线的组合ID行"存成文本，pandas猜出一列脏的混合类型，后面转parquot时才报错。</span></li>
+        <li><span class="en"><code>df["EID"].notna()</code>: pulls out the EID column, tests each value for "is it non-null," returns an equal-length boolean Series.</span><span class="zh"><code>df["EID"].notna()</code>：取出EID这一列，对每个值判断"是不是非空"，返回一个等长的布尔Series。</span></li>
+        <li><span class="en"><b>Boolean indexing</b> <code>df[boolean Series]</code>: pandas' single most central filtering idiom, keeping only the rows where the corresponding position is True — used here to drop the two non-data rows at the end of the file (a blank row + a copyright notice) whose EID is empty.</span><span class="zh"><b>布尔索引</b> <code>df[布尔Series]</code>：pandas里最核心的筛选写法，只保留对应位置是True的行——这里用来去掉文件末尾EID为空的两行非数据行(空行+版权声明)。</span></li>
+        <li><span class="en"><code>.reset_index(drop=True)</code>: after filtering, row numbers have "holes" (e.g. 0,1,3,4) — this renumbers them into a clean 0,1,2,3...; <code>drop=True</code> means don't keep the old row numbers as a new column.</span><span class="zh"><code>.reset_index(drop=True)</code>：筛完之后行号有"洞"(比如0,1,3,4)，这个方法重新编号成连续的0,1,2,3...；<code>drop=True</code>表示不要把旧行号也存成一列。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-university_name_from_filename">
+      <div class="fn-head"><code class="name">university_name_from_filename(path)</code></div>
+      <p class="fn-what"><span class="en">Guesses the university's name from the filename — nothing to do with pandas, pure string handling.</span><span class="zh">从文件名猜出大学名字，跟pandas无关，纯字符串处理。</span></p>
+<pre class="code">prefix = <span class="st">"QS_World_University_Rankings_2027_-_Publications_at_"</span>
+<span class="kw">return</span> path.stem.removeprefix(prefix).replace(<span class="st">"_"</span>, <span class="st">" "</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>path.stem</code>: a pathlib.Path attribute, the filename with the extension stripped off.</span><span class="zh"><code>path.stem</code>：pathlib.Path的属性，取文件名去掉扩展名的部分。</span></li>
+        <li><span class="en"><code>.removeprefix(prefix)</code>: strips off the known fixed prefix.</span><span class="zh"><code>.removeprefix(prefix)</code>：把已知的固定前缀砍掉。</span></li>
+        <li><span class="en"><code>.replace("_", " ")</code>: underscores to spaces, giving the human-readable "University of Sydney."</span><span class="zh"><code>.replace("_", " ")</code>：下划线换成空格，得到人可读的"University of Sydney"。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-load_all_universities">
+      <div class="fn-head"><code class="name">load_all_universities()</code></div>
+      <p class="fn-what"><span class="en">Reads all 8 universities' files, tags each, and concatenates them into one big table — no deduplication.</span><span class="zh">把8个大学的文件全部读进来、打标签、拼成一张大表——不去重。</span></p>
+<pre class="code">frames = []
+<span class="kw">for</span> p <span class="kw">in</span> sorted(DATA_DIR.glob(<span class="st">"*.xlsx"</span>)):
+    df = load_university_export(p)
+    df[<span class="st">"source_university"</span>] = university_name_from_filename(p)
+    frames.append(df)
+<span class="kw">return</span> pd.concat(frames, ignore_index=<span class="kw">True</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>DATA_DIR.glob("*.xlsx")</code>: finds every .xlsx file in the folder; <code>sorted()</code> guarantees the same file order on every run, so the result is reproducible.</span><span class="zh"><code>DATA_DIR.glob("*.xlsx")</code>：找出文件夹下所有.xlsx文件；<code>sorted()</code>保证每次运行文件顺序一致，结果可复现。</span></li>
+        <li><span class="en"><code>df["source_university"] = ...</code>: the standard way to <b>add a new column</b> — tags this university's data, since once the 8 tables are concatenated there'd otherwise be no way to tell which school a row came from.</span><span class="zh"><code>df["source_university"] = ...</code>：<b>新增一列</b>的标准写法——给这个大学的数据打标签，因为等下8张表拼在一起后，光看数据看不出原来是哪个学校的。</span></li>
+        <li><span class="en"><code>frames.append(df)</code>: collects each processed DataFrame into a list, to be concatenated all at once at the end (much faster than repeatedly concatenating onto one "growing" table).</span><span class="zh"><code>frames.append(df)</code>：把处理好的DataFrame收集到一个list里，等全部读完再一次性拼接（比每次都跟一个"累积中的大表"拼接快得多）。</span></li>
+        <li><span class="en"><code>pd.concat(frames, ignore_index=True)</code>: stacks every DataFrame in the list row-wise into one big table; <code>ignore_index=True</code> renumbers the stacked rows continuously from 0, instead of keeping each university's own 0-based, duplicate-prone index.</span><span class="zh"><code>pd.concat(frames, ignore_index=True)</code>：把list里所有DataFrame按行方向堆叠成一张大表；<code>ignore_index=True</code>让堆叠后的行号重新从0连续编号，而不是保留每个大学各自从0开始、会重复的旧索引。</span></li>
+      </ul>
+      <div class="note">
+        <span class="lbl"><span class="en">Note: no deduplication here</span><span class="zh">注意：这里不去重</span></span>
+        <span class="en">A paper co-authored across universities appears once in each contributing university's file, and this function preserves that as-is — use this output as-is for one university's own output figures; for any Go8-aggregate number, <code>deduplicate_by_eid</code> below must be called first.</span>
+        <span class="zh">跨校合作发表的论文会在每个参与大学的文件里各出现一次，这个函数原样保留——算某个
+        大学自己的产出用这份结果；算Go8整体数字，必须先调用下面的 <code>deduplicate_by_eid</code>。</span>
+      </div>
+    </div>
+
+    <div class="fn" id="fn-deduplicate_by_eid">
+      <div class="fn-head"><code class="name">deduplicate_by_eid(df)</code></div>
+      <p class="fn-what"><span class="en">Deduplicates on the paper's unique EID, producing a "one row per publication" version.</span><span class="zh">按论文唯一编号EID去重，得到"一篇论文只算一次"的版本。</span></p>
+<pre class="code"><span class="kw">return</span> df.drop_duplicates(subset=<span class="st">"EID"</span>, keep=<span class="st">"first"</span>).reset_index(drop=<span class="kw">True</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>.drop_duplicates(subset="EID", keep="first")</code>: judges duplication only on the EID column (not requiring the whole row to match); of the duplicate rows, only the first occurrence is kept.</span><span class="zh"><code>.drop_duplicates(subset="EID", keep="first")</code>：只按EID这一列判断是否重复（不要求整行完全一样）；重复的多行里只保留第一次出现的那一行。</span></li>
+        <li><span class="en">Because the 8 files were read in alphabetical <code>sorted()</code> order, "first occurrence" effectively means alphabetical-by-university-name decides which version survives — this doesn't affect downstream statistics, since an aggregate only cares that a paper exists, not which university's name it happens to be filed under.</span><span class="zh">因为8个文件是按字母顺序<code>sorted()</code>读的，"第一次出现"其实是按大学名排序决定保留哪个版本——这不影响后续统计，因为汇总关心的是"这篇论文存在"，不关心归在哪个大学名下。</span></li>
+      </ul>
+      <div class="caution">
+        <span class="lbl"><span class="en">Measured numbers</span><span class="zh">实测数字</span></span>
+        <span class="en">385,664 raw rows → 327,265 unique publications after dedup: 46,969 (15.1%) are cross-university duplicates, one of them appearing in 7 of the 8 files simultaneously. This is exactly why every analysis function explicitly takes a "raw" or "deduplicated" argument by name, never a bare <code>df</code>.</span>
+        <span class="zh">385,664行原始数据 → 去重后327,265篇唯一论文：46,969篇(15.1%)是跨校重复，
+        其中一篇甚至同时出现在8个文件中的7个里。这就是为什么每个分析函数都明确接收
+        "raw"或"deduplicated"参数，从不接收一个含糊的<code>df</code>。</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="dtypes">
+    <div class="module-head"><span class="stage">02</span><h2><span class="en">Dtype Cleanup</span><span class="zh">类型清洗</span></h2></div>
+    <div class="module-file">src/p36/cleaning/dtypes.py</div>
+    <p class="module-role">
+      <span class="en">Kept separate from the ingest layer on purpose: ingest.py only fixes what
+      would otherwise be misread outright (ID columns turning into float, "-" being read as a
+      literal string); this layer applies the dtype casts documented as "processing rules" in
+      the data dictionary — a cleaning convention, not a read-time safety net.</span>
+      <span class="zh">跟摄入层分开是有意为之：ingest.py只修"不修就直接读错"的问题(ID列变float、
+      "-"被当成字符串)；这一层做的是数据字典里记录为"处理规则"的类型转换，属于
+      "清洗规范"而不是"读取兜底"。</span>
+    </p>
+
+    <div class="fn" id="fn-apply_canonical_dtypes">
+      <div class="fn-head"><code class="name">apply_canonical_dtypes(df)</code></div>
+      <p class="fn-what"><span class="en">Casts count-like columns — publication counts, citation counts, etc. — from float64 to a uniform nullable integer type.</span><span class="zh">把发文量、引用数等计数类列，从float64统一转成可空整数类型。</span></p>
+<pre class="code">df = df.copy()
+<span class="kw">for</span> col <span class="kw">in</span> INT_COLUMNS:
+    <span class="kw">if</span> col <span class="kw">in</span> df.columns:
+        df[col] = df[col].astype(<span class="st">"Int64"</span>)
+<span class="kw">return</span> df</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>df.copy()</code>: copies first, then modifies — never mutates the caller's original DataFrame, avoiding the "function silently changed data outside itself" side effect; a standard defensive pattern in pandas.</span><span class="zh"><code>df.copy()</code>：先复制一份再改，不修改调用者手里的原始DataFrame——避免"函数悄悄改了外面的数据"这种副作用，pandas里的标准防御写法。</span></li>
+        <li><span class="en"><code>if col in df.columns</code>: checks the column exists first, so the function can safely be called on "a subset with only a few columns" without raising a KeyError over a missing one.</span><span class="zh"><code>if col in df.columns</code>：先检查列存不存在，这样函数可以安全地用在"只挑了几列的子集"上，不会因为列缺失报KeyError。</span></li>
+        <li><span class="en"><code>.astype("Int64")</code>: capitalised <b>Int64</b> is pandas' nullable integer extension dtype, able to hold both integers and the missing value <code>pd.NA</code>; lowercase <code>int64</code> is the native numpy type, which can't hold missing values — since these columns (publication count, citation count, institution count...) genuinely do have missing values, the capitalised version is required.</span><span class="zh"><code>.astype("Int64")</code>：大写<b>Int64</b>是pandas的可空整数扩展类型，能同时装整数和缺失值<code>pd.NA</code>；小写<code>int64</code>是numpy原生类型，装不下缺失值——这批列(发文量、引用数、机构数……)确实会有缺失，所以必须用大写版本。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="build">
+    <div class="module-head"><span class="stage">03</span><h2><span class="en">Build Script</span><span class="zh">构建脚本</span></h2></div>
+    <div class="module-file">src/p36/build_dataset.py</div>
+    <p class="module-role">
+      <span class="en">Chains the first two layers into one command: <code>python -m p36.build_dataset</code>.
+      Only needs re-running when <code>data/*.xlsx</code> changes.</span>
+      <span class="zh">把前两层串成一条命令：<code>python -m p36.build_dataset</code>。只有 <code>data/*.xlsx</code>
+      变化时才需要重新跑一次。</span>
+    </p>
+
+    <div class="fn" id="fn-main">
+      <div class="fn-head"><code class="name">main()</code></div>
+      <p class="fn-what"><span class="en">Load → cast dtypes → dedupe → write to disk, run start to finish in one go, printing progress numbers along the way.</span><span class="zh">加载 → 转类型 → 去重 → 写盘，一次性跑完，边跑边打印进度数字。</span></p>
+<pre class="code">df = load_all_universities()
+df = apply_canonical_dtypes(df)
+print(<span class="st">f"  raw rows: {len(df):,} ({df['source_university'].nunique()} universities)"</span>)
+
+deduped = deduplicate_by_eid(df)
+dup_pct = 100 * (1 - len(deduped) / len(df))
+
+PROCESSED_DIR.mkdir(parents=<span class="kw">True</span>, exist_ok=<span class="kw">True</span>)
+df.to_parquet(RAW_PATH, index=<span class="kw">False</span>)
+deduped.to_parquet(DEDUPED_PATH, index=<span class="kw">False</span>)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>df['source_university'].nunique()</code>: counts how many <b>distinct</b> values this column has (should be 8).</span><span class="zh"><code>df['source_university'].nunique()</code>：统计这一列有多少个<b>不同</b>的值(应该是8)。</span></li>
+        <li><span class="en"><code>f"...{len(df):,}..."</code>: the <code>:,</code> inside an f-string is a format spec that adds thousands separators — 385664 prints as 385,664.</span><span class="zh"><code>f"...{len(df):,}..."</code>：f-string里<code>:,</code>是格式化说明符，给数字加千位分隔符，385664会打印成385,664。</span></li>
+        <li><span class="en"><code>PROCESSED_DIR.mkdir(parents=True, exist_ok=True)</code>: pathlib creates the folder; <code>parents=True</code> creates parent directories too if missing, <code>exist_ok=True</code> doesn't raise if the folder already exists.</span><span class="zh"><code>PROCESSED_DIR.mkdir(parents=True, exist_ok=True)</code>：pathlib创建文件夹；<code>parents=True</code>上级目录不存在也一起创建，<code>exist_ok=True</code>文件夹已存在也不报错。</span></li>
+        <li><span class="en"><code>df.to_parquet(RAW_PATH, index=False)</code>: writes the DataFrame to a parquet file; <code>index=False</code> means don't also save pandas' auto-generated row numbers, or reading it back would gain a useless extra index column.</span><span class="zh"><code>df.to_parquet(RAW_PATH, index=False)</code>：把DataFrame写成parquet文件；<code>index=False</code>表示不要把pandas自动生成的行号也存进文件，不然读回来会多一列没用的索引。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="module" id="dataset">
+    <div class="module-head"><span class="stage">04</span><h2><span class="en">Read Layer</span><span class="zh">读取层</span></h2></div>
+    <div class="module-file">src/p36/dataset.py</div>
+    <p class="module-role">
+      <span class="en">The only module day-to-day analysis code needs to touch — it just reads
+      back the parquet files build_dataset.py wrote, as DataFrames; it does no cleaning or
+      computation itself.</span>
+      <span class="zh">日常写分析代码时唯一需要打交道的模块——只负责把build_dataset.py写好的parquet
+      文件读回DataFrame，本身不做任何清洗或计算。</span>
+    </p>
+
+<pre class="code"><span class="cm"># <span class="en">top of the module: local dev vs. deployed to Azure point at different data locations</span><span class="zh">模块顶部：本地开发 vs 部署到Azure，指向不同的数据存放位置</span></span>
+PROCESSED_DIR = Path(os.environ.get(<span class="st">"P36_DATA_DIR"</span>, str(_DEFAULT_PROCESSED_DIR)))
+RAW_PATH = PROCESSED_DIR / <span class="st">"publications_raw.parquet"</span>
+DEDUPED_PATH = PROCESSED_DIR / <span class="st">"publications_deduplicated.parquet"</span></pre>
+    <ul class="syntax">
+      <li><span class="en"><code>os.environ.get("P36_DATA_DIR", default)</code>: reads an environment variable, falling back to the default if unset — locally the variable isn't set, so it uses the repo's <code>data/processed/</code>; on Azure the variable is set, pointing at the server's persistent storage path.</span><span class="zh"><code>os.environ.get("P36_DATA_DIR", 默认值)</code>：读取一个环境变量，没设置就用默认值——本地没设这个变量，走仓库里的<code>data/processed/</code>；线上Azure设了这个变量，指向服务器持久存储路径。</span></li>
+      <li><span class="en"><code>Path(...) / "filename"</code>: pathlib's <code>/</code> operator joins paths, safer than string concatenation and handles cross-OS slash differences automatically.</span><span class="zh"><code>Path(...) / "文件名"</code>：pathlib用<code>/</code>运算符拼路径，比字符串拼接更安全，自动处理不同操作系统的斜杠差异。</span></li>
+    </ul>
+
+    <div class="fn" id="fn-load_raw">
+      <div class="fn-head"><code class="name">load_raw()</code></div>
+      <p class="fn-what"><span class="en">Reads the non-deduplicated version — used for one university's own output figures.</span><span class="zh">读未去重版——算某一所大学自己的产出数字时用这个。</span></p>
+<pre class="code"><span class="kw">if</span> <span class="kw">not</span> RAW_PATH.exists():
+    <span class="kw">raise</span> FileNotFoundError(<span class="st">f"{RAW_PATH} does not exist yet. Run `python -m p36.build_dataset` first."</span>)
+<span class="kw">return</span> pd.read_parquet(RAW_PATH)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>RAW_PATH.exists()</code>: a pathlib method checking whether the file exists — calling this before the dataset is built gives a clear "go run build_dataset first" error instead of a vague file-not-found exception.</span><span class="zh"><code>RAW_PATH.exists()</code>：pathlib方法，检查文件是否存在——没建库就直接调用，会得到一条明确告诉你"先去跑build_dataset"的报错，而不是一个含糊的文件找不到异常。</span></li>
+        <li><span class="en"><code>pd.read_parquet(RAW_PATH)</code>: the parquet counterpart to <code>pd.read_excel</code>, reading many times faster (columnar storage format, no per-cell parsing).</span><span class="zh"><code>pd.read_parquet(RAW_PATH)</code>：<code>pd.read_excel</code>的parquet版本，读取速度快很多倍(列式存储格式，不用逐单元格解析)。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-load_deduplicated">
+      <div class="fn-head"><code class="name">load_deduplicated()</code></div>
+      <p class="fn-what"><span class="en">Reads the deduplicated version — required for any Go8-aggregate or cross-university figure, mirroring <code>load_raw()</code> exactly.</span><span class="zh">读已去重版——算Go8整体或跨校对比数字时必须用这个，逻辑跟 <code>load_raw()</code> 完全对称。</span></p>
+      <div class="note">
+        <span class="lbl"><span class="en">Which one to use — the rule is unambiguous</span><span class="zh">选哪个，规则很明确</span></span>
+        <span class="en">For <b>one university's own</b> output (e.g. "how many did Sydney publish") →
+        <code>load_raw()</code>; for <b>Go8-aggregate or cross-university comparisons</b> (e.g.
+        "how many did the 8 universities publish in total," "where does Sydney rank in the
+        Go8") → <code>load_deduplicated()</code> is mandatory, or cross-university co-authored
+        papers get double-counted and the number runs high.</span>
+        <span class="zh">算<b>某一所大学自己的</b>产出(比如"悉尼发了多少篇")→ <code>load_raw()</code>；
+        算<b>Go8整体或跨校对比</b>(比如"8所学校总共发了多少篇"、"悉尼在Go8里排第几")→
+        必须 <code>load_deduplicated()</code>，否则跨校合著论文被重复计数，数字偏高。</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="metrics">
+    <div class="module-head"><span class="stage">05</span><h2><span class="en">Metrics Layer</span><span class="zh">指标层</span></h2></div>
+    <div class="module-file">src/p36/metrics/metrics.py</div>
+    <p class="module-role">
+      <span class="en">Building the dataset stops here, but "usable" needs one more step —
+      columns like is_q1, is_international that every analysis needs don't live in the parquet
+      files; they're computed fresh on every load. That way a definition only ever needs
+      changing in one place, and "the definition stored in the parquet" can never drift from
+      "the definition in the code."</span>
+      <span class="zh">数据"建库"到这里就结束了，但"能用"还差一步——is_q1、is_international这些
+      分析要用的标记列不存在parquet文件里，是每次加载后现算的。这样定义只需要改
+      一处代码，不会出现"parquet里存的定义"和"代码里的定义"哪天对不上的问题。</span>
+    </p>
+
+    <div class="fn" id="fn-add_derived_flags">
+      <div class="fn-head"><code class="name">add_derived_flags(df)</code></div>
+      <p class="fn-what"><span class="en">Adds every boolean flag column the whole platform needs, in one pass (is_q1, is_international, is_uncited...).</span><span class="zh">一次性加上全平台都要用的布尔标记列(is_q1、is_international、is_uncited……)。</span></p>
+<pre class="code">df = df.copy()
+df[<span class="st">"is_retracted"</span>] = df[<span class="st">"Publication type"</span>] == <span class="st">"Retracted"</span>
+
+<span class="cm"># <span class="en">is_q1 is special: it has to distinguish "not Q1" from "no CiteScore percentile at all"</span><span class="zh">is_q1 比较特殊：要区分"不是Q1"和"根本没有CiteScore百分位数据"两种情况</span></span>
+is_q1 = (df[CITESCORE_PERCENTILE_COL] <= Q1_CITESCORE_PERCENTILE_MAX).astype(<span class="st">"boolean"</span>)
+df[<span class="st">"is_q1"</span>] = is_q1.mask(df[CITESCORE_PERCENTILE_COL].isna())
+
+df[<span class="st">"is_top_decile"</span>] = (df[TOP_CITATION_PERCENTILE_COL] <= TOP_DECILE_PERCENTILE_MAX).astype(bool)
+df[<span class="st">"is_international"</span>] = (df[COUNTRIES_COL] >= INTERNATIONAL_COLLABORATION_MIN_COUNTRIES).astype(bool)
+df[<span class="st">"is_uncited"</span>] = (df[<span class="st">"Citations"</span>] == 0).astype(bool)
+<span class="kw">if</span> OPEN_ACCESS_NULL_MEANS_NOT_OA:
+    df[<span class="st">"is_open_access"</span>] = df[<span class="st">"Open Access"</span>].notna()
+<span class="kw">return</span> df</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>df["Publication type"] == "Retracted"</code>: a comparison operator applied to a whole column, element by element, returning an equal-length boolean Series — assigning it directly is the new column.</span><span class="zh"><code>df["Publication type"] == "Retracted"</code>：比较运算符作用在整列上，逐个元素比较，返回一个等长的布尔Series，直接赋值就新增了一列。</span></li>
+        <li><span class="en"><b>The single most important line</b>: <code>.mask(cond)</code> — a pandas method meaning "wherever cond is True, replace with a missing value," the opposite of <code>.where()</code> (<code>.where(cond)</code> means "keep where cond is True, everything else becomes missing"). Used here to turn "the CiteScore percentile is itself null" from being misread as False ("not Q1") back into a genuine missing value (<code>pd.NA</code>, meaning "Q1 status undefined") — skip this step and "no percentile data" silently gets conflated with "has percentile data but isn't Q1."</span><span class="zh"><b>最关键的一行</b>：<code>.mask(条件)</code> —— pandas方法，"条件为True的位置，替换成缺失值"，是<code>.where()</code>的反义词(<code>.where(cond)</code>是"cond为True的位置保留，其它变缺失")。这里用来把"CiteScore百分位本身就是空的"这种情况，从"被误判成False(不是Q1)"改回真正的"缺失"(<code>pd.NA</code>，意思是"Q1状态未定义")——如果漏了这一步，"没有百分位数据"和"有百分位数据但不是Q1"会被悄悄混成同一类。</span></li>
+        <li><span class="en"><code>.astype("boolean")</code> (capital B): pandas' nullable boolean extension dtype, able to hold True/False/<code>pd.NA</code>; the plain comparison result cast with <code>.astype(bool)</code> (lowercase, only True/False) would force NaN into False too, exactly what needs avoiding here.</span><span class="zh"><code>.astype("boolean")</code>(大写B)：pandas的可空布尔扩展类型，能装True/False/<code>pd.NA</code>三种值；比较运算的原始结果加<code>.astype(bool)</code>(小写，只有True/False)会强制把NaN也变成False，这正是要避免的。</span></li>
+        <li><span class="en"><code>df["Open Access"].notna()</code>: a non-null test used directly as a boolean flag — the assumption is "a value in this column = open access, null = not," which the code explicitly marks as a client-unconfirmed assumption (PROVISIONAL).</span><span class="zh"><code>df["Open Access"].notna()</code>：非空判断，直接当布尔标记用——这里的假设是"这一列有值=开放获取，空值=不是"，代码里专门标了这是一个客户还没确认的假设(PROVISIONAL)。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-citescore_quartile">
+      <div class="fn-head"><code class="name">citescore_quartile(df)</code></div>
+      <p class="fn-what"><span class="en">Cuts a continuous percentile number into 4 categorical tiers, Q1/Q2/Q3/Q4.</span><span class="zh">把连续的百分位数字，切成Q1/Q2/Q3/Q4四个分类档位。</span></p>
+<pre class="code"><span class="kw">return</span> pd.cut(
+    df[CITESCORE_PERCENTILE_COL],
+    bins=[0, 25, 50, 75, 100],
+    labels=[<span class="st">"Q1"</span>, <span class="st">"Q2"</span>, <span class="st">"Q3"</span>, <span class="st">"Q4"</span>],
+    include_lowest=<span class="kw">True</span>,
+)</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>pd.cut(numeric column, bins=cut points, labels=category names)</code>: cuts a continuous number into a categorical variable by interval — <code>bins=[0,25,50,75,100]</code> defines the four intervals (0,25], (25,50], (50,75], (75,100], and <code>labels</code> names each one.</span><span class="zh"><code>pd.cut(数值列, bins=切点, labels=分类名)</code>：把连续数值按区间切成分类变量——<code>bins=[0,25,50,75,100]</code>定义出(0,25]、(25,50]、(50,75]、(75,100]四个区间，<code>labels</code>给每个区间起名字。</span></li>
+        <li><span class="en"><code>include_lowest=True</code>: pandas' intervals default to "open-closed," i.e. (0,25] excludes 0 itself — if a row's percentile is exactly 0, omitting this argument would misclassify it as missing. With it, the first interval becomes "closed-closed" and 0 is correctly assigned to Q1.</span><span class="zh"><code>include_lowest=True</code>：pandas的区间默认是"开-闭"的，即(0,25]不包含0本身——如果数据里正好有百分位=0的行，不加这个参数会被漏判成缺失。加上之后第一个区间变成"闭-闭"，0会被正确归进Q1。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-other-metrics">
+      <div class="fn-head"><code class="name">exclude_out_of_scope / q1_share / international_collaboration_share / citations_per_paper / top_decile_share / mean_fwci</code></div>
+      <p class="fn-what"><span class="en">Six small "compute one specific number/subset" functions with a highly similar pattern, covered together.</span><span class="zh">6个"算一个具体数字/子集"的小函数，套路高度相似，放一起讲。</span></p>
+<pre class="code"><span class="cm"># <span class="en">exclude_out_of_scope — boolean indexing to filter out rows outside scope</span><span class="zh">exclude_out_of_scope —— 布尔索引过滤掉不在统计范围内的行</span></span>
+df = df[df[<span class="st">"Publication type"</span>] != <span class="st">"Retracted"</span>]
+
+<span class="cm"># <span class="en">q1_share — "mean of a boolean Series = share meeting the condition," one of the project's most-used tricks</span><span class="zh">q1_share —— "布尔Series的均值 = 满足条件的比例"，全项目最常用的技巧之一</span></span>
+scoped = df[CITESCORE_PERCENTILE_COL].dropna()
+<span class="kw">return</span> float((scoped <= Q1_CITESCORE_PERCENTILE_MAX).mean())
+
+<span class="cm"># <span class="en">citations_per_paper — a plain mean over one column</span><span class="zh">citations_per_paper —— 直接对一列取均值</span></span>
+<span class="kw">return</span> float(df[<span class="st">"Citations"</span>].mean())</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>df[df["col"] != "value"]</code>: the negated form of boolean indexing, keeping rows that don't satisfy the condition.</span><span class="zh"><code>df[df["列"] != "值"]</code>：布尔索引的否定形式，保留不满足条件的行。</span></li>
+        <li><span class="en"><code>.dropna()</code>: discards missing values in this column, so they don't drag the "total" up or down in the share calculation.</span><span class="zh"><code>.dropna()</code>：丢弃这一列里的缺失值，避免它们混进"总数"里拉低或抬高比例。</span></li>
+        <li><span class="en"><b>The core trick</b> — <code>(condition).mean()</code>: the mean of a boolean Series equals "the share that's True." Since True equals 1 and False equals 0 numerically, the mean formula (sum ÷ count) works out to exactly "rows satisfying the condition ÷ total rows" — more concise than writing <code>condition.sum() / len(condition)</code> by hand, and the most common way to compute a "share" in pandas.</span><span class="zh"><b>核心技巧</b>——<code>(条件).mean()</code>：一个布尔Series取均值，等于"True的比例"。因为True在数值上等于1、False等于0，均值公式(总和/个数)算出来的正好是"满足条件的行数 ÷ 总行数"——这比手写<code>条件.sum() / len(条件)</code>更简洁，也是pandas里判断"占比"最常见的写法。</span></li>
+        <li><span class="en"><code>float(...)</code>: converts a pandas/numpy scalar type (e.g. <code>numpy.float64</code>) to a native Python float — not strictly required, but avoids trouble later if this value interacts with another library (e.g. some serialisation logic) that doesn't handle non-native float types.</span><span class="zh"><code>float(...)</code>：把pandas/numpy的标量类型(比如<code>numpy.float64</code>)转成python原生float——不是必须的，但能避免这个值在后续代码里跟别的库(比如某些序列化逻辑)打交道时因类型不是原生float而出问题。</span></li>
+      </ul>
+    </div>
+
+    <div class="fn" id="fn-growth">
+      <div class="fn-head"><code class="name">growth_rate(df) / period_growth(df, year_range)</code></div>
+      <p class="fn-what"><span class="en">Two different "growth" calculations — a year-over-year growth series, and a single "how much did it rise start to end" number — deliberately given different names to keep them apart.</span><span class="zh">两种"增长"的算法——同比增长率序列，和"从头到尾涨了百分之多少"的单一数字，刻意用不同函数名区分。</span></p>
+<pre class="code"><span class="cm"># <span class="en">growth_rate — one year-over-year growth rate per year</span><span class="zh">growth_rate —— 每年一个同比增长率</span></span>
+counts = df.groupby(year_column).size().sort_index()
+<span class="kw">return</span> counts.pct_change()
+
+<span class="cm"># <span class="en">period_growth — only looks at the first and last year, collapses to one number</span><span class="zh">period_growth —— 只看首尾两年，收缩成一个数字</span></span>
+<span class="kw">if</span> year_range <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+    lo, hi = year_range
+    df = df[df[year_column].between(lo, hi)]
+counts = df.groupby(year_column).size().sort_index()
+<span class="kw">return</span> float((counts.iloc[-1] - counts.iloc[0]) / counts.iloc[0])</pre>
+      <ul class="syntax">
+        <li><span class="en"><code>df.groupby(year_column).size()</code>: <b>groupby</b> — groups by year, <code>.size()</code> counts rows per group, i.e. "how many publications that year."</span><span class="zh"><code>df.groupby(year_column).size()</code>：<b>groupby</b>——按年份分组，<code>.size()</code>数每组有多少行，等价于"每年发了多少篇"。</span></li>
+        <li><span class="en"><code>.sort_index()</code>: the grouped result's index defaults to the year, but not necessarily in ascending order — this explicitly sorts it low to high.</span><span class="zh"><code>.sort_index()</code>：分组后的结果默认索引就是年份，但顺序不一定是升序，这里显式按年份从小到大排序。</span></li>
+        <li><span class="en"><code>.pct_change()</code>: a Series method computing "percent change from the previous value" — that's the year-over-year growth rate, solved in one line instead of hand-writing "(this period − last period) / last period" with the alignment logic.</span><span class="zh"><code>.pct_change()</code>：Series方法，算"跟上一个值相比变化了百分之多少"——这就是同比增长率，一行代码解决，不用手写"(本期-上期)/上期"再对齐位置。</span></li>
+        <li><span class="en"><code>df[year_column].between(lo, hi)</code>: a boolean test "is the value between lo and hi (inclusive)," equivalent to <code>(df[col] >= lo) & (df[col] <= hi)</code> but more concise and readable.</span><span class="zh"><code>df[year_column].between(lo, hi)</code>：布尔判断"值在lo到hi之间(包含两端)"，等价于<code>(df[col] >= lo) & (df[col] <= hi)</code>但更简洁易读。</span></li>
+        <li><span class="en"><code>counts.iloc[0]</code> / <code>counts.iloc[-1]</code>: <b>iloc</b> takes values by position (not by label/index value) — regardless of which specific years are present, <code>iloc[0]</code> is always the first after sorting, <code>iloc[-1]</code> always the last.</span><span class="zh"><code>counts.iloc[0]</code> / <code>counts.iloc[-1]</code>：<b>iloc</b>按位置(不是按标签/索引值)取值——不管年份具体是哪几年，<code>iloc[0]</code>永远是排序后的第一个，<code>iloc[-1]</code>永远是最后一个。</span></li>
+      </ul>
+      <div class="caution">
+        <span class="lbl"><span class="en">These two functions must not be called interchangeably</span><span class="zh">这两个函数不能混着叫</span></span>
+        <span class="en"><code>period_growth</code> computes a "first-vs-last comparison," not a "year-over-year rate" — the project's docstring deliberately says "don't call this growth rate in a report," because it's a genuinely different metric, not just a renamed one.</span>
+        <span class="zh"><code>period_growth</code>算的是"首尾对比"，不是"逐年同比"——项目里特意在文档字符串
+        (docstring)里写明"不要在报告里把这个叫成growth rate"，因为它是一个含义不同的指标，
+        不只是换了个名字。</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="glossary">
+    <div class="module-head"><span class="stage">06</span><h2><span class="en">pandas Syntax Cheat Sheet</span><span class="zh">pandas 语法速查表</span></h2></div>
+    <p class="module-role"><span class="en">A round-up of the syntax points that keep recurring above, grouped by "what it does" rather than order of appearance.</span><span class="zh">把上面反复出现的语法点收一遍，按"做什么"分类，而不是按出现顺序。</span></p>
+    <dl class="glossary">
+      <div class="gterm"><dt><span class="en">Boolean indexing <code>df[cond]</code></span><span class="zh">布尔索引 <code>df[cond]</code></span></dt><dd><span class="en">Filters rows with a True/False sequence the same length as df, keeping only the True positions. The single most-used filtering idiom in the whole project, no close second.</span><span class="zh">用一个跟df等长的True/False序列筛选行，只留下True的位置。整个项目里最常用的筛选手法，没有"之一"。</span></dd></div>
+      <div class="gterm"><dt><span class="en">New column <code>df["new"] = ...</code></span><span class="zh">新增列 <code>df["新列"] = ...</code></span></dt><dd><span class="en">Give a Series the same length as df on the right (or a broadcastable scalar/expression), and a plain assignment becomes a new column — no separate declaration needed.</span><span class="zh">右边给一个跟df等长的Series(或能广播的标量/表达式)，直接赋值就成了新的一列，不需要额外声明。</span></dd></div>
+      <div class="gterm"><dt><code>.astype(dtype)</code></dt><dd><span class="en">Force-casts an entire column's dtype. Case matters: <code>"Int64"</code>/<code>"boolean"</code> (capitalised, pandas nullable extension types, can hold missing values) vs. <code>bool</code>/<code>int64</code> (native python/numpy types, cannot).</span><span class="zh">强制转换整列的数据类型。区分大小写：<code>"Int64"</code>/<code>"boolean"</code>(大写，pandas可空扩展类型，能装缺失值)vs<code>bool</code>/<code>int64</code>(python/numpy原生类型，装不下缺失值)。</span></dd></div>
+      <div class="gterm"><dt><code>.groupby(col).size()</code></dt><dd><span class="en">Groups by one column's values, counting rows per group. To sum/mean a numeric column instead of counting rows, use <code>.groupby(col)["numeric_col"].sum()</code>/<code>.mean()</code>.</span><span class="zh">按某一列的值分组，数每组有多少行。想对某一数值列求和/求均值而不是数行数，用<code>.groupby(col)["数值列"].sum()</code>/<code>.mean()</code>。</span></dd></div>
+      <div class="gterm"><dt><code>.mask(cond)</code> / <code>.where(cond)</code></dt><dd><span class="en">Opposites: <code>where</code> keeps where cond is True, everything else becomes missing; <code>mask</code> turns where cond is True into missing, keeping the rest.</span><span class="zh">互为反义：<code>where</code>保留cond为True的部分，其余变缺失；<code>mask</code>是cond为True的部分变缺失，其余保留。</span></dd></div>
+      <div class="gterm"><dt><code>pd.cut(col, bins, labels)</code></dt><dd><span class="en">Cuts continuous numbers into a categorical variable by interval. Intervals default to "open-closed"; <code>include_lowest=True</code> lets the minimum value be captured by the first interval too.</span><span class="zh">把连续数值按区间切成分类变量。默认区间是"开-闭"，<code>include_lowest=True</code>让最小值也能被第一个区间收进去。</span></dd></div>
+      <div class="gterm"><dt><span class="en">(boolean Series)<code>.mean()</code></span><span class="zh"><code>(布尔Series).mean()</code></span></dt><dd><span class="en">True=1, False=0, so the mean is "the share meeting the condition" — no need to hand-write <code>sum()/len()</code>.</span><span class="zh">True=1、False=0，均值就是"满足条件的比例"——不用手写<code>sum()/len()</code>。</span></dd></div>
+      <div class="gterm"><dt><code>.drop_duplicates(subset=col, keep="first")</code></dt><dd><span class="en">Judges duplication on the specified column only (not the whole row); of duplicates, keeps only the first occurrence.</span><span class="zh">只按指定列判断是否重复(不要求整行相同)，重复的只保留第一次出现的一行。</span></dd></div>
+      <div class="gterm"><dt><code>pd.concat([df1, df2, ...])</code></dt><dd><span class="en">Stacks multiple DataFrames row-wise into one. <code>ignore_index=True</code> renumbers the stacked rows continuously.</span><span class="zh">把多个DataFrame按行方向堆叠成一个。<code>ignore_index=True</code>让堆叠后的行号重新连续编号。</span></dd></div>
+      <div class="gterm"><dt><code>.reset_index(drop=True)</code></dt><dd><span class="en">After filtering/dedup, row numbers often have "holes"; renumbers them into a clean 0,1,2...; <code>drop=True</code> means don't keep the old row numbers.</span><span class="zh">筛选/去重后行号常有"洞"，重新编号成连续的0,1,2...；<code>drop=True</code>表示不保留旧行号。</span></dd></div>
+      <div class="gterm"><dt><code>.dropna()</code> / <code>.notna()</code> / <code>.isna()</code></dt><dd><span class="en">Respectively: "discard rows/elements with missing values," "test for non-null" (returns boolean), "test for null" (returns boolean, complementary to notna).</span><span class="zh">分别是"丢弃缺失值所在的行/元素"、"判断是否非空"(返回布尔)、"判断是否为空"(返回布尔，跟notna互补)。</span></dd></div>
+      <div class="gterm"><dt><code>col.between(lo, hi)</code></dt><dd><span class="en">Tests whether a value falls in the closed interval [lo, hi], equivalent to two comparisons joined with <code>&amp;</code>, but more concise.</span><span class="zh">判断值是否落在[lo, hi]闭区间内，等价于两个比较用<code>&amp;</code>连接，但更简洁。</span></dd></div>
+      <div class="gterm"><dt><code>.nunique()</code></dt><dd><span class="en">Counts how many distinct values a column has (missing values excluded automatically).</span><span class="zh">数一列里有多少个不同的值(自动排除缺失值)。</span></dd></div>
+      <div class="gterm"><dt><code>.iloc[i]</code> vs <code>.loc[label]</code></dt><dd><span class="en"><code>iloc</code> takes values by position (which row/column, counting from 0); <code>loc</code> takes values by index label (e.g. by year, by university name). The two can coincide when the label equals the position, but they mean entirely different things.</span><span class="zh"><code>iloc</code>按位置取值(第几行/第几列，从0数)；<code>loc</code>按索引标签取值(比如按年份、按大学名)。名字或数值恰好等于位置时两者结果可能相同，但含义完全不同。</span></dd></div>
+      <div class="gterm"><dt><code>pd.read_parquet</code> / <code>.to_parquet</code></dt><dd><span class="en">Read/write for the columnar storage format, much faster than Excel/CSV, and preserves pandas extension dtypes (e.g. Int64) without loss.</span><span class="zh">列式存储格式的读写，比Excel/CSV快得多，且能保留pandas的扩展dtype(比如Int64)不失真。</span></dd></div>
+      <div class="gterm"><dt><span class="en">Dict comprehension <code>{k: v for k in ...}</code></span><span class="zh">字典推导式 <code>{k: v for k in ...}</code></span></dt><dd><span class="en">Not pandas-specific, but used repeatedly in the project for <code>dtype={col: str for col in ID_COLUMNS}</code>-style "apply the same treatment to a batch of columns" scenarios.</span><span class="zh">不是pandas专属，但项目里频繁用在<code>dtype={col: str for col in ID_COLUMNS}</code>这种"给一批列统一指定同一种处理方式"的场景。</span></dd></div>
+    </dl>
+  </section>
+
+  <section class="module" id="try">
+    <div class="module-head"><span class="stage">07</span><h2><span class="en">Try It Yourself</span><span class="zh">动手试一遍</span></h2></div>
+    <p class="module-role"><span class="en">Reading alone is easy to forget — after building the dataset, open a Python interactive shell in the project root and try:</span><span class="zh">光看不练容易忘，建库跑完之后，可以在项目根目录开一个python交互环境试试：</span></p>
+    <ol class="try-list">
+      <li><span class="en">Build the dataset first (if you haven't): <code>python -m p36.build_dataset</code>, and read the raw-row-count / deduped-row-count / duplication-rate it prints.</span><span class="zh">先建库(如果还没建过)：<code>python -m p36.build_dataset</code>，看它打印出的原始行数/去重行数/重复率。</span></li>
+      <li><span class="en">Read it back and see what it looks like:
+        <code>from p36.dataset import load_deduplicated; df = load_deduplicated(); df.head()</code></span>
+        <span class="zh">读回来看看长什么样：
+        <code>from p36.dataset import load_deduplicated; df = load_deduplicated(); df.head()</code></span></li>
+      <li><span class="en">Compute the Q1 share yourself and compare it against <code>metrics.q1_share(df)</code>:
+        hand-write <code>(df["CiteScore percentile (publication year) *"] <= 25).mean()</code>
+        and see whether you forgot the missing values (hint: <code>.dropna()</code> first vs. not changes the answer).</span>
+        <span class="zh">自己算一次Q1份额，跟<code>metrics.q1_share(df)</code>的结果对一下：
+        手动写<code>(df["CiteScore percentile (publication year) *"] <= 25).mean()</code>，
+        看是不是漏算了缺失值(提示：先<code>.dropna()</code>再比较，结果会不一样)。</span></li>
+      <li><span class="en">Try changing <code>pd.cut</code>'s <code>bins</code>, e.g. into 8 tiers instead of 4, and watch how each tier's count from <code>value_counts()</code> changes.</span><span class="zh">试着改一下<code>pd.cut</code>的<code>bins</code>，比如切成8档而不是4档，看<code>value_counts()</code>出来的每档数量怎么变。</span></li>
+      <li><span class="en">Delete the <code>.mask(...)</code> line inside <code>add_derived_flags</code>, rerun, and use
+        <code>df["is_q1"].isna().sum()</code> to see whether rows missing percentile data got
+        wrongly turned into False — the most direct way to feel why <code>mask</code> exists.</span>
+        <span class="zh">把<code>add_derived_flags</code>里的<code>.mask(...)</code>那一行删掉，重新跑一遍，
+        用<code>df["is_q1"].isna().sum()</code>看缺失百分位数据的行是不是被错误地变成了False——
+        这是体会<code>mask</code>存在意义最直接的办法。</span></li>
+    </ol>
+  </section>
+
+  <div class="related">
+    <a href="dashboard-charting.html">
+      <div class="lbl"><span class="en">Close-reading series · 02</span><span class="zh">精读系列 · 02</span></div>
+      <h3><span class="en">Dashboard & Charting Close-Reading ↗</span><span class="zh">看板与图表精读 ↗</span></h3>
+    </a>
+    <a href="coverage-manual.html">
+      <div class="lbl"><span class="en">Companion doc</span><span class="zh">同项目文档</span></div>
+      <h3>Coverage Manual ↗</h3>
+    </a>
+    <a href="https://data-platform.azurewebsites.net">
+      <div class="lbl"><span class="en">Live app</span><span class="zh">在线应用</span></div>
+      <h3><span class="en">Open the platform ↗</span><span class="zh">打开平台 ↗</span></h3>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <span class="en">COMP3888_W11_02_P36 · personal study notes, covering all 18 functions across
+  src/p36/ingest.py, cleaning/dtypes.py, build_dataset.py, dataset.py, and metrics/metrics.py ·
+  code snippets taken from the current version of the repo — the source files are authoritative.</span>
+  <span class="zh">COMP3888_W11_02_P36 · 个人学习笔记，覆盖 src/p36/ingest.py、cleaning/dtypes.py、
+  build_dataset.py、dataset.py、metrics/metrics.py 全部18个函数 · 代码片段摘自仓库当前版本，
+  完整实现以源文件为准。</span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var app = document.getElementById('app');
+  var btn = document.getElementById('langToggle');
+  function apply(lang){
+    app.setAttribute('data-lang', lang);
+    btn.textContent = lang === 'zh' ? 'EN' : '中';
+    try { localStorage.setItem('p36-methods-lang', lang); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('p36-methods-lang'); } catch(e){}
+  apply(saved === 'en' ? 'en' : 'zh');
+  btn.addEventListener('click', function(){
+    apply(app.getAttribute('data-lang') === 'zh' ? 'en' : 'zh');
+  });
+})();
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+
+</body></html>
