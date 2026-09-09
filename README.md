@@ -11,10 +11,10 @@
 
 <p>
   <a href="https://claude.ai/code/artifact/ec303ff3-caf2-4c24-9c3b-2bdefee6da3f"><img alt="Task Map" src="https://img.shields.io/badge/🧩-Task%20Map-0F4C81?style=for-the-badge"></a>
-  <a href="https://data-platform.azurewebsites.net"><img alt="Live Platform" src="https://img.shields.io/badge/▶-Live%20Platform-1A1A1A?style=for-the-badge"></a>
   <a href="https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688"><img alt="Coverage Manual" src="https://img.shields.io/badge/📋-Coverage%20Manual-DA291C?style=for-the-badge"></a>
   <a href="https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42"><img alt="Data Pipeline Close-Reading" src="https://img.shields.io/badge/🐼-Data%20Pipeline-0F4C81?style=for-the-badge"></a>
   <a href="https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47"><img alt="Dashboard & Charting Close-Reading" src="https://img.shields.io/badge/📐-Dashboard%20%26%20Charting-FFC20E?style=for-the-badge&labelColor=1A1A1A"></a>
+  <a href="https://claude.ai/code/artifact/e5ecb45e-a7b8-49c8-973e-1b823945d576"><img alt="Sub-Question Navigation Close-Reading" src="https://img.shields.io/badge/🧭-Navigation-0F4C81?style=for-the-badge"></a>
 </p>
 
 **COMP3888 Capstone · Team W11_02_P36**
@@ -52,13 +52,12 @@ answers.
 | [Coverage Manual](https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
 | [Data Pipeline Close-Reading](https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
 | [Dashboard & Charting Close-Reading](https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
+| [Sub-Question Navigation Close-Reading](https://claude.ai/code/artifact/e5ecb45e-a7b8-49c8-973e-1b823945d576) | How a sub-question becomes a click-to-jump link — the same-page anchor jump and the `st.iframe`-based cross-page scroll bridge, taken apart in full with a traced worked example |
 | [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the artifacts above if they ever drift |
 | [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | Every raw and derived column, with data-quality notes |
-| [`docs/deployment-azure.md`](docs/deployment-azure.md) | Deploying this platform to Azure App Service |
-| [Group Contract](Group%20contract.md) | Team working agreements, roles, and communication norms |
 
 > [!NOTE]
-> The four linked pages above are private Claude Artifacts, not part of this
+> The five linked pages above are private Claude Artifacts, not part of this
 > git repo — share them from the page's own share menu if a teammate without
 > access needs to open them. They're not hosted as a GitHub Pages site because
 > this repo is private and GitHub's free plan only serves Pages from public
@@ -156,7 +155,7 @@ comp3888/
 │   ├── dictionary/               data_dictionary.md (tracked)
 │   ├── *.xlsx                    raw per-university exports (git-ignored — see above)
 │   └── processed/                 built parquet files (git-ignored — see above)
-├── docs/                      methodology.md, deployment-azure.md, meeting-notes/
+├── docs/                      methodology.md, meeting-notes/
 ├── .streamlit/config.toml     theme + toolbar config
 └── requirements.txt
 ```
@@ -218,7 +217,7 @@ flowchart TD
 | **Data** | pandas, pyarrow (parquet), openpyxl (reading the raw QS/Scopus exports) |
 | **Statistics** | statsmodels (OLS, HC3 robust SE), scipy |
 | **Platform** | Streamlit, Altair (Vega-Lite) — no Plotly, no JavaScript |
-| **Deployment** | Azure App Service (Linux, Python) — see [`docs/deployment-azure.md`](docs/deployment-azure.md) |
+| **Deployment** | Local only — see [Getting started](#getting-started) |
 
 ## Data & governance
 
@@ -250,14 +249,11 @@ concerns, not an afterthought:
 
 ## Deployment
 
-See [`docs/deployment-azure.md`](docs/deployment-azure.md) for the full,
-tested command sequence to deploy this platform to Azure App Service,
-including the WebSockets setting Streamlit requires, the pricing-tier
-guidance, and — importantly — how to keep the deploy package from including
-the raw per-university exports.
+This repo supports **local deployment only** — see [Getting started](#getting-started)
+above; `streamlit run app/Home.py` is the entire deploy step. There is no CI/CD
+workflow and no hosted instance tracked in this repository.
 
 ## Team
 
-See [Group Contract](Group%20contract.md) for team members, roles, and working
-agreements. [Group Wiki](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/wiki/COMP3888_W11_02_P36-wiki) ·
+[Group Wiki](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/wiki/COMP3888_W11_02_P36-wiki) ·
 [Data folder](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/tree/main/data)
