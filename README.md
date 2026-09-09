@@ -10,6 +10,7 @@
 </p>
 
 <p>
+  <a href="https://data-platform.azurewebsites.net"><img alt="Live Platform" src="https://img.shields.io/badge/🚀-Live%20Platform-DA291C?style=for-the-badge"></a>
   <a href="https://jamesxufan.github.io/research-impact-analysis-platform/"><img alt="Docs site" src="https://img.shields.io/badge/📖-Docs%20Site-1A1A1A?style=for-the-badge"></a>
   <a href="https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html"><img alt="Task Map" src="https://img.shields.io/badge/🧩-Task%20Map-0F4C81?style=for-the-badge"></a>
   <a href="https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html"><img alt="Coverage Manual" src="https://img.shields.io/badge/📋-Coverage%20Manual-DA291C?style=for-the-badge"></a>
@@ -252,9 +253,14 @@ concerns, not an afterthought:
 
 ## Deployment
 
-This repo supports **local deployment only** — see [Getting started](#getting-started)
-above; `streamlit run app/Home.py` is the entire deploy step. There is no CI/CD
-workflow and no hosted instance tracked in this repository.
+This repo's own deploy step is **local only** — see [Getting started](#getting-started)
+above; `streamlit run app/Home.py` is the entire thing. There is no CI/CD workflow in
+this repository that deploys anywhere.
+
+A live instance is separately hosted at
+**[data-platform.azurewebsites.net](https://data-platform.azurewebsites.net)**,
+updated by hand rather than by a tracked workflow — treat it as a convenience mirror,
+not the source of truth; the repository and `docs/methodology.md` are that.
 
 ## Team
 
