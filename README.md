@@ -28,6 +28,7 @@ answers.
 - [Documentation](#documentation)
 - [Getting started](#getting-started)
 - [Project structure](#project-structure)
+- [Analysis pipeline](#analysis-pipeline)
 - [Tech stack](#tech-stack)
 - [Data & governance](#data--governance)
 - [Deployment](#deployment)
@@ -148,6 +149,54 @@ comp3888/
 ├── .streamlit/config.toml     theme + toolbar config
 └── requirements.txt
 ```
+
+## Analysis pipeline
+
+Every figure on every page passes through the same five layers, in the same
+order — this is *why* the design principles above ("one implementation per
+metric", cached wrappers only) work in practice, not just a rule on paper.
+
+```
+data/*.xlsx (8 raw per-university exports)
+   │  src/p36/ingest.py + cleaning/        load, merge, enforce dtypes
+   │  src/p36/build_dataset.py             run once, offline → writes parquet
+   ▼
+data/processed/*.parquet (raw + deduplicated)
+   │  src/p36/dataset.py                   load_raw() / load_deduplicated() — reads the parquet, nothing else
+   ▼
+src/p36/analysis/prepare.py                prepared_raw() / prepared_deduplicated() — scope-filter +
+   │                                         derived flags (is_international, …), shared by all six modules
+   ▼
+src/p36/analysis/<item>.py                 the actual statistics for one analysis item — groupby/apply,
+   │                                         regression, etc. Imports metric implementations from
+   │                                         src/p36/metrics/metrics.py and every named threshold from
+   │                                         src/p36/config.py — never recomputes either by hand.
+   ▼
+app/lib.py                                 @st.cache_data wrapper — one get_*() function per analysis
+   │                                         output, so Streamlit never recomputes on every widget click
+   ▼
+app/pages/N_*.py                           calls the lib.py wrapper, then only charts / formats / writes
+                                             narrative — no statistics computed at this layer
+```
+
+**Worked example — Go8 Benchmarking, "Sydney's rank on mean FWCI"**
+([1_Go8_Benchmarking.py](app/pages/1_Go8_Benchmarking.py), lines 49–58):
+
+1. [`dataset.load_raw()`](src/p36/dataset.py) reads `publications_raw.parquet`.
+2. [`prepare.prepared_raw()`](src/p36/analysis/prepare.py) scope-filters it and adds `is_international`.
+3. [`lib.load_raw()`](app/lib.py) caches steps 1–2 for the session.
+4. [`go8_benchmarking.benchmark_summary()`](src/p36/analysis/go8_benchmarking.py) groups by
+   `source_university`, calls `metrics.mean_fwci` per group, orders the result with
+   `config.CLIENT_UNIVERSITY` first.
+5. [`lib.get_benchmark_summary()`](app/lib.py) caches step 4.
+6. The page calls `get_benchmark_summary()` once and reuses the same table for the rank
+   card, the bar chart, and the radar chart — one fetch, three visualisations.
+
+**A cross-module dependency worth knowing:** `go8_benchmarking.institution_partner_flag()`
+is imported and called directly by `scenario_analysis.py` (not routed through `app/lib.py`)
+— see [scenario_analysis.py:129-131](src/p36/analysis/scenario_analysis.py#L129-L131). A
+signature or behaviour change to that function affects the Scenario Analysis page too, even
+though the two live in different analysis modules.
 
 ## Tech stack
 
