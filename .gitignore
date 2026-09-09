@@ -25,3 +25,6 @@ venv/
 .github/workflows/azure-deploy.yml
 docs/deployment-azure.md
 deploy.zip
+
+# Team working agreement — not for the public/shared repo.
+Group contract.md
