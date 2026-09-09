@@ -16,8 +16,9 @@ venv/
 .vscode/
 .idea/
 
-# Claude Code session-local state — not project content
-.claude/scheduled_tasks.lock
+# Claude Code config/subagent definitions and session-local state — local
+# tooling, not project deliverable content
+.claude/
 
 # Deploy artifacts (see docs/deployment-azure.md)
 deploy.zip

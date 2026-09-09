@@ -9,6 +9,14 @@
   <img alt="Data" src="https://img.shields.io/badge/data-restricted%20%E2%80%94%20not%20redistributed-orange">
 </p>
 
+<p>
+  <a href="https://claude.ai/code/artifact/ec303ff3-caf2-4c24-9c3b-2bdefee6da3f"><img alt="Task Map" src="https://img.shields.io/badge/🧩-Task%20Map-0F4C81?style=for-the-badge"></a>
+  <a href="https://data-platform.azurewebsites.net"><img alt="Live Platform" src="https://img.shields.io/badge/▶-Live%20Platform-1A1A1A?style=for-the-badge"></a>
+  <a href="https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688"><img alt="Coverage Manual" src="https://img.shields.io/badge/📋-Coverage%20Manual-DA291C?style=for-the-badge"></a>
+  <a href="https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42"><img alt="Data Pipeline Close-Reading" src="https://img.shields.io/badge/🐼-Data%20Pipeline-0F4C81?style=for-the-badge"></a>
+  <a href="https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47"><img alt="Dashboard & Charting Close-Reading" src="https://img.shields.io/badge/📐-Dashboard%20%26%20Charting-FFC20E?style=for-the-badge&labelColor=1A1A1A"></a>
+</p>
+
 **COMP3888 Capstone · Team W11_02_P36**
 
 An interactive analytical platform for exploring publication performance, research
@@ -22,10 +30,10 @@ answers.
 
 ## Contents
 
+- [Documentation](#documentation)
 - [Overview](#overview)
 - [At a glance](#at-a-glance)
 - [The six analyses](#the-six-analyses)
-- [Documentation](#documentation)
 - [Getting started](#getting-started)
 - [Project structure](#project-structure)
 - [Analysis pipeline](#analysis-pipeline)
@@ -35,6 +43,26 @@ answers.
 - [Team](#team)
 
 ---
+
+## Documentation
+
+| Document | What it's for |
+| --- | --- |
+| [Task Map](https://claude.ai/code/artifact/ec303ff3-caf2-4c24-9c3b-2bdefee6da3f) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the 5 direct task-to-task imports that don't route through the shared core — for splitting work without two people colliding on the same file |
+| [Coverage Manual](https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
+| [Data Pipeline Close-Reading](https://claude.ai/code/artifact/929bf52c-4448-4d6f-a16d-376016706c42) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
+| [Dashboard & Charting Close-Reading](https://claude.ai/code/artifact/10ed6445-3399-4eff-a1cb-18c14e36ba47) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
+| [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the artifacts above if they ever drift |
+| [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | Every raw and derived column, with data-quality notes |
+| [`docs/deployment-azure.md`](docs/deployment-azure.md) | Deploying this platform to Azure App Service |
+| [Group Contract](Group%20contract.md) | Team working agreements, roles, and communication norms |
+
+> [!NOTE]
+> The four linked pages above are private Claude Artifacts, not part of this
+> git repo — share them from the page's own share menu if a teammate without
+> access needs to open them. They're not hosted as a GitHub Pages site because
+> this repo is private and GitHub's free plan only serves Pages from public
+> repositories; revisit if the repo's visibility ever changes.
 
 ## Overview
 
@@ -47,18 +75,12 @@ potential improvement opportunities, with evidence-based insights to support
 strategic research planning for the client, the University of Sydney.
 
 **Design principles carried through every layer of this project:**
-- **One implementation per metric.** Every derived figure (Q1 share, FWCI mean,
-  top-decile share, …) is computed in exactly one place
-  (`src/p36/metrics/metrics.py`) and imported everywhere else — never
-  recomputed by hand in an analysis module or a Streamlit page.
-- **Descriptive vs. tested, always labelled.** Five of the six analyses are
-  descriptive statistics on the full (near-census) dataset; only the item 14
-  regression carries p-values and confidence intervals — and every page says
-  which kind of claim it's making.
-- **Provisional assumptions, named and flagged.** Every threshold or scope
-  decision the client hasn't confirmed yet (Q1 cutoff basis, self-citation
-  handling, open-access null-handling, …) is a named constant in
-  `src/p36/config.py`, marked `PROVISIONAL`, never presented as settled.
+
+| Principle | In practice |
+| --- | --- |
+| 🎯 **One implementation per metric** | Every derived figure (Q1 share, FWCI mean, top-decile share, …) is computed in exactly one place (`src/p36/metrics/metrics.py`) and imported everywhere else — never recomputed by hand in an analysis module or a Streamlit page. |
+| 📏 **Descriptive vs. tested, always labelled** | Five of the six analyses are descriptive statistics on the full (near-census) dataset; only the item 14 regression carries p-values and confidence intervals — and every page says which kind of claim it's making. |
+| 🚧 **Provisional assumptions, named and flagged** | Every threshold or scope decision the client hasn't confirmed yet (Q1 cutoff basis, self-citation handling, open-access null-handling, …) is a named constant in `src/p36/config.py`, marked `PROVISIONAL`, never presented as settled. |
 
 ## At a glance
 
@@ -85,30 +107,16 @@ Every platform page opens with a **"Sub-questions this page answers"** panel —
 a checklist mapping each chart back to the brief's actual bullet points,
 including the ones not yet built (marked openly, not omitted).
 
-## Documentation
-
-| Document | What it's for |
-| --- | --- |
-| [Guidebook](https://claude.ai/code/artifact/680782eb-2079-4dc1-94e6-7efac2bfa886) | How to run and extend this project — bilingual EN/ZH |
-| [Coverage Manual](https://claude.ai/code/artifact/fc3a9c2e-e2bf-45fa-a9fb-ab4f94bec688) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item) |
-| [Methods Reference](https://claude.ai/code/artifact/795c53d8-ff1d-45b4-8a28-0faf1ecfb09d) | The statistics: why this threshold, why this chart type, full reasoning chains — one page per analysis item |
-| [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the artifacts above if they ever drift |
-| [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | Every raw and derived column, with data-quality notes |
-| [`docs/deployment-azure.md`](docs/deployment-azure.md) | Deploying this platform to Azure App Service |
-| [Group Contract](Group%20contract.md) | Team working agreements, roles, and communication norms |
-
-> The three linked pages above are private Claude Artifacts — share them from
-> the page's own share menu if a teammate without access needs to open them.
-
 ## Getting started
 
-The raw QS/Scopus per-university exports (`data/*.xlsx`) and the processed
-dataset built from them (`data/processed/*.parquet`) are **not in this repo** —
-they're licensed data, excluded via `.gitignore` rather than pushed to git
-history (see [Data & governance](#data--governance)). Get the eight `.xlsx`
-files from the [group data folder](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/tree/main/data)
-and place them directly under `data/` before doing anything else — every step
-below depends on them.
+> [!IMPORTANT]
+> The raw QS/Scopus per-university exports (`data/*.xlsx`) and the processed
+> dataset built from them (`data/processed/*.parquet`) are **not in this repo**
+> — they're licensed data, excluded via `.gitignore` rather than pushed to git
+> history (see [Data & governance](#data--governance)). Get the eight `.xlsx`
+> files from the [group data folder](https://github.sydney.edu.au/xili0060/COMP3888_W11_02_P36/tree/main/data)
+> and place them directly under `data/` before doing anything else — every
+> step below depends on them.
 
 ```bash
 pip install -r requirements.txt
@@ -127,6 +135,9 @@ streamlit run app/Home.py
 ```
 
 ## Project structure
+
+<details>
+<summary><strong>Expand the full directory tree</strong></summary>
 
 ```
 comp3888/
@@ -150,37 +161,36 @@ comp3888/
 └── requirements.txt
 ```
 
+</details>
+
 ## Analysis pipeline
 
 Every figure on every page passes through the same five layers, in the same
 order — this is *why* the design principles above ("one implementation per
 metric", cached wrappers only) work in practice, not just a rule on paper.
 
-```
-data/*.xlsx (8 raw per-university exports)
-   │  src/p36/ingest.py + cleaning/        load, merge, enforce dtypes
-   │  src/p36/build_dataset.py             run once, offline → writes parquet
-   ▼
-data/processed/*.parquet (raw + deduplicated)
-   │  src/p36/dataset.py                   load_raw() / load_deduplicated() — reads the parquet, nothing else
-   ▼
-src/p36/analysis/prepare.py                prepared_raw() / prepared_deduplicated() — scope-filter +
-   │                                         derived flags (is_international, …), shared by all six modules
-   ▼
-src/p36/analysis/<item>.py                 the actual statistics for one analysis item — groupby/apply,
-   │                                         regression, etc. Imports metric implementations from
-   │                                         src/p36/metrics/metrics.py and every named threshold from
-   │                                         src/p36/config.py — never recomputes either by hand.
-   ▼
-app/lib.py                                 @st.cache_data wrapper — one get_*() function per analysis
-   │                                         output, so Streamlit never recomputes on every widget click
-   ▼
-app/pages/N_*.py                           calls the lib.py wrapper, then only charts / formats / writes
-                                             narrative — no statistics computed at this layer
+```mermaid
+flowchart TD
+    A["📄 data/*.xlsx<br/>8 raw per-university exports"]
+    A -->|"ingest.py + cleaning/<br/>load, merge, enforce dtypes"| B["build_dataset.py<br/>(run once, offline)"]
+    B --> C[("🗄️ data/processed/*.parquet<br/>raw + deduplicated")]
+    C -->|"dataset.py<br/>load_raw() / load_deduplicated()"| D["analysis/prepare.py<br/>scope-filter + derived flags<br/>(is_international, …)"]
+    D -->|"shared by all 6 modules"| E["analysis/&lt;item&gt;.py<br/>groupby / regression / etc."]
+    E -->|"imports metrics.py + config.py<br/>never recomputes either by hand"| F["app/lib.py<br/>@st.cache_data — one get_*()<br/>per analysis output"]
+    F --> G["app/pages/N_*.py<br/>charts / formats / narrative only —<br/>no statistics computed here"]
+
+    style A fill:#F2EEE6,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
+    style B fill:#0F4C81,stroke:#1A1A1A,stroke-width:2px,color:#FFFFFF
+    style C fill:#F2EEE6,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
+    style D fill:#FFC20E,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
+    style E fill:#FFC20E,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
+    style F fill:#DA291C,stroke:#1A1A1A,stroke-width:2px,color:#FFFFFF
+    style G fill:#1A1A1A,stroke:#1A1A1A,stroke-width:2px,color:#FFFFFF
 ```
 
-**Worked example — Go8 Benchmarking, "Sydney's rank on mean FWCI"**
-([1_Go8_Benchmarking.py](app/pages/1_Go8_Benchmarking.py), lines 49–58):
+<details>
+<summary><strong>Worked example — Go8 Benchmarking, "Sydney's rank on mean FWCI"</strong>
+(<a href="app/pages/1_Go8_Benchmarking.py">1_Go8_Benchmarking.py</a>, lines 49–58)</summary>
 
 1. [`dataset.load_raw()`](src/p36/dataset.py) reads `publications_raw.parquet`.
 2. [`prepare.prepared_raw()`](src/p36/analysis/prepare.py) scope-filters it and adds `is_international`.
@@ -192,18 +202,23 @@ app/pages/N_*.py                           calls the lib.py wrapper, then only c
 6. The page calls `get_benchmark_summary()` once and reuses the same table for the rank
    card, the bar chart, and the radar chart — one fetch, three visualisations.
 
-**A cross-module dependency worth knowing:** `go8_benchmarking.institution_partner_flag()`
-is imported and called directly by `scenario_analysis.py` (not routed through `app/lib.py`)
-— see [scenario_analysis.py:129-131](src/p36/analysis/scenario_analysis.py#L129-L131). A
-signature or behaviour change to that function affects the Scenario Analysis page too, even
-though the two live in different analysis modules.
+> [!TIP]
+> **A cross-module dependency worth knowing:** `go8_benchmarking.institution_partner_flag()`
+> is imported and called directly by `scenario_analysis.py` (not routed through `app/lib.py`)
+> — see [scenario_analysis.py:129-131](src/p36/analysis/scenario_analysis.py#L129-L131). A
+> signature or behaviour change to that function affects the Scenario Analysis page too, even
+> though the two live in different analysis modules.
+
+</details>
 
 ## Tech stack
 
-- **Data:** pandas, pyarrow (parquet), openpyxl (reading the raw QS/Scopus exports)
-- **Statistics:** statsmodels (OLS, HC3 robust SE), scipy
-- **Platform:** Streamlit, Altair (Vega-Lite) — no Plotly, no JavaScript
-- **Deployment:** Azure App Service (Linux, Python) — see [`docs/deployment-azure.md`](docs/deployment-azure.md)
+| Layer | Tools |
+| --- | --- |
+| **Data** | pandas, pyarrow (parquet), openpyxl (reading the raw QS/Scopus exports) |
+| **Statistics** | statsmodels (OLS, HC3 robust SE), scipy |
+| **Platform** | Streamlit, Altair (Vega-Lite) — no Plotly, no JavaScript |
+| **Deployment** | Azure App Service (Linux, Python) — see [`docs/deployment-azure.md`](docs/deployment-azure.md) |
 
 ## Data & governance
 
@@ -223,13 +238,15 @@ concerns, not an afterthought:
 - **Cross-field and cross-year comparisons always use a normalised metric**
   (FWCI or a SciVal percentile column), never raw citation counts, which
   differ 5–10× by citation culture alone.
-- **The raw `.xlsx` exports and the processed `.parquet` files are
-  deliberately excluded from git history** (`.gitignore`) — this is licensed
-  Scopus/QS bibliometric data at individual-publication granularity, not ours
-  to redistribute via a public or semi-public git remote. Anyone working on
-  this repo needs to obtain the raw exports separately (see
-  [Getting started](#getting-started)) and rebuild the processed dataset
-  locally.
+
+> [!WARNING]
+> **The raw `.xlsx` exports and the processed `.parquet` files are
+> deliberately excluded from git history** (`.gitignore`) — this is licensed
+> Scopus/QS bibliometric data at individual-publication granularity, not ours
+> to redistribute via a public or semi-public git remote. Anyone working on
+> this repo needs to obtain the raw exports separately (see
+> [Getting started](#getting-started)) and rebuild the processed dataset
+> locally.
 
 ## Deployment
 
