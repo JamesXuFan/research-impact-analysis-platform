@@ -21,7 +21,7 @@
   <a href="https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html"><img alt="Sub-Question Navigation Close-Reading" src="https://img.shields.io/badge/🧭-Navigation-0F4C81?style=for-the-badge"></a>
 </p>
 
-**COMP3888 Capstone · Team W11_02_P36**
+**Team W11_02_P36**
 
 An interactive analytical platform for exploring publication performance, research
 impact, and collaboration patterns across the Go8 universities, built on

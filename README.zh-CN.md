@@ -21,7 +21,7 @@
   <a href="https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html"><img alt="Sub-Question Navigation Close-Reading" src="https://img.shields.io/badge/🧭-Navigation-0F4C81?style=for-the-badge"></a>
 </p>
 
-**COMP3888 毕业设计 · W11_02_P36 小组**
+**W11_02_P36 小组**
 
 一个交互式分析平台，用于探索 Go8 八所大学在发表表现、研究影响力与合作模式上的
 情况，基于发表级别的 Scopus/SciVal 文献计量数据构建。包含六项有统计学依据的分析、
