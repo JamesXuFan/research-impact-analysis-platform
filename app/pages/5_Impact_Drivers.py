@@ -55,7 +55,6 @@ st.error(
     icon="🚫",
 )
 
-
 @st.cache_resource(show_spinner="Fitting the impact-driver model…")
 def get_fit():
     dedup = load_deduplicated()
@@ -63,16 +62,13 @@ def get_fit():
     fit = impact_drivers.fit_impact_driver_model(model_df)
     return fit, len(dedup), len(model_df), model_df
 
-
 @st.cache_resource(show_spinner="Fitting the Q1 × international interaction model…")
 def get_interaction_fit(_model_df):
     return impact_drivers.fit_interaction_model(_model_df)
 
-
 @st.cache_data(show_spinner="Building the factor-combination table…")
 def get_combination_summary():
     return impact_drivers.combination_summary(load_deduplicated())
-
 
 fit, n_input, n_model, model_df_full = get_fit()
 
@@ -286,11 +282,6 @@ diag_df = pd.DataFrame(
     {"actual": model_df_full["Field-Weighted Citation Impact"].values, "predicted": fit.fittedvalues.values}
 )
 diag_sample = diag_df.sample(min(3000, len(diag_df)), random_state=42)
-# FWCI is heavy-tailed (median 0.85, 99th percentile ~12) — a domain fit to the
-# 99th percentile crams ~80% of points into a sliver in the corner and makes the
-# chart look empty at a glance. p95 keeps the axis to where the data actually is;
-# clamp=True pins the handful of points beyond it to the edge instead of letting
-# them silently vanish off-chart.
 p95 = diag_df[["actual", "predicted"]].quantile(0.95).max()
 beyond_p95 = int(((diag_sample["actual"] > p95) | (diag_sample["predicted"] > p95)).sum())
 

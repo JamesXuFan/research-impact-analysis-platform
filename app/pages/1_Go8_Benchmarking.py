@@ -116,21 +116,18 @@ sydney_values = normalised.loc[CLIENT_UNIVERSITY].tolist()
 peer_values = normalised.drop(index=CLIENT_UNIVERSITY).mean().tolist()
 
 n = len(radar_metrics)
-angles = [2 * np.pi * i / n - np.pi / 2 for i in range(n)]  # start at 12 o'clock, clockwise
-
+angles = [2 * np.pi * i / n - np.pi / 2 for i in range(n)]
 
 def _radar_points(series_name: str, values: list[float]) -> list[dict]:
     pts = list(zip(values, angles, radar_labels))
-    pts.append(pts[0])  # close the loop
+    pts.append(pts[0])
     return [
         {"series": series_name, "order": i, "metric": label, "r": r, "x": r * np.cos(a), "y": r * np.sin(a)}
         for i, (r, a, label) in enumerate(pts)
     ]
 
-
 radar_df = pd.DataFrame(_radar_points("Go8 peer average", peer_values) + _radar_points("Sydney", sydney_values))
 
-# Spokes: one line from centre to the r=1 boundary per metric, plus its label just outside.
 spokes_df = pd.DataFrame(
     [{"metric": label, "x": np.cos(a), "y": np.sin(a), "x0": 0.0, "y0": 0.0} for a, label in zip(angles, radar_labels)]
 )

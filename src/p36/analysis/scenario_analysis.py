@@ -1,25 +1,8 @@
-"""README Analysis item 17 — Scenario Analysis.
-
-Translates the historical associations found in items 3, 6, 9, 14, and 16 into
-"what if" projections — e.g. "what would mean impact look like if the Q1 share
-were 5 percentage points higher".
-
-**These are not predictions.** Every scenario here assumes newly-shifted
-publications behave like the historical average of the group they'd join — the
-same assumption behind any "if we did more of X" claim built on observational
-data, and it can be wrong (e.g. if X's benefit only holds for the kind of paper
-that already does X, the marginal case may not repeat the historical gap). See
-docs/methodology.md and .claude/agents/finding-checker.md: a scenario projection
-must always be labelled a potential implication of the historical relationship,
-never a guaranteed outcome, per the README's own instruction for this item.
-"""
-
 import pandas as pd
 
 from p36.config import SCENARIO_DEFAULT_DELTA_PP
 
 METRIC_COLUMN = "Field-Weighted Citation Impact"
-
 
 def estimate_uplift_from_share_shift(
     df: pd.DataFrame,
@@ -27,17 +10,6 @@ def estimate_uplift_from_share_shift(
     delta_pp: float = SCENARIO_DEFAULT_DELTA_PP,
     metric_column: str = METRIC_COLUMN,
 ) -> dict:
-    """Project the change in mean `metric_column` if the share of rows with
-    `flag_column == True` shifted by `delta_pp` (e.g. 0.05 = +5 percentage
-    points), assuming the newly-shifted publications perform like the existing
-    average of the group they join. Linear reweighting:
-
-        projected_mean = current_mean + delta_pp * (mean[flag=True] - mean[flag=False])
-
-    Returns a dict with the current share, current mean, group means, and
-    projected mean — report all of them together, not just the projection, so
-    the assumption is visible alongside the number.
-    """
     scoped = df[[flag_column, metric_column]].dropna()
     current_share = scoped[flag_column].mean()
     group_means = scoped.groupby(flag_column)[metric_column].mean()
@@ -56,43 +28,7 @@ def estimate_uplift_from_share_shift(
         "projected_mean_metric": projected_mean,
     }
 
-
 def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP) -> pd.DataFrame:
-    """Run the share-shift projection for every scenario in the README that
-    maps onto an existing derived flag:
-
-    - Increase Q1 publication share by `delta_pp`         (is_q1)
-    - Increase international collaboration by `delta_pp`  (is_international)
-    - Increase open-access publication by `delta_pp`      (is_open_access —
-      **PROVISIONAL** null-handling, see p36.config.OPEN_ACCESS_NULL_MEANS_NOT_OA
-      and docs/methodology.md; not confirmed by the client)
-    - Reduce the share of low-impact (uncited) publications by `delta_pp`
-      (is_uncited — note the sign: this scenario *reduces* a share, so pass
-      delta_pp as negative when calling estimate_uplift_from_share_shift
-      directly if you want the "reduce by" framing instead of "increase by")
-    - Shift publications toward journals identified as strong opportunities
-      by `delta_pp` (`is_source_overperforming` — README item 3's
-      over-performing-sources table, from
-      `p36.analysis.journal_tier.source_performance_flag`, wired into a
-      projection instead of left as a shortlist to investigate manually)
-
-    "Increase collaboration with selected high-performing institutions" is
-    a *separate* function, `client_institution_scenario` below, not a row in
-    this table — it needs the raw (not deduplicated) dataframe scoped to one
-    university, a fundamentally different population from the other five
-    scenarios here (which all run on the Go8-wide deduplicated set), so
-    forcing it into one shared table/baseline would silently mix two
-    different denominators.
-
-    Expects `df` to already carry `is_q1`, `is_international`, `is_open_access`,
-    `is_uncited`, and `is_source_overperforming` — this function does not
-    recompute them (see .claude/agents/metrics-consistency.md). The last one
-    isn't part of `p36.metrics.add_derived_flags` (it needs the CiteScore-
-    quartile/source-title machinery in journal_tier.py, not a simple
-    threshold); merge it in with
-    `df.assign(is_source_overperforming=journal_tier.source_performance_flag(df))`
-    before calling this function.
-    """
     rows = [
         estimate_uplift_from_share_shift(df, "is_q1", delta_pp),
         estimate_uplift_from_share_shift(df, "is_international", delta_pp),
@@ -102,30 +38,11 @@ def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP
     ]
     return pd.DataFrame(rows).set_index("flag")
 
-
 def client_institution_scenario(
     raw_df: pd.DataFrame,
     university: str,
     delta_pp: float = SCENARIO_DEFAULT_DELTA_PP,
 ) -> dict:
-    """README item 17's "increase collaboration with selected high-performing
-    institutions" — the one scenario that needs `university`'s own raw
-    (not deduplicated) publications, not the Go8-wide deduplicated set
-    `scenario_table` uses, because "which institutions should *this*
-    university work with more" is inherently a single-university question.
-
-    Runs the same `estimate_uplift_from_share_shift` mechanism as every
-    other scenario, on `p36.analysis.go8_benchmarking.institution_partner_flag`
-    computed fresh for `university` (not merged in ahead of time, since it's
-    a `university`-specific flag rather than a dataset-wide column like the
-    ones `scenario_table` expects). The `current_share`/`mean_when_true`/
-    `mean_when_false` in the result are over the subset of `university`'s
-    publications that have at least one partner institution meeting
-    `p36.config.HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS` — smaller than
-    `university`'s full publication count, and a different population from
-    every row in `scenario_table`'s output (Go8-wide, near-full dataset) —
-    do not average or stack this scenario's numbers with those directly.
-    """
     from p36.analysis import go8_benchmarking
 
     flag = go8_benchmarking.institution_partner_flag(raw_df, university)

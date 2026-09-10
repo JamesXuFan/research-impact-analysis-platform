@@ -1,15 +1,7 @@
-"""One-off script that generated static/favicon.png — not imported by the app
-at runtime, kept only so the icon can be regenerated/tweaked later without
-redoing this from scratch. Run manually: `python app/generate_favicon.py`.
-"""
-
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-# Full Bauhaus primary triad + white ground — the same palette as
-# app/theme.py's RED/BLUE/YELLOW/WHITE/BLACK, reused here rather than
-# imported (this script runs standalone, outside the Streamlit app).
 RED = "#DA291C"
 BLUE = "#0F4C81"
 YELLOW = "#FFC20E"
@@ -22,20 +14,11 @@ OUT = Path(__file__).resolve().parent / "static" / "favicon.png"
 img = Image.new("RGB", (SIZE, SIZE), WHITE)
 draw = ImageDraw.Draw(img)
 
-# A thin black frame — echoes the hard-edged, no-border-radius Bauhaus style
-# used throughout the app's own CSS (theme.py), not a rounded-icon look.
-# Thinner than the first version (10px) — a white ground with a heavy black
-# frame still read as harsh; this keeps the geometric edge without it.
 border = 6
 draw.rectangle([0, 0, SIZE - 1, SIZE - 1], outline=BLACK, width=border)
 
 font = ImageFont.truetype(r"C:\Windows\Fonts\ariblk.ttf", 108)
 
-# "P36" as three individually-coloured letters (red/blue/yellow) on the
-# white ground, each with a black stroke for legibility regardless of its
-# own colour (yellow especially needs it against white) — a small callback
-# to Bauhaus/De Stijl typographic experiments with individually-coloured
-# letterforms, and a softer overall look than one block colour.
 letters = [("P", RED), ("3", BLUE), ("6", YELLOW)]
 stroke_width = 5
 
