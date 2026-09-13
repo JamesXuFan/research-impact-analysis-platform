@@ -99,6 +99,62 @@ def interaction_summary_table(fit) -> pd.DataFrame:
         }
     )
 
+def fit_field_interaction_model(model_df: pd.DataFrame, driver: str):
+    other = {"is_international", "is_q1", "is_open_access"} - {driver}
+    formula = (
+        "Q('Field-Weighted Citation Impact') ~ "
+        f"{driver} * C({PRIMARY_FIELD_COLUMN}) + {' + '.join(sorted(other))} "
+        f"+ log_authors + log_institutions + Year + C(Q('{DOCUMENT_TYPE_COLUMN}'))"
+    )
+    model = smf.ols(formula, data=model_df)
+    return model.fit(cov_type="HC3")
+
+def _dummy_category(term: str, prefix: str) -> str:
+    rest = term[len(prefix):]
+    if rest.startswith("[T."):
+        rest = rest[len("[T."):]
+    return rest.rstrip("]")
+
+def field_interaction_summary_table(fit, driver: str) -> pd.DataFrame:
+    """Per-field total effect of `driver` (base coefficient, plus that field's
+    interaction term where one exists — the reference field has none, since
+    it's absorbed into the base coefficient itself)."""
+    field_prefix = f"C({PRIMARY_FIELD_COLUMN})"
+    base_term = f"{driver}[T.True]"
+    interaction_prefix = f"{base_term}:{field_prefix}"
+
+    all_fields = set(fit.model.data.frame[PRIMARY_FIELD_COLUMN].unique())
+    interaction_terms = {
+        _dummy_category(t, interaction_prefix): t
+        for t in fit.params.index
+        if t.startswith(interaction_prefix)
+    }
+    reference_field = next(iter(all_fields - interaction_terms.keys()))
+
+    def _contrast_row(extra_term: str | None) -> dict:
+        contrast = np.zeros(len(fit.params))
+        contrast[fit.params.index.get_loc(base_term)] = 1
+        if extra_term is not None:
+            contrast[fit.params.index.get_loc(extra_term)] = 1
+        effect = contrast @ fit.params.values
+        se = np.sqrt(contrast @ fit.cov_params().values @ contrast)
+        p_value = fit.pvalues[base_term] if extra_term is None else fit.pvalues[extra_term]
+        return {
+            "effect": effect,
+            "std_err": se,
+            "p_value": p_value,
+            "ci_low": effect - 1.96 * se,
+            "ci_high": effect + 1.96 * se,
+        }
+
+    rows = {reference_field: _contrast_row(None)}
+    for field, term in interaction_terms.items():
+        rows[field] = _contrast_row(term)
+
+    table = pd.DataFrame(rows).T
+    table.index.name = "field"
+    return table.sort_values("effect", ascending=False)
+
 def combination_summary(df: pd.DataFrame) -> pd.DataFrame:
     from p36.metrics import mean_fwci, top_decile_share
 

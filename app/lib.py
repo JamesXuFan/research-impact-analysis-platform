@@ -10,7 +10,7 @@ import streamlit as st
 
 from p36.analysis import field_analysis, go8_benchmarking, journal_tier, prepare, scenario_analysis
 from p36.analysis import international_collaboration as intl
-from p36.config import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, MAIN_YEAR_RANGE
+from p36.config import CLIENT_UNIVERSITY, FIELD_COLUMN_EXPLODED, GO8_UNIVERSITIES, MAIN_YEAR_RANGE
 
 __all__ = [
     "CLIENT_UNIVERSITY",
@@ -47,6 +47,8 @@ __all__ = [
     "get_impact_by_citescore_quartile",
     "get_q1_advantage_by_field",
     "get_overperforming_sources",
+    "get_q1_share_change_by_field",
+    "get_field_gap_closure_scenario",
     "caveat",
     "provisional",
 ]
@@ -156,6 +158,11 @@ def get_q1_advantage_by_field():
 def get_overperforming_sources():
     return journal_tier.overperforming_sources(load_deduplicated())
 
+@st.cache_data(show_spinner="Checking which fields' Q1 share is rising or falling…")
+def get_q1_share_change_by_field():
+    exploded, _ = load_exploded_deduplicated()
+    return journal_tier.q1_share_change_by_field(exploded, FIELD_COLUMN_EXPLODED, MAIN_YEAR_RANGE)
+
 @st.cache_data(show_spinner="Comparing collaboration approaches by field…")
 def get_collaboration_approach_by_field():
     exploded, _ = load_exploded_deduplicated()
@@ -205,8 +212,6 @@ def get_fwci_by_collaboration_status():
 
 @st.cache_data(show_spinner="Preparing FWCI distribution by field…")
 def get_fwci_by_field():
-    from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
-
     exploded, _ = load_exploded_deduplicated()
     return exploded[[FIELD_COLUMN_EXPLODED, "Field-Weighted Citation Impact"]].copy()
 
@@ -222,7 +227,17 @@ def get_institution_partner_performance():
 
 @st.cache_data(show_spinner="Computing the high-performing-institution scenario…")
 def get_client_institution_scenario(delta_pp: float):
-    return scenario_analysis.client_institution_scenario(load_raw(), CLIENT_UNIVERSITY, delta_pp=delta_pp)
+    raw = load_raw()
+    flag = go8_benchmarking.institution_partner_flag(raw, CLIENT_UNIVERSITY)
+    return scenario_analysis.client_institution_scenario(raw, CLIENT_UNIVERSITY, flag, delta_pp=delta_pp)
+
+@st.cache_data(show_spinner="Computing the research-area scenario…")
+def get_field_gap_closure_scenario(field: str, gap_close_frac: float):
+    exploded, _ = load_exploded_raw()
+    gap = get_field_gap_vs_peers().loc[field, "gap"]
+    return scenario_analysis.estimate_uplift_from_field_gap_closure(
+        exploded, FIELD_COLUMN_EXPLODED, field, gap, gap_close_frac=gap_close_frac
+    )
 
 def caveat(text: str) -> None:
     st.info(text, icon="⚠️")

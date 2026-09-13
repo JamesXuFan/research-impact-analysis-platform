@@ -1,6 +1,11 @@
 import pandas as pd
 
-from p36.config import CITATION_WINDOW_TRAILING_YEARS_EXCLUDED, COLLABORATION_BREADTH_BINS, MAIN_YEAR_RANGE
+from p36.config import (
+    CITATION_WINDOW_TRAILING_YEARS_EXCLUDED,
+    COLLABORATION_BREADTH_BINS,
+    FIELD_COLUMN_EXPLODED,
+    MAIN_YEAR_RANGE,
+)
 from p36.metrics import mean_fwci, q1_share, top_decile_share
 from p36.metrics.metrics import COUNTRIES_COL
 
@@ -17,8 +22,6 @@ def impact_by_collaboration_status(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 def impact_gap_by_field(exploded_df: pd.DataFrame) -> pd.DataFrame:
-    from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
-
     pivot = exploded_df.pivot_table(
         index=FIELD_COLUMN_EXPLODED,
         columns="is_international",

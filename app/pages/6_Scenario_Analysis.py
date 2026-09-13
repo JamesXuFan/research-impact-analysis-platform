@@ -3,7 +3,14 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib import CLIENT_UNIVERSITY, get_client_institution_scenario, get_institution_partner_performance, get_scenario_table
+from lib import (
+    CLIENT_UNIVERSITY,
+    get_client_institution_scenario,
+    get_field_gap_closure_scenario,
+    get_field_gap_vs_peers,
+    get_institution_partner_performance,
+    get_scenario_table,
+)
 from p36.config import HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, SCENARIO_DEFAULT_DELTA_PP
 
 st.set_page_config(page_title="P36 · Scenario Analysis", page_icon=theme.FAVICON, layout="wide")
@@ -22,7 +29,7 @@ theme.question_panel(
         ("Increase international collaboration by N percentage points.", "done", "sc-scenarios"),
         ("Increase open-access publication where evidence suggests a benefit.", "done", "sc-scenarios"),
         ("Reduce the proportion of low-impact publications.", "partial", "sc-scenarios"),
-        ("Improve publication performance within selected research areas.", "elsewhere", "/Go8_Benchmarking#go8-fields"),
+        ("Improve publication performance within selected research areas.", "done", "sc-fields"),
         ("Increase collaboration with selected high-performing institutions.", "done", "sc-institutions"),
         ("Shift some publications toward journals identified as strong opportunities.", "done", "sc-scenarios"),
     ]
@@ -30,9 +37,9 @@ theme.question_panel(
 st.caption(
     "'Reduce low-impact publications' is projected via the uncited share, the closest "
     "binary flag this dataset has — 'low-impact' itself is undefined by the client and is "
-    "not the same claim as 'uncited'. 'Research areas' is the Go8 Benchmarking page's "
-    "field-gap-vs-peers chart, which shows *where* Sydney trails, but is not turned into "
-    "its own FWCI projection here. 'Strong-opportunity journals' uses the Journal Tier "
+    "not the same claim as 'uncited'. 'Research areas' reuses the Go8 Benchmarking page's "
+    "field-gap-vs-peers numbers directly, turned into its own FWCI projection in the "
+    "dedicated section below. 'Strong-opportunity journals' uses the Journal Tier "
     "page's over-performing-sources table directly, restricted to publications whose "
     "source has enough volume in its tier to have a defined gap. 'High-performing "
     "institutions' turned out to be answerable after all — the `Institutions` column "
@@ -266,4 +273,50 @@ st.caption(
     "trials would produce even without the partner institution itself adding anything "
     "beyond being part of that trial. Treat this list as a shortlist to investigate, "
     "same caveat as the Journal Tier page's over-performing sources."
+)
+
+theme.rule(theme.YELLOW)
+
+theme.anchor("sc-fields")
+st.subheader("Improve performance within a selected research area")
+st.caption(
+    "Reuses the Go8 Benchmarking page's field-gap-vs-peers numbers directly: pick a field, "
+    "close some fraction of its gap to the Go8 peer average, and project the resulting shift "
+    "in Sydney's overall mean FWCI, weighted by how much of Sydney's output sits in that "
+    "field. A field where Sydney already leads its peers has a *positive* gap, so 'closing' "
+    "it moves that field's mean down toward parity rather than up — pick a field with a "
+    "negative gap (the default below) to see an actual improvement scenario. Runs on the "
+    "same raw, per-university exploded dataset the field-gap chart itself uses, not the "
+    "Go8-wide deduplicated set the five scenarios above use."
+)
+field_gap = get_field_gap_vs_peers()
+field_options = field_gap.index.tolist()
+worst_field = field_gap["gap"].idxmin()
+
+col_field_select, col_field_slider = st.columns(2)
+with col_field_select:
+    selected_field = st.selectbox("Research area", field_options, index=field_options.index(worst_field))
+with col_field_slider:
+    gap_close_frac = st.slider(
+        "Fraction of the peer gap closed",
+        min_value=0.1,
+        max_value=1.0,
+        value=0.5,
+        step=0.1,
+        format="%.1f",
+    )
+
+field_scenario = get_field_gap_closure_scenario(selected_field, gap_close_frac)
+fm1, fm2, fm3 = st.columns(3)
+fm1.metric(f"{selected_field}: mean FWCI", f"{field_scenario['current_field_mean']:.2f}", f"{field_scenario['gap']:+.3f} vs. Go8 peers")
+fm2.metric("Share of Sydney's output", f"{field_scenario['field_share']:.1%}")
+fm3.metric(
+    "Projected overall mean FWCI",
+    f"{field_scenario['projected_mean_metric']:.3f}",
+    f"{field_scenario['projected_mean_metric'] - field_scenario['current_mean_metric']:+.4f}",
+)
+st.caption(
+    f"Closing {gap_close_frac:.0%} of {selected_field}'s gap moves that field's own mean FWCI "
+    f"from {field_scenario['current_field_mean']:.3f} to {field_scenario['target_field_mean']:.3f} "
+    "— everything else in the dataset held at its current value."
 )

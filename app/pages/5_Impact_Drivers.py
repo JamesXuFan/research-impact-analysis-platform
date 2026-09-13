@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib import load_deduplicated
+from lib import get_impact_by_collaboration_breadth, load_deduplicated
 from p36.analysis import impact_drivers
 
 st.set_page_config(page_title="P36 · Impact Drivers", page_icon=theme.FAVICON, layout="wide")
@@ -26,11 +26,11 @@ theme.question_panel(
         ("Open Access → Citation Impact", "done", "id-coefficients"),
         ("Collaboration Size → Citation Impact", "done", "id-coefficients"),
         ("Document Type → Citation Impact", "done", "id-doctype"),
-        ("Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?", "partial", "/International_Collaboration#ic-breadth"),
+        ("Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?", "partial", "id-mediation"),
         ("Institutional Collaboration → Journal Choice → Citation Impact", "partial", "id-coefficients"),
         ("Is there an interaction between journal quality and international collaboration?", "done", "id-interaction"),
         ("What combination of factors is most commonly associated with high- vs. low-impact publications?", "done", "id-combination"),
-        ("Are some drivers particularly important only in particular disciplines?", "elsewhere", "/Journal_Tier#jt-consistency"),
+        ("Are some drivers particularly important only in particular disciplines?", "done", "id-field-interaction"),
     ]
 )
 st.caption(
@@ -38,14 +38,14 @@ st.caption(
     "answers only qualitatively, not with a formal indirect-effect estimate: is_international "
     "and is_q1 are both included as direct predictors here, so a shrinking international "
     "coefficient relative to a model without is_q1 is consistent with (not proof of) part of "
-    "its effect running *through* Q1 placement — see the International Collaboration page's "
-    "breadth section for that comparison. 'Institutional collaboration → journal choice' has "
-    "no journal-choice mediator variable defined; log_institutions below is its direct effect "
-    "on impact only, not routed through journal tier. 'Field-specific importance' is answered "
-    "per-predictor on other pages, not as a single interaction here — the Journal Tier page's "
-    "'Q1 advantage by field' and the International Collaboration page's 'gap by field' sections "
-    "— rather than fitting per-field interaction terms for every predictor in this model, which "
-    "would need dozens of extra terms and enough rows per field to estimate them precisely."
+    "its effect running *through* Q1 placement — see the breadth-vs-Q1 chart below for that "
+    "comparison. 'Institutional collaboration → journal choice' has no journal-choice mediator "
+    "variable defined; log_institutions below is its direct effect on impact only, not routed "
+    "through journal tier. 'Field-specific importance' is answered directly below for "
+    "is_international and is_q1 — the two predictors people actually ask this about — by adding "
+    "a field interaction term for just that one predictor at a time, not for every predictor in "
+    "the main model at once, which would need many more extra terms and enough rows per field "
+    "to estimate them all precisely."
 )
 
 st.error(
@@ -65,6 +65,10 @@ def get_fit():
 @st.cache_resource(show_spinner="Fitting the Q1 × international interaction model…")
 def get_interaction_fit(_model_df):
     return impact_drivers.fit_interaction_model(_model_df)
+
+@st.cache_resource(show_spinner="Fitting the per-field interaction model…")
+def get_field_interaction_fit(_model_df, driver):
+    return impact_drivers.fit_field_interaction_model(_model_df, driver)
 
 @st.cache_data(show_spinner="Building the factor-combination table…")
 def get_combination_summary():
@@ -151,6 +155,51 @@ for row in coef_df.sort_values("coefficient", key=abs, ascending=False).itertupl
 
 theme.rule(theme.YELLOW)
 
+theme.anchor("id-mediation")
+st.subheader("Does intl. collaboration work partly through Q1 placement?")
+st.caption(
+    "Not a mediation model — the same breadth-vs-Q1-share pattern used on the "
+    "International Collaboration page, shown here next to the regression it's being "
+    "read against. Both climbing together is consistent with (not proof of) part of "
+    "international collaboration's effect running through Q1 placement, which is why "
+    "is_international's coefficient above, with is_q1 already held constant, is smaller "
+    "than the raw gap between international and domestic publications would suggest."
+)
+breadth = get_impact_by_collaboration_breadth()
+breadth_df = breadth.reset_index(names="countries")
+breadth_df["countries"] = breadth_df["countries"].astype(str)
+med_fwci, med_q1 = st.columns(2)
+with med_fwci:
+    st.altair_chart(
+        theme.style(
+            alt.Chart(breadth_df)
+            .mark_bar(color=theme.BLUE)
+            .encode(
+                x=alt.X("countries:N", title="Distinct co-author countries", sort=None),
+                y=alt.Y("mean_fwci:Q", title="Mean FWCI"),
+                tooltip=["countries", alt.Tooltip("mean_fwci:Q", format=".3f")],
+            ),
+            height=260,
+        ),
+        use_container_width=True,
+    )
+with med_q1:
+    st.altair_chart(
+        theme.style(
+            alt.Chart(breadth_df)
+            .mark_bar(color=theme.RED)
+            .encode(
+                x=alt.X("countries:N", title="Distinct co-author countries", sort=None),
+                y=alt.Y("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+                tooltip=["countries", alt.Tooltip("q1_share:Q", format=".1%")],
+            ),
+            height=260,
+        ),
+        use_container_width=True,
+    )
+
+theme.rule(theme.YELLOW)
+
 theme.anchor("id-doctype")
 st.subheader("Document Type → Citation Impact")
 st.caption(
@@ -233,6 +282,57 @@ st.markdown(
         else "Read the three rows together, not the interaction term alone, to describe how the "
         "two factors combine."
     )
+)
+
+theme.rule(theme.YELLOW)
+
+theme.anchor("id-field-interaction")
+st.subheader("Is a driver's importance the same in every discipline?")
+st.caption(
+    "A separate model per predictor below, each adding one `driver × field` interaction "
+    "to the main model — not the field fixed effects already in the main model, which only "
+    "let each field have a different *baseline* FWCI, not a different *is_q1* or "
+    "*is_international* coefficient. Only 5 broad QS fields, so this is a handful of extra "
+    "terms, not the dozens it would take to interact every predictor with field at once."
+)
+field_driver = st.selectbox(
+    "Driver", ["is_international", "is_q1"],
+    format_func=lambda d: "International collaboration" if d == "is_international" else "Q1 status",
+)
+field_fit = get_field_interaction_fit(model_df_full, field_driver)
+field_table = impact_drivers.field_interaction_summary_table(field_fit, field_driver)
+field_df = field_table.reset_index()
+field_df["sign"] = field_df["effect"].apply(lambda v: "negative" if v < 0 else "positive")
+field_sort = field_df.sort_values("effect", ascending=False)["field"].tolist()
+field_whiskers = (
+    alt.Chart(field_df)
+    .mark_rule(strokeWidth=3)
+    .encode(
+        y=alt.Y("field:N", title="", sort=field_sort),
+        x=alt.X("ci_low:Q", title=f"{field_driver} effect on mean FWCI (95% CI, HC3 robust SE)"),
+        x2="ci_high:Q",
+        color=alt.Color("sign:N", legend=None, scale=alt.Scale(domain=["negative", "positive"], range=[theme.RED, theme.BLUE])),
+    )
+)
+field_points = (
+    alt.Chart(field_df)
+    .mark_point(filled=True, size=140, stroke="black", strokeWidth=1.5)
+    .encode(
+        y=alt.Y("field:N", title="", sort=field_sort),
+        x=alt.X("effect:Q"),
+        color=alt.Color("sign:N", legend=None, scale=alt.Scale(domain=["negative", "positive"], range=[theme.RED, theme.BLUE])),
+        tooltip=["field", alt.Tooltip("effect:Q", format=".3f"), alt.Tooltip("p_value:Q", format=".4f")],
+    )
+)
+field_zero = alt.Chart(field_df).mark_rule(color=theme.BLACK, strokeDash=[4, 4]).encode(x=alt.datum(0))
+st.altair_chart(theme.style(field_zero + field_whiskers + field_points, height=260), use_container_width=True)
+widest = field_table["effect"].idxmax()
+narrowest = field_table["effect"].idxmin()
+st.markdown(
+    f"Widest range: **{widest}** at **{field_table.loc[widest, 'effect']:+.3f}**, "
+    f"**{narrowest}** at **{field_table.loc[narrowest, 'effect']:+.3f}** — the effect isn't "
+    "flat across disciplines, and for some fields the confidence interval crosses zero or "
+    "flips sign entirely, holding the same other predictors, year, and document type constant."
 )
 
 theme.rule(theme.YELLOW)

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from p36.config import SCENARIO_DEFAULT_DELTA_PP
+from p36.config import CLIENT_UNIVERSITY, SCENARIO_DEFAULT_DELTA_PP
 
 METRIC_COLUMN = "Field-Weighted Citation Impact"
 
@@ -38,13 +38,42 @@ def scenario_table(df: pd.DataFrame, delta_pp: float = SCENARIO_DEFAULT_DELTA_PP
     ]
     return pd.DataFrame(rows).set_index("flag")
 
+def estimate_uplift_from_field_gap_closure(
+    exploded_df: pd.DataFrame,
+    field_col: str,
+    field: str,
+    gap: float,
+    gap_close_frac: float = SCENARIO_DEFAULT_DELTA_PP,
+    client: str = CLIENT_UNIVERSITY,
+    metric_column: str = METRIC_COLUMN,
+) -> dict:
+    client_pubs = exploded_df[exploded_df["source_university"] == client]
+    scoped = client_pubs[[field_col, metric_column]].dropna()
+    current_mean = scoped[metric_column].mean()
+
+    in_field = scoped[field_col] == field
+    field_share = in_field.mean()
+    current_field_mean = scoped.loc[in_field, metric_column].mean()
+
+    target_field_mean = current_field_mean - gap * gap_close_frac
+    projected_mean = current_mean + field_share * (target_field_mean - current_field_mean)
+
+    return {
+        "field": field,
+        "gap_close_frac": gap_close_frac,
+        "gap": gap,
+        "field_share": field_share,
+        "current_field_mean": current_field_mean,
+        "target_field_mean": target_field_mean,
+        "current_mean_metric": current_mean,
+        "projected_mean_metric": projected_mean,
+    }
+
 def client_institution_scenario(
     raw_df: pd.DataFrame,
     university: str,
+    flag: pd.Series,
     delta_pp: float = SCENARIO_DEFAULT_DELTA_PP,
 ) -> dict:
-    from p36.analysis import go8_benchmarking
-
-    flag = go8_benchmarking.institution_partner_flag(raw_df, university)
     scoped = raw_df[raw_df["source_university"] == university].assign(is_high_performing_partner=flag)
     return estimate_uplift_from_share_shift(scoped, "is_high_performing_partner", delta_pp)

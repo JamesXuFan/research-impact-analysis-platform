@@ -1,6 +1,12 @@
 import pandas as pd
 
-from p36.config import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, MAIN_YEAR_RANGE
+from p36.config import (
+    CLIENT_UNIVERSITY,
+    FIELD_COLUMN_EXPLODED,
+    GO8_UNIVERSITIES,
+    HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS,
+    MAIN_YEAR_RANGE,
+)
 from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share
 
 def benchmark_summary(df: pd.DataFrame) -> pd.DataFrame:
@@ -21,8 +27,6 @@ def benchmark_summary(df: pd.DataFrame) -> pd.DataFrame:
 def field_gap_vs_peers(
     exploded_df: pd.DataFrame, client: str = CLIENT_UNIVERSITY
 ) -> pd.DataFrame:
-    from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
-
     is_client = exploded_df["source_university"] == client
     client_fwci = exploded_df[is_client].groupby(FIELD_COLUMN_EXPLODED).apply(mean_fwci, include_groups=False)
     peer_fwci = exploded_df[~is_client].groupby(FIELD_COLUMN_EXPLODED).apply(mean_fwci, include_groups=False)

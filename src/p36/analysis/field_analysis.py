@@ -1,10 +1,9 @@
 import pandas as pd
 
-from p36.config import FRACTIONAL_FIELD_COUNTING, MAIN_YEAR_RANGE
+from p36.config import FIELD_COLUMN_EXPLODED, FRACTIONAL_FIELD_COUNTING, MAIN_YEAR_RANGE
 from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share
 
 FIELD_COLUMN = "Quacquarelli Symonds (QS) Subject area field name"
-FIELD_COLUMN_EXPLODED = "field"
 
 def explode_by_field(df: pd.DataFrame, field_col: str = FIELD_COLUMN) -> pd.DataFrame:
     if FRACTIONAL_FIELD_COUNTING:

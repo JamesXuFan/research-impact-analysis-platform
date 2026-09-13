@@ -1,6 +1,6 @@
 import pandas as pd
 
-from p36.config import OVERPERFORMING_SOURCE_MIN_PUBLICATIONS
+from p36.config import FIELD_COLUMN_EXPLODED, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS
 from p36.metrics import mean_fwci, q1_share, top_decile_share
 from p36.metrics.metrics import CITESCORE_PERCENTILE_COL, citescore_quartile
 
@@ -15,6 +15,16 @@ def q1_share_by_year(df: pd.DataFrame, year_range: tuple[int, int] | None = None
 
 def q1_share_by_field(df: pd.DataFrame, field_col: str) -> pd.Series:
     return df.groupby(field_col).apply(q1_share, include_groups=False)
+
+def q1_share_change_by_field(
+    df: pd.DataFrame, field_col: str, year_range: tuple[int, int]
+) -> pd.Series:
+    lo, hi = year_range
+    mid = (lo + hi) // 2
+    scoped = df[df["Year"].between(lo, hi)]
+    early = scoped[scoped["Year"] <= mid].groupby(field_col).apply(q1_share, include_groups=False)
+    late = scoped[scoped["Year"] > mid].groupby(field_col).apply(q1_share, include_groups=False)
+    return (late - early).dropna().sort_values(ascending=False)
 
 def citescore_percentile_distribution(df: pd.DataFrame) -> pd.Series:
     return df[CITESCORE_PERCENTILE_COL].describe()
@@ -34,8 +44,6 @@ def impact_by_citescore_quartile(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 def q1_advantage_by_field(exploded_df: pd.DataFrame) -> pd.DataFrame:
-    from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
-
     scoped = exploded_df.dropna(subset=["is_q1"])
     pivot = scoped.pivot_table(
         index=FIELD_COLUMN_EXPLODED,

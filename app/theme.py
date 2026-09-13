@@ -299,34 +299,6 @@ def inject() -> None:
         """,
         unsafe_allow_html=True,
     )
-    _cross_page_scroll_bridge()
-
-def _cross_page_scroll_bridge() -> None:
-    st.iframe(
-        """
-        <script>
-        (function () {
-            try {
-                var hash = window.parent.location.hash;
-                if (!hash || window.parent.__qjumpLastHash === hash) return;
-                var id = decodeURIComponent(hash.slice(1));
-                var attemptsLeft = 30;
-                (function tryScroll() {
-                    var el = window.parent.document.getElementById(id);
-                    if (el) {
-                        el.scrollIntoView({behavior: "smooth", block: "start"});
-                        window.parent.__qjumpLastHash = hash;
-                    } else if (attemptsLeft > 0) {
-                        attemptsLeft -= 1;
-                        setTimeout(tryScroll, 200);
-                    }
-                })();
-            } catch (e) {}
-        })();
-        </script>
-        """,
-        height=1,
-    )
 
 _SHAPES = {
     "square": lambda color: (
@@ -363,7 +335,6 @@ def header(title: str, caption: str, shape: str = "square", color: str = RED) ->
 _STATUS_STYLE = {
     "done": ("✓", BLUE, WHITE),
     "partial": ("~", YELLOW, BLACK),
-    "elsewhere": ("→", GREY, WHITE),
     "open": ("?", CREAM, BLACK),
 }
 
@@ -376,8 +347,7 @@ def question_panel(
         question, status, anchor_id = (*item, None)[:3]
         icon, bg, fg = _STATUS_STYLE[status]
         if anchor_id:
-            href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"
-            question_html = f'<a href="{href}" class="qjump">{question}</a>'
+            question_html = f'<a href="#{anchor_id}" class="qjump">{question}</a>'
         else:
             question_html = question
         rows.append(
@@ -399,7 +369,6 @@ def question_panel(
             <div style="font-size:0.78rem;color:{GREY};padding:8px 0 4px 0;">
                 <b style="color:{BLACK};">✓</b> answered directly below &nbsp;·&nbsp;
                 <b style="color:{BLACK};">~</b> answered, aggregate/qualitative only &nbsp;·&nbsp;
-                <b style="color:{BLACK};">→</b> answered on another page &nbsp;·&nbsp;
                 <b style="color:{BLACK};">?</b> not yet addressed anywhere in this platform
                 &nbsp;·&nbsp; underlined = click to jump to it below
             </div>

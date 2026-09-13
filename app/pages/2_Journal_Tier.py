@@ -7,12 +7,14 @@ from lib import (
     CLIENT_UNIVERSITY,
     get_citescore_percentile_distribution,
     get_citescore_percentile_series,
+    get_field_summary,
     get_impact_by_citescore_quartile,
     get_overperforming_sources,
     get_q1_advantage_by_field,
     get_q1_definition_agreement,
     get_q1_share_by_university,
     get_q1_share_by_year,
+    get_q1_share_change_by_field,
     provisional,
 )
 from p36.config import MAIN_YEAR_RANGE, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS, Q1_CITESCORE_PERCENTILE_MAX
@@ -30,19 +32,19 @@ theme.question_panel(
     [
         ("Do publications in Q1 journals receive more citations than Q2, Q3 or Q4 journals?", "done", "jt-quartile"),
         ("How large is the citation difference between journal tiers?", "done", "jt-quartile"),
-        ("Which faculties/fields have the highest success rates in Q1 publishing?", "elsewhere", "/Field_Analysis#fa-q1-share"),
+        ("Which faculties/fields have the highest success rates in Q1 publishing?", "done", "jt-field-q1"),
         ("Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?", "done", "jt-consistency"),
         ("Compare highly-cited (top-decile) publication rates across quartiles.", "done", "jt-quartile"),
         ("Compare uncited-publication rates across quartiles.", "done", "jt-quartile"),
         ("Does publishing in Q1 increase the probability of becoming highly cited?", "done", "jt-quartile"),
-        ("Which fields have the highest / improving / declining Q1 share?", "elsewhere", "/Field_Analysis#fa-q1-share"),
+        ("Which fields have the highest / improving / declining Q1 share?", "done", "jt-field-q1"),
         ("Are there journals/publications within a tier that receive more citations than expected for that tier?", "done", "jt-overperform"),
     ]
 )
 st.caption(
-    "'Elsewhere' items are answered on the **Field Analysis** page (Q1 share by field, "
-    "and its growth trend), not duplicated here — they're field-level, not tier-level, "
-    "questions."
+    "Field-level Q1 share (highest, and rising/falling) is broken out below, next to the "
+    "tier-level view — 'faculty/field' and 'tier' are different cuts of the same Q1 flag, "
+    "shown next to each other rather than requiring a trip to the Field Analysis page."
 )
 
 provisional(
@@ -139,6 +141,46 @@ st.markdown(
     "'does publishing in Q1 increase the probability of becoming highly cited' directly: "
     "yes, and the same gradient continues through Q2/Q3/Q4, it isn't a Q1-only cliff edge."
 )
+
+theme.rule(theme.YELLOW)
+
+theme.anchor("jt-field-q1")
+st.subheader("Q1 share by field: level and trend")
+st.caption(
+    "Same PROVISIONAL Q1 definition as above, broken out by field instead of by tier — "
+    f"'level' is the current Q1 share per field; 'trend' splits {MAIN_YEAR_RANGE} in half "
+    "and shows the percentage-point change in Q1 share, second half minus first."
+)
+field_summary = get_field_summary()
+col_field_level, col_field_trend = st.columns(2)
+with col_field_level:
+    field_q1_df = field_summary[["q1_share"]].reset_index(names="field")
+    field_q1_chart = (
+        alt.Chart(field_q1_df)
+        .mark_bar(color=theme.BLUE)
+        .encode(
+            y=alt.Y("field:N", title="", sort="-x"),
+            x=alt.X("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+            tooltip=["field", alt.Tooltip("q1_share:Q", format=".1%")],
+        )
+    )
+    st.altair_chart(theme.style(field_q1_chart, height=max(240, 24 * len(field_q1_df))), use_container_width=True)
+with col_field_trend:
+    field_q1_change = get_q1_share_change_by_field().rename_axis("field").reset_index(name="change")
+    field_q1_change_chart = (
+        alt.Chart(field_q1_change)
+        .mark_bar()
+        .encode(
+            y=alt.Y("field:N", title="", sort="-x"),
+            x=alt.X("change:Q", title="Q1 share change (pp), second half minus first", axis=alt.Axis(format="+.0%")),
+            color=alt.Color(
+                "change:Q", legend=None,
+                scale=theme.diverging_scale(field_q1_change["change"].min(), field_q1_change["change"].max()),
+            ),
+            tooltip=["field", alt.Tooltip("change:Q", format="+.1%")],
+        )
+    )
+    st.altair_chart(theme.style(field_q1_change_chart, height=max(240, 24 * len(field_q1_change))), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
