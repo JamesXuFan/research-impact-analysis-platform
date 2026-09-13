@@ -2,7 +2,7 @@ import altair as alt
 import streamlit as st
 
 import theme
-from lib import (
+from lib_international_collaboration import (
     CLIENT_UNIVERSITY,
     caveat,
     get_collaboration_rate_trend,

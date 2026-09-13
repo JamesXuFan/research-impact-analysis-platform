@@ -2,7 +2,7 @@ import altair as alt
 import streamlit as st
 
 import theme
-from lib import (
+from lib_field_analysis import (
     caveat,
     get_collaboration_approach_by_field,
     get_field_growth,

@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib import (
+from lib_scenario_analysis import (
     CLIENT_UNIVERSITY,
     get_client_institution_scenario,
     get_field_gap_closure_scenario,
