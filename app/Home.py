@@ -142,6 +142,14 @@ st.markdown(
   figures use the raw dataset; any Go8-aggregate figure uses the deduplicated one.
 - **Retracted publications** are excluded by default (`p36.config.EXCLUDE_RETRACTED`
   — PROVISIONAL, not yet confirmed by the client).
+- **Self-citation share cannot be quantified from this data.** These Scopus
+  exports were not filtered for self-citations, and contain no citation-network
+  detail (which paper cites which, or by whom) — only aggregate columns
+  (`Citations`, `Field-Weighted Citation Impact`, ...). Every citation-based
+  figure on this platform may include an unknown share of self-citations; the
+  scale cannot be estimated from the columns available.
+  `p36.config.EXCLUDE_SELF_CITATIONS` is a placeholder with no filtering logic
+  behind it, for exactly this reason.
 - **CiteScore / Top-Citation-Percentile columns use "lower is better"** — 1 = top 1%,
   100 = bottom. Verified against Field-Weighted Citation Impact, not assumed.
 - Full list: `data/dictionary/data_dictionary.md`, Data quality notes.
@@ -150,9 +158,10 @@ st.markdown(
 
 caveat(
     "Every number in this app reflects definitions marked PROVISIONAL in "
-    "docs/methodology.md (Q1 threshold, self-citations, document-type scope, "
-    "open-access null handling, multi-field counting, citation-window trimming) "
-    "— none of these have been confirmed by the client yet. Findings drawn from "
+    "docs/methodology.md (Q1 threshold, document-type scope, open-access null "
+    "handling, multi-field counting, citation-window trimming) — none of these "
+    "have been confirmed by the client yet. Self-citations are handled "
+    "separately — see Data quality notes above, not this list. Findings drawn from "
     "any page here should go through .claude/agents/finding-checker.md before "
     "being presented as a conclusion."
 )
