@@ -154,19 +154,26 @@ comp3888/
 │   │                            journal_tier.py, field_analysis.py, international_collaboration.py,
 │   │                            impact_drivers.py, scenario_analysis.py)
 │   ├── pages/                   one page per active analysis item (1_Go8_Benchmarking.py … 4_International_Collaboration.py)
-│   └── pages_disabled/          withdrawn-from-nav pages, code kept — see that folder's README.md
+│   ├── pages_disabled/          withdrawn-from-nav pages, code kept — see that folder's README.md
+│   ├── static/                  favicon.png (built by generate_favicon.py)
+│   └── generate_favicon.py      one-off script that builds static/favicon.png
 ├── src/p36/                  analysis package
 │   ├── config.py                every named threshold/scope constant — PROVISIONAL ones flagged
 │   ├── ingest.py, cleaning/     raw-export loading, dtype safety, deduplication
 │   ├── dataset.py, build_dataset.py   processed-parquet read/write
 │   ├── metrics/                 canonical metric implementations — the single source every module imports
 │   └── analysis/                one module per README analysis item
+├── site/                     static docs site published to GitHub Pages (Task Map, Coverage
+│                              Manual, and the three close-reading docs — see Documentation above);
+│                              rebuilt automatically by .github/workflows/pages.yml
 ├── data/
 │   ├── dictionary/               data_dictionary.md (tracked)
 │   ├── *.xlsx                    raw per-university exports (git-ignored — see above)
 │   └── processed/                 built parquet files (git-ignored — see above)
 ├── docs/                      methodology.md, deployment-azure.md, meeting-notes/
+├── .github/workflows/         pages.yml (docs site), azure-deploy.yml (platform)
 ├── .streamlit/config.toml     theme + toolbar config
+├── README.zh-CN.md            Chinese translation of this file
 └── requirements.txt
 ```
 

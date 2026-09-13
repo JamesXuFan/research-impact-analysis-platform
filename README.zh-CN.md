@@ -148,19 +148,26 @@ comp3888/
 │   │                            journal_tier.py、field_analysis.py、international_collaboration.py、
 │   │                            impact_drivers.py、scenario_analysis.py）
 │   ├── pages/                   在用的分析条目页面（1_Go8_Benchmarking.py … 4_International_Collaboration.py）
-│   └── pages_disabled/          已从导航下线但代码保留的页面——见该文件夹的README.md
+│   ├── pages_disabled/          已从导航下线但代码保留的页面——见该文件夹的README.md
+│   ├── static/                  favicon.png（由generate_favicon.py生成）
+│   └── generate_favicon.py      生成static/favicon.png的一次性脚本
 ├── src/p36/                  分析包
 │   ├── config.py                每一个有名字的阈值/范围常量——PROVISIONAL的会标出来
 │   ├── ingest.py, cleaning/     原始导出加载、类型安全、去重
 │   ├── dataset.py, build_dataset.py   处理后parquet的读写
 │   ├── metrics/                 指标的权威实现——所有模块都import这里
 │   └── analysis/                每个README分析条目一个模块
+├── site/                     发布到GitHub Pages的静态文档站（任务地图、覆盖手册、
+│                              以及三份精读文档——见上面的文档表格）；由
+│                              .github/workflows/pages.yml 自动重新构建
 ├── data/
 │   ├── dictionary/               data_dictionary.md（已追踪）
 │   ├── *.xlsx                    原始各大学导出（git已忽略——见上）
 │   └── processed/                 构建出的parquet文件（git已忽略——见上）
 ├── docs/                      methodology.md、deployment-azure.md、meeting-notes/
+├── .github/workflows/         pages.yml（文档站）、azure-deploy.yml（平台）
 ├── .streamlit/config.toml     主题+工具栏配置
+├── README.md                  英文版本
 └── requirements.txt
 ```
 
