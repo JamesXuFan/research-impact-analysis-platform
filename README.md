@@ -52,7 +52,7 @@ answers.
 
 | Document | What it's for |
 | --- | --- |
-| [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the history of the 4 direct task-to-task imports that used to bypass the shared core — closed 2026-09-13, so no analysis task depends on another one's code any more — for splitting work without two people colliding on the same file |
+| [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively — including each task's own `app/lib/<task>.py`, split off the old shared `lib.py` on 2026-09-13 — which 3 files are still genuinely shared by all of them, and the history of the 4 direct task-to-task imports that used to bypass the shared core, closed the same day — for splitting work without two people colliding on the same file |
 | [Coverage Manual](https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
 | [Data Pipeline Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
 | [Dashboard & Charting Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
@@ -149,8 +149,12 @@ comp3888/
 ├── app/                      Streamlit platform
 │   ├── Home.py                 landing page
 │   ├── theme.py                 Bauhaus design system + Altair theme
-│   ├── lib.py                   cached data/analysis access (single source of truth for the UI)
-│   └── pages/                   one page per analysis item (1_Go8_Benchmarking.py … 6_Scenario_Analysis.py)
+│   ├── lib/                     one cached data-access module per analysis task — no shared lib.py;
+│   │                            each page depends only on its own file (home.py, go8_benchmarking.py,
+│   │                            journal_tier.py, field_analysis.py, international_collaboration.py,
+│   │                            impact_drivers.py, scenario_analysis.py)
+│   ├── pages/                   one page per active analysis item (1_Go8_Benchmarking.py … 4_International_Collaboration.py)
+│   └── pages_disabled/          withdrawn-from-nav pages, code kept — see that folder's README.md
 ├── src/p36/                  analysis package
 │   ├── config.py                every named threshold/scope constant — PROVISIONAL ones flagged
 │   ├── ingest.py, cleaning/     raw-export loading, dtype safety, deduplication
@@ -181,7 +185,7 @@ flowchart TD
     B --> C[("🗄️ data/processed/*.parquet<br/>raw + deduplicated")]
     C -->|"dataset.py<br/>load_raw() / load_deduplicated()"| D["analysis/prepare.py<br/>scope-filter + derived flags<br/>(is_international, …)"]
     D -->|"shared by all 6 modules"| E["analysis/&lt;item&gt;.py<br/>groupby / regression / etc."]
-    E -->|"imports metrics.py + config.py<br/>never recomputes either by hand"| F["app/lib.py<br/>@st.cache_data — one get_*()<br/>per analysis output"]
+    E -->|"imports metrics.py + config.py<br/>never recomputes either by hand"| F["app/lib/&lt;task&gt;.py<br/>@st.cache_data — one get_*()<br/>per analysis output, own file per task"]
     F --> G["app/pages/N_*.py<br/>charts / formats / narrative only —<br/>no statistics computed here"]
 
     style A fill:#F2EEE6,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
@@ -199,20 +203,24 @@ flowchart TD
 
 1. [`dataset.load_raw()`](src/p36/dataset.py) reads `publications_raw.parquet`.
 2. [`prepare.prepared_raw()`](src/p36/analysis/prepare.py) scope-filters it and adds `is_international`.
-3. [`lib.load_raw()`](app/lib.py) caches steps 1–2 for the session.
+3. [`lib/go8_benchmarking.load_raw()`](app/lib/go8_benchmarking.py) caches steps 1–2 for the session.
 4. [`go8_benchmarking.benchmark_summary()`](src/p36/analysis/go8_benchmarking.py) groups by
    `source_university`, calls `metrics.mean_fwci` per group, orders the result with
    `config.CLIENT_UNIVERSITY` first.
-5. [`lib.get_benchmark_summary()`](app/lib.py) caches step 4.
+5. [`lib/go8_benchmarking.get_benchmark_summary()`](app/lib/go8_benchmarking.py) caches step 4.
 6. The page calls `get_benchmark_summary()` once and reuses the same table for the rank
    card, the bar chart, and the radar chart — one fetch, three visualisations.
 
 > [!TIP]
-> **A cross-module dependency worth knowing:** `go8_benchmarking.institution_partner_flag()`
-> is imported and called directly by `scenario_analysis.py` (not routed through `app/lib.py`)
-> — see [scenario_analysis.py:129-131](src/p36/analysis/scenario_analysis.py#L129-L131). A
-> signature or behaviour change to that function affects the Scenario Analysis page too, even
-> though the two live in different analysis modules.
+> **A cross-module dependency worth knowing:** `src/p36/analysis/*.py` no longer import each
+> other at all (see [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html)) —
+> but the *lib* layer still legitimately combines them where the feature itself requires it:
+> [`app/lib/scenario_analysis.py`](app/lib/scenario_analysis.py) calls
+> `go8_benchmarking.institution_partner_flag()` and `journal_tier.source_performance_flag()`
+> directly, because Scenario Analysis is inherently a "combine other analyses' outputs"
+> feature (see `docs/methodology.md`). A signature or behaviour change to either flag
+> function affects Scenario Analysis's lib file too, even though the two analysis modules
+> never import each other.
 
 </details>
 

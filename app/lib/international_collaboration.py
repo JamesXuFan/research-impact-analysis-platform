@@ -12,7 +12,7 @@ not an import from lib_go8_benchmarking.py.
 import sys
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[1] / "src"
+SRC = Path(__file__).resolve().parents[2] / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 

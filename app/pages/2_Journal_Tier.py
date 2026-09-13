@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib_journal_tier import (
+from lib.journal_tier import (
     CLIENT_UNIVERSITY,
     get_citescore_percentile_distribution,
     get_citescore_percentile_series,

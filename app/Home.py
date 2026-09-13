@@ -2,7 +2,7 @@ import altair as alt
 import streamlit as st
 
 import theme
-from home_lib import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat, get_overlap_by_university, load_deduplicated, load_raw
+from lib.home import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat, get_overlap_by_university, load_deduplicated, load_raw
 
 st.set_page_config(page_title="P36 · Publication Intelligence Platform", page_icon=theme.FAVICON, layout="wide")
 theme.inject()

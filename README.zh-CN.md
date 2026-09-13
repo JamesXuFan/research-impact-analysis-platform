@@ -54,7 +54,7 @@
 
 | 文档 | 用途 |
 | --- | --- |
-| [任务地图](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | 8个建设任务（6个分析 + 排版 + 数据库）各自专属哪些文件、哪4个文件是所有任务共用的、以及曾经绕开公共核心的4条任务间直接import关系的历史——2026-09-13已清零，现在没有任何一个分析任务依赖另一个的代码——方便分工时不会两个人同时改一个文件 |
+| [任务地图](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | 8个建设任务（6个分析 + 排版 + 数据库）各自专属哪些文件——包括每个任务自己的 `app/lib/<任务>.py`（2026-09-13从共用的 `lib.py` 拆分出来）——哪3个文件仍然是所有任务真正共用的、以及曾经绕开公共核心的4条任务间直接import关系的历史，同一天清零，现在没有任何一个分析任务依赖另一个的代码——方便分工时不会两个人同时改一个文件 |
 | [覆盖手册](https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html) | 平台到底实现了什么，以及每一部分具体回答了任务书里的哪一个子问题（每项标✓/~/→/?），每一条下面还有一行"为什么选这张图" |
 | [数据管道精读](https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html) | 从 `ingest.py` 到 `metrics.py` 的逐函数讲解——用来学习这个代码库依赖的pandas写法，而不只是引用一个数字 |
 | [看板与图表精读](https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html) | 同样的处理方式用在 `theme.py` 的板块组件和Altair图形语法上——雷达图的极坐标技巧完整拆解 |
@@ -143,8 +143,12 @@ comp3888/
 ├── app/                      Streamlit 平台
 │   ├── Home.py                 首页
 │   ├── theme.py                 包豪斯设计系统 + Altair主题
-│   ├── lib.py                   带缓存的数据/分析访问层（UI唯一的数据来源）
-│   └── pages/                   每个分析条目一个页面（1_Go8_Benchmarking.py … 6_Scenario_Analysis.py）
+│   ├── lib/                     每个分析任务各自一个带缓存的数据访问文件——没有共用的lib.py；
+│   │                            每个页面只依赖自己的那一个（home.py、go8_benchmarking.py、
+│   │                            journal_tier.py、field_analysis.py、international_collaboration.py、
+│   │                            impact_drivers.py、scenario_analysis.py）
+│   ├── pages/                   在用的分析条目页面（1_Go8_Benchmarking.py … 4_International_Collaboration.py）
+│   └── pages_disabled/          已从导航下线但代码保留的页面——见该文件夹的README.md
 ├── src/p36/                  分析包
 │   ├── config.py                每一个有名字的阈值/范围常量——PROVISIONAL的会标出来
 │   ├── ingest.py, cleaning/     原始导出加载、类型安全、去重
@@ -175,7 +179,7 @@ flowchart TD
     B --> C[("🗄️ data/processed/*.parquet<br/>原始 + 去重")]
     C -->|"dataset.py<br/>load_raw() / load_deduplicated()"| D["analysis/prepare.py<br/>范围过滤 + 派生标记列<br/>（is_international 等）"]
     D -->|"6个模块共用"| E["analysis/&lt;条目&gt;.py<br/>groupby / 回归 / 等"]
-    E -->|"import metrics.py + config.py<br/>从不手动重算"| F["app/lib.py<br/>@st.cache_data —— 每个分析输出<br/>对应一个 get_*()"]
+    E -->|"import metrics.py + config.py<br/>从不手动重算"| F["app/lib/&lt;任务&gt;.py<br/>@st.cache_data —— 每个分析输出<br/>对应一个 get_*()，每个任务各自一个文件"]
     F --> G["app/pages/N_*.py<br/>只负责图表/格式/叙述文字——<br/>不在这里计算任何统计量"]
 
     style A fill:#F2EEE6,stroke:#1A1A1A,stroke-width:2px,color:#1A1A1A
@@ -193,20 +197,23 @@ flowchart TD
 
 1. [`dataset.load_raw()`](src/p36/dataset.py) 读取 `publications_raw.parquet`。
 2. [`prepare.prepared_raw()`](src/p36/analysis/prepare.py) 对它做范围过滤，加上 `is_international`。
-3. [`lib.load_raw()`](app/lib.py) 把第1-2步的结果在本次会话里缓存住。
+3. [`lib/go8_benchmarking.load_raw()`](app/lib/go8_benchmarking.py) 把第1-2步的结果在本次会话里缓存住。
 4. [`go8_benchmarking.benchmark_summary()`](src/p36/analysis/go8_benchmarking.py) 按
    `source_university` 分组，对每组调用 `metrics.mean_fwci`，把 `config.CLIENT_UNIVERSITY`
    排在结果最前面。
-5. [`lib.get_benchmark_summary()`](app/lib.py) 缓存第4步的结果。
+5. [`lib/go8_benchmarking.get_benchmark_summary()`](app/lib/go8_benchmarking.py) 缓存第4步的结果。
 6. 页面只调用一次 `get_benchmark_summary()`，同一张表被排名卡片、柱状图、雷达图三处
    复用——取一次数，出三个可视化。
 
 > [!TIP]
-> **一个值得知道的跨模块依赖：** `go8_benchmarking.institution_partner_flag()`
-> 被 `scenario_analysis.py` 直接import并调用（没有经过 `app/lib.py`）——见
-> [scenario_analysis.py:129-131](src/p36/analysis/scenario_analysis.py#L129-L131)。
-> 改动这个函数的签名或行为，也会影响Scenario Analysis页面，尽管两者属于不同的
-> analysis模块。
+> **一个值得知道的跨模块依赖：** `src/p36/analysis/*.py` 现在彼此之间完全不再互相
+> import（见[任务地图](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html)）
+> ——但*lib*这一层在功能确实需要的地方，仍然会合理地把它们组合起来：
+> [`app/lib/scenario_analysis.py`](app/lib/scenario_analysis.py) 直接调用了
+> `go8_benchmarking.institution_partner_flag()` 和 `journal_tier.source_performance_flag()`，
+> 因为Scenario Analysis本质上就是"整合其它分析的产出"这个功能（见`docs/methodology.md`）。
+> 改动任何一个flag函数的签名或行为，都会影响Scenario Analysis的lib文件，尽管这两个
+> analysis模块彼此之间从不互相import。
 
 </details>
 

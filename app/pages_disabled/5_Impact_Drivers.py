@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib_impact_drivers import get_impact_by_collaboration_breadth, load_deduplicated
+from lib.impact_drivers import get_impact_by_collaboration_breadth, load_deduplicated
 from p36.analysis import impact_drivers
 
 st.set_page_config(page_title="P36 · Impact Drivers", page_icon=theme.FAVICON, layout="wide")

@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 import theme
-from lib_go8_benchmarking import (
+from lib.go8_benchmarking import (
     CLIENT_UNIVERSITY,
     caveat,
     get_benchmark_summary,

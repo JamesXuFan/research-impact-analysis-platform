@@ -156,20 +156,23 @@
   <p class="lede">
     <span lang="en">
       Eight build tasks split the P36 codebase — six analysis items, plus layout and
-      database. All eight quietly pass through the same <b>four shared files</b>
-      (<code>config.py</code>, <code>metrics.py</code>, <code>prepare.py</code>,
-      <code>lib.py</code>), and each task now lists every file that belongs to it
-      exclusively — not just its page and its analysis module — plus, new in this
-      revision, the <b>exact <code>import</code> line</b> behind every lit chip, so
-      "Config: on" isn't a guess anyone has to go verify in the source.
+      database. All eight quietly pass through the same <b>three shared files</b>
+      (<code>config.py</code>, <code>metrics.py</code>, <code>prepare.py</code>), and
+      each task lists every file that belongs to it exclusively — not just its page
+      and its analysis module. <b>Updated 2026-09-13:</b> the old shared
+      <code>app/lib.py</code> (one file, imported by every page) is gone — split into
+      one <code>app/lib/&lt;task&gt;.py</code> per task, so a task's cached-data layer
+      is now something it owns outright, not a file six other pages could also be
+      touching.
     </span>
     <span lang="zh">
       P36 代码库拆成八个建设任务——六个 analysis 项目,加上排版和数据库。八个任务都会
-      经过同样的<b>四个公共文件</b>(<code>config.py</code>、<code>metrics.py</code>、
-      <code>prepare.py</code>、<code>lib.py</code>),现在每个任务也列出了完全专属于它
-      的文件——不只是页面和分析模块这两个——本次修订新增的是,每一个点亮的 chip
-      背后<b>具体的 <code>import</code> 那一行</b>,这样"Config: 已用"就不再是一句
-      需要自己去源码里核实的猜测。
+      经过同样的<b>三个公共文件</b>(<code>config.py</code>、<code>metrics.py</code>、
+      <code>prepare.py</code>),现在每个任务也列出了完全专属于它的文件——不只是页面
+      和分析模块这两个。<b>2026-09-13更新：</b>原来共用的 <code>app/lib.py</code>（一个
+      文件、被每个页面 import）已经拆掉——换成每个任务各自一个
+      <code>app/lib/&lt;任务&gt;.py</code>，这样一个任务的缓存数据层就是它自己完全
+      拥有的东西，不再是六个别的页面也可能同时在改的文件。
     </span>
   </p>
 
@@ -184,18 +187,18 @@
     </div>
     <div class="stat">
       <div class="label"><span lang="en">Shared core files</span><span lang="zh">公共文件</span></div>
-      <div class="value">4</div>
+      <div class="value">3</div>
       <div class="sub">
-        <span lang="en">every task touches at least one</span>
-        <span lang="zh">每个任务至少用到一个</span>
+        <span lang="en">config.py, metrics.py, prepare.py — lib.py split up 2026-09-13</span>
+        <span lang="zh">config.py、metrics.py、prepare.py——lib.py已于2026-09-13拆分</span>
       </div>
     </div>
     <div class="stat">
       <div class="label"><span lang="en">Direct task-to-task imports</span><span lang="zh">任务间直接 import</span></div>
       <div class="value">0</div>
       <div class="sub">
-        <span lang="en">was 4, closed 2026-09-13 — 1 data hand-off still routes through lib.py</span>
-        <span lang="zh">原来是4个，2026-09-13清零——还有1处数据仍经由lib.py传递</span>
+        <span lang="en">was 4, closed 2026-09-13 — 1 data hand-off still lives in lib/scenario_analysis.py</span>
+        <span lang="zh">原来是4个，2026-09-13清零——还有1处数据仍在lib/scenario_analysis.py里传递</span>
       </div>
     </div>
   </div>
@@ -224,17 +227,19 @@
         <h3><span lang="en">Go8 / Peer Benchmarking</span><span lang="zh">Go8 同行对标</span></h3>
         <div class="task-files">
           <span class="mono">app/pages/1_Go8_Benchmarking.py</span>
+          <span class="mono">app/lib/go8_benchmarking.py</span>
           <span class="mono">src/p36/analysis/go8_benchmarking.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Config</span><span class="chip on">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import (CLIENT_UNIVERSITY, caveat, get_benchmark_summary,
+          <code>from lib.go8_benchmarking import (CLIENT_UNIVERSITY, caveat, get_benchmark_summary,
     get_field_gap_vs_peers, get_growth_by_university, get_journal_pattern,
-    get_top_countries, load_raw)</code>
+    get_top_countries, load_raw)  <span lang="en"># page-level; lib/go8_benchmarking.py itself:</span><span lang="zh"># 页面自己 import；lib/go8_benchmarking.py 内部：</span></code>
+          <code>from p36.analysis import field_analysis, go8_benchmarking, prepare</code>
           <code>from p36.config import (CLIENT_UNIVERSITY, FIELD_COLUMN_EXPLODED, GO8_UNIVERSITIES,
     HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS, MAIN_YEAR_RANGE)</code>
           <code>from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share</code>
@@ -242,18 +247,22 @@
         <div class="task-note">
           <span lang="en">
             <b>FIELD_COLUMN_EXPLODED</b> for the by-field gap chart comes from
-            <code>p36.config</code>, not from Field Analysis's module — see the "Direct
-            task-to-task imports" section below for why. Two of its own functions,
-            <b>institution_partner_flag()</b> and <b>field_gap_vs_peers()</b>, are used
-            by Scenario Analysis, but only via <code>app/lib.py</code> passing already-
-            computed values in — this module is never imported by another task module.
+            <code>p36.config</code>, not from Field Analysis's module. Two of this
+            module's own functions, <b>institution_partner_flag()</b> and
+            <b>field_gap_vs_peers()</b>, are called by
+            <code>app/lib/scenario_analysis.py</code> (not by
+            <code>src/p36/analysis/scenario_analysis.py</code> — see "Direct
+            task-to-task imports" below) — <code>go8_benchmarking.py</code> itself is
+            never imported by another task's analysis module.
           </span>
           <span lang="zh">
             学科差距图要用到的 <b>FIELD_COLUMN_EXPLODED</b> 来自 <code>p36.config</code>，
-            不是从 Field Analysis 的模块拿——原因见下面"任务之间的直接 import"那节。自己
-            产出的两个函数<b>institution_partner_flag()</b>和<b>field_gap_vs_peers()</b>
-            会被 Scenario Analysis 用到，但只是 <code>app/lib.py</code> 算好之后把值传过去
-            ——这个模块从来没有被另一个任务模块直接 import 过。
+            不是从 Field Analysis 的模块拿。自己产出的两个函数
+            <b>institution_partner_flag()</b>和<b>field_gap_vs_peers()</b>会被
+            <code>app/lib/scenario_analysis.py</code> 调用（不是被
+            <code>src/p36/analysis/scenario_analysis.py</code>——见下面"任务之间的直接
+            import"）——<code>go8_benchmarking.py</code> 这个模块本身从来没有被另一个
+            任务的 analysis 模块直接 import 过。
           </span>
         </div>
       </div>
@@ -263,21 +272,22 @@
         <h3><span lang="en">Journal Tier &amp; Q1 Analysis</span><span lang="zh">期刊分层与 Q1 分析</span></h3>
         <div class="task-files">
           <span class="mono">app/pages/2_Journal_Tier.py</span>
+          <span class="mono">app/lib/journal_tier.py</span>
           <span class="mono">src/p36/analysis/journal_tier.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Config</span><span class="chip on">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import (CLIENT_UNIVERSITY, get_citescore_percentile_distribution,
+          <code>from lib.journal_tier import (CLIENT_UNIVERSITY, get_citescore_percentile_distribution,
     get_citescore_percentile_series, get_field_summary, get_impact_by_citescore_quartile,
     get_overperforming_sources, get_q1_advantage_by_field,
     get_q1_definition_agreement, get_q1_share_by_university,
-    get_q1_share_by_year, get_q1_share_change_by_field, provisional)</code>
-          <code>from p36.config import (MAIN_YEAR_RANGE, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS,
-    Q1_CITESCORE_PERCENTILE_MAX)  <span lang="en"># page-level, plus this in journal_tier.py itself:</span><span lang="zh"># 页面自己 import；journal_tier.py 内部还有这一行：</span></code>
+    get_q1_share_by_year, get_q1_share_change_by_field, provisional)  <span lang="en"># page-level; lib/journal_tier.py itself:</span><span lang="zh"># 页面自己 import；lib/journal_tier.py 内部：</span></code>
+          <code>from p36.analysis import field_analysis, journal_tier, prepare</code>
+          <code>from p36.config import CLIENT_UNIVERSITY, FIELD_COLUMN_EXPLODED, MAIN_YEAR_RANGE  <span lang="en"># plus this in journal_tier.py itself:</span><span lang="zh"># journal_tier.py 内部还有这一行：</span></code>
           <code>from p36.config import FIELD_COLUMN_EXPLODED, OVERPERFORMING_SOURCE_MIN_PUBLICATIONS</code>
           <code>from p36.metrics import mean_fwci, q1_share, top_decile_share</code>
           <code>from p36.metrics.metrics import CITESCORE_PERCENTILE_COL, citescore_quartile</code>
@@ -286,14 +296,22 @@
           <span lang="en">
             Also uses <b>FIELD_COLUMN_EXPLODED</b> — from <code>p36.config</code>, not
             from Field Analysis's module. Its <b>source_performance_flag()</b> feeds
-            Scenario Analysis too — but glued in at <code>app/lib.py</code>, not
-            imported inside <code>scenario_analysis.py</code>.
+            Scenario Analysis too — called directly by
+            <code>app/lib/scenario_analysis.py</code>, not imported inside
+            <code>src/p36/analysis/scenario_analysis.py</code>. Also worth noting:
+            <code>lib/journal_tier.py</code> keeps its own private copy of
+            <b>get_field_summary()</b> — Field Analysis's function, needed here too for
+            the per-field CiteScore breakdown — rather than importing Field Analysis's
+            lib file.
           </span>
           <span lang="zh">
             同样要用到 <b>FIELD_COLUMN_EXPLODED</b>——来自 <code>p36.config</code>，不是
             Field Analysis 的模块。自己的<b>source_performance_flag()</b>也会喂给
-            Scenario Analysis——但是在 <code>app/lib.py</code> 里拼接进去的,不是
-            <code>scenario_analysis.py</code> 自己 import 的。
+            Scenario Analysis——由 <code>app/lib/scenario_analysis.py</code> 直接调用，
+            不是被 <code>src/p36/analysis/scenario_analysis.py</code> import 的。另外值得
+            一提：<code>lib/journal_tier.py</code> 自己也留了一份
+            <b>get_field_summary()</b> 的独立副本——这是 Field Analysis 的函数，这里也
+            要用来做按学科的CiteScore细分——而不是去 import Field Analysis 的lib文件。
           </span>
         </div>
       </div>
@@ -303,44 +321,46 @@
         <h3><span lang="en">Research Field Analysis</span><span lang="zh">研究领域分析</span></h3>
         <div class="task-files">
           <span class="mono">app/pages/3_Field_Analysis.py</span>
+          <span class="mono">app/lib/field_analysis.py</span>
           <span class="mono">src/p36/analysis/field_analysis.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Config</span><span class="chip on">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import (caveat, get_collaboration_approach_by_field, get_field_growth,
+          <code>from lib.field_analysis import (caveat, get_collaboration_approach_by_field, get_field_growth,
     get_field_summary, get_field_trend, get_fwci_by_field,
-    load_exploded_deduplicated)</code>
-          <code>from p36.analysis import field_analysis</code>
-          <code>from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED  <span lang="en"># still works: re-exported, see note below</span><span lang="zh"># 依然能用：下面重新 import 了一次并对外暴露，见说明</span></code>
-          <code>from p36.config import FRACTIONAL_FIELD_COUNTING  <span lang="en"># page-level; field_analysis.py itself:</span><span lang="zh"># 页面自己 import；field_analysis.py 内部：</span></code>
+    load_exploded_deduplicated)  <span lang="en"># page-level; lib/field_analysis.py itself:</span><span lang="zh"># 页面自己 import；lib/field_analysis.py 内部：</span></code>
+          <code>from p36.analysis import field_analysis, prepare</code>
+          <code>from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED  <span lang="en"># page-level too — still works: re-exported, see note below</span><span lang="zh"># 页面也有这一行——依然能用：下面重新 import 了一次并对外暴露，见说明</span></code>
+          <code>from p36.config import FRACTIONAL_FIELD_COUNTING, FIELD_COLUMN_EXPLODED  <span lang="en"># page-level; field_analysis.py itself:</span><span lang="zh"># 页面自己 import；field_analysis.py 内部：</span></code>
           <code>from p36.config import FIELD_COLUMN_EXPLODED, FRACTIONAL_FIELD_COUNTING, MAIN_YEAR_RANGE</code>
           <code>from p36.metrics import mean_fwci, period_growth, q1_share, top_decile_share</code>
         </div>
         <div class="task-note">
           <span lang="en">
-            <b>Moved to <code>p36.config</code> on 2026-09-13</b>, ending its run as a
-            de facto fifth shared file: <b>FIELD_COLUMN_EXPLODED</b> used to be defined
-            here and imported directly by three other analysis modules — now it's
-            defined in the actual shared core, and this module just re-imports it like
-            everyone else does (kept importable as <code>field_analysis.FIELD_COLUMN_EXPLODED</code>
-            too, so the page above didn't need to change). This one move closed three
-            of the five edges in "Direct task-to-task imports" below — the other two
-            (Scenario Analysis → Go8 Benchmarking) closed the same day by having
-            <code>app/lib.py</code> pass already-computed values in instead.
+            <b>FIELD_COLUMN_EXPLODED moved to <code>p36.config</code> on 2026-09-13</b>,
+            ending its run as a de facto fourth shared file: it used to be defined here
+            and imported directly by three other analysis modules — now it's defined in
+            the actual shared core, and this module just re-imports it like everyone
+            else does (kept importable as
+            <code>field_analysis.FIELD_COLUMN_EXPLODED</code> too, so nothing downstream
+            needed to change). This one move closed three of the five edges in "Direct
+            task-to-task imports" below. <code>get_field_summary()</code> is also kept
+            independently in <code>lib/journal_tier.py</code> — Journal Tier's page uses
+            it too, as its own copy, not by importing this task's lib file.
           </span>
           <span lang="zh">
-            <b>2026-09-13迁到了 <code>p36.config</code></b>，结束了它"事实上的第五个公共
-            文件"的身份：<b>FIELD_COLUMN_EXPLODED</b> 以前定义在这里，被另外三个 analysis
+            <b>FIELD_COLUMN_EXPLODED 于2026-09-13迁到了 <code>p36.config</code></b>，
+            结束了它"事实上的第四个公共文件"的身份：以前定义在这里，被另外三个 analysis
             模块直接 import；现在定义在真正的公共文件里，这个模块跟其他任务一样重新
             import 一次而已（依然可以用 <code>field_analysis.FIELD_COLUMN_EXPLODED</code>
-            这个路径拿到，所以上面那个页面完全不用改）。这一次改动就关掉了下面"任务之间的
-            直接 import"里五条边中的三条——另外两条（Scenario Analysis → Go8
-            Benchmarking）也在同一天关掉了，做法是让 <code>app/lib.py</code> 先算好值再
-            传进去。
+            这个路径拿到，所以下游完全不用改）。这一次改动就关掉了下面"任务之间的
+            直接 import"里五条边中的三条。<code>get_field_summary()</code> 在
+            <code>lib/journal_tier.py</code> 里也独立留了一份——Journal Tier的页面也要用
+            它，是它自己的副本，不是去 import 这个任务的lib文件。
           </span>
         </div>
       </div>
@@ -350,18 +370,21 @@
         <h3><span lang="en">International Collaboration</span><span lang="zh">国际合作分析</span></h3>
         <div class="task-files">
           <span class="mono">app/pages/4_International_Collaboration.py</span>
+          <span class="mono">app/lib/international_collaboration.py</span>
           <span class="mono">src/p36/analysis/international_collaboration.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Config</span><span class="chip on">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import (CLIENT_UNIVERSITY, caveat, get_collaboration_rate_trend,
+          <code>from lib.international_collaboration import (CLIENT_UNIVERSITY, caveat, get_collaboration_rate_trend,
     get_fwci_by_collaboration_status, get_impact_by_collaboration_breadth,
     get_impact_by_collaboration_status, get_impact_gap_by_field,
-    get_impact_gap_by_year, get_top_countries, load_raw)</code>
+    get_impact_gap_by_year, get_top_countries, load_raw)  <span lang="en"># page-level; lib/international_collaboration.py itself:</span><span lang="zh"># 页面自己 import；lib/international_collaboration.py 内部：</span></code>
+          <code>from p36.analysis import field_analysis, go8_benchmarking, prepare
+from p36.analysis import international_collaboration as intl</code>
           <code>from p36.config import CITATION_WINDOW_TRAILING_YEARS_EXCLUDED  <span lang="en"># page-level; international_collaboration.py itself:</span><span lang="zh"># 页面自己 import；international_collaboration.py 内部：</span></code>
           <code>from p36.config import (CITATION_WINDOW_TRAILING_YEARS_EXCLUDED,
     COLLABORATION_BREADTH_BINS, FIELD_COLUMN_EXPLODED, MAIN_YEAR_RANGE)</code>
@@ -371,11 +394,18 @@
         <div class="task-note">
           <span lang="en">
             Uses <b>FIELD_COLUMN_EXPLODED</b> too, now from <code>p36.config</code>
-            rather than Field Analysis's module. No other task imports from this one.
+            rather than Field Analysis's module. <code>lib/international_collaboration.py</code>
+            also keeps its own private copy of <b>get_top_countries()</b> — Go8
+            Benchmarking's function, needed here too for the top-co-author-countries
+            panel — rather than importing Go8 Benchmarking's lib file. No other task
+            imports from this one.
           </span>
           <span lang="zh">
             同样要用到 <b>FIELD_COLUMN_EXPLODED</b>，现在来自 <code>p36.config</code>，
-            不是 Field Analysis 的模块。没有其他任务反过来 import 它。
+            不是 Field Analysis 的模块。<code>lib/international_collaboration.py</code>
+            也自己留了一份 <b>get_top_countries()</b> 的独立副本——这是 Go8 Benchmarking
+            的函数，这里也要用来做"最常见合作国家"面板——而不是去 import Go8
+            Benchmarking 的lib文件。没有其他任务反过来 import 它。
           </span>
         </div>
       </div>
@@ -384,39 +414,49 @@
         <div class="task-tag">Page 5 · README item 14</div>
         <h3><span lang="en">Integrated Impact Drivers</span><span lang="zh">影响力驱动因素分析</span></h3>
         <div class="task-files">
-          <span class="mono">app/pages/5_Impact_Drivers.py</span>
+          <span class="mono">app/pages_disabled/5_Impact_Drivers.py</span>
+          <span class="mono">app/lib/impact_drivers.py</span>
           <span class="mono">src/p36/analysis/impact_drivers.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Metrics</span><span class="chip partial">Config*</span>
-          <span class="chip off">Prepare</span><span class="chip partial">Lib*</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import get_impact_by_collaboration_breadth, load_deduplicated</code>
-          <code>from p36.analysis import impact_drivers</code>
+          <code>from lib.impact_drivers import get_impact_by_collaboration_breadth, load_deduplicated</code>
+          <code>from p36.analysis import prepare
+from p36.analysis import international_collaboration as intl  <span lang="en"># lib/impact_drivers.py itself</span><span lang="zh"># lib/impact_drivers.py 内部</span></code>
+          <code>from p36.analysis import impact_drivers  <span lang="en"># page-level</span><span lang="zh"># 页面这一行</span></code>
           <code class="none"><span lang="en"># impact_drivers.py itself: only numpy, pandas, statsmodels.formula.api —
 # zero p36.config / p36.metrics imports, the one exception in this map</span><span lang="zh"># impact_drivers.py 内部：只 import 了 numpy、pandas、statsmodels.formula.api ——
 # 一个 p36.config / p36.metrics 的 import 都没有，是本图里唯一的例外</span></code>
         </div>
         <div class="task-note">
           <span lang="en">
-            <b>The one exception in this map.</b> Never imports
-            <code>p36.config</code> directly (only indirectly via
-            <code>prepare.py</code>'s <code>add_derived_flags</code>), and still
-            barely touches <code>app/lib.py</code> — two functions
-            (<code>load_deduplicated</code>, <code>get_impact_by_collaboration_breadth</code>)
-            against the dozen-plus other pages pull in — because it fits a statsmodels
-            object, so it defines its own <code>@st.cache_resource</code> wrappers
-            locally instead.
+            <b>The one exception in this map.</b> <code>src/p36/analysis/impact_drivers.py</code>
+            never imports <code>p36.config</code> directly (only indirectly via
+            <code>prepare.py</code>'s <code>add_derived_flags</code>). Its own
+            <code>app/lib/impact_drivers.py</code> is the smallest lib file in the
+            project — just <code>load_deduplicated()</code> and
+            <code>get_impact_by_collaboration_breadth()</code> (a private copy of
+            International Collaboration's function) — because the page fits a
+            statsmodels object, so it defines its own <code>@st.cache_resource</code>
+            wrappers locally instead of routing the model fit through its lib file.
+            <b>Currently withdrawn from the platform nav</b> — see
+            <code>app/pages_disabled/README.md</code>.
           </span>
           <span lang="zh">
-            <b>本图里唯一的例外。</b>从不直接 import <code>p36.config</code>(只通过
-            <code>prepare.py</code> 的 <code>add_derived_flags</code> 间接用到),对
-            <code>app/lib.py</code> 依然用得很少——只有两个函数
-            (<code>load_deduplicated</code>、<code>get_impact_by_collaboration_breadth</code>)，
-            远少于其它页面动辄十几个——因为要缓存一个 statsmodels 拟合对象,所以
-            直接在页面里自己写了 <code>@st.cache_resource</code>。
+            <b>本图里唯一的例外。</b><code>src/p36/analysis/impact_drivers.py</code>
+            从不直接 import <code>p36.config</code>(只通过 <code>prepare.py</code> 的
+            <code>add_derived_flags</code> 间接用到)。它自己的
+            <code>app/lib/impact_drivers.py</code> 是全项目最小的lib文件——只有
+            <code>load_deduplicated()</code> 和
+            <code>get_impact_by_collaboration_breadth()</code>（International
+            Collaboration那个函数的私有副本）——因为页面要缓存一个 statsmodels
+            拟合对象,所以直接在页面里自己写了 <code>@st.cache_resource</code>，没有
+            经过它的lib文件。<b>目前已从平台导航下线</b>——见
+            <code>app/pages_disabled/README.md</code>。
           </span>
         </div>
       </div>
@@ -425,46 +465,60 @@
         <div class="task-tag">Page 6 · README item 17</div>
         <h3><span lang="en">Scenario Analysis</span><span lang="zh">情景分析</span></h3>
         <div class="task-files">
-          <span class="mono">app/pages/6_Scenario_Analysis.py</span>
+          <span class="mono">app/pages_disabled/6_Scenario_Analysis.py</span>
+          <span class="mono">app/lib/scenario_analysis.py</span>
           <span class="mono">src/p36/analysis/scenario_analysis.py</span>
         </div>
         <div class="chips">
           <span class="chip on">Config</span><span class="chip off">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip on">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from lib import (CLIENT_UNIVERSITY, get_client_institution_scenario,
+          <code>from lib.scenario_analysis import (CLIENT_UNIVERSITY, get_client_institution_scenario,
     get_field_gap_closure_scenario, get_field_gap_vs_peers,
     get_institution_partner_performance, get_scenario_table)</code>
+          <code>from p36.analysis import go8_benchmarking, journal_tier, prepare, scenario_analysis  <span lang="en"># lib/scenario_analysis.py itself — see note below</span><span lang="zh"># lib/scenario_analysis.py 内部——见下面说明</span></code>
           <code>from p36.config import (HIGH_PERFORMING_PARTNER_MIN_PUBLICATIONS,
     SCENARIO_DEFAULT_DELTA_PP)  <span lang="en"># page-level; scenario_analysis.py itself:</span><span lang="zh"># 页面自己 import；scenario_analysis.py 内部：</span></code>
           <code>from p36.config import CLIENT_UNIVERSITY, SCENARIO_DEFAULT_DELTA_PP</code>
-          <code class="none"><span lang="en"># no more p36.analysis imports, as of 2026-09-13 — see note below</span><span lang="zh"># 从2026-09-13起不再有任何 p36.analysis import——见下面说明</span></code>
+          <code class="none"><span lang="en"># src/p36/analysis/scenario_analysis.py itself: no more p36.analysis imports,
+# as of 2026-09-13 — see note below</span><span lang="zh"># src/p36/analysis/scenario_analysis.py 内部：从2026-09-13起不再有任何
+# p36.analysis import——见下面说明</span></code>
         </div>
         <div class="task-note">
           <span lang="en">
-            <b>Decoupled from <code>go8_benchmarking</code> on 2026-09-13.</b> Used to
-            import it directly for two functions (<b>institution_partner_flag()</b>,
-            <b>field_gap_vs_peers()</b>) — the codebase's one module-to-module import
-            that skipped <code>app/lib.py</code>. Both functions moved to
-            <code>app/lib.py</code>'s <code>get_client_institution_scenario()</code> and
-            <code>get_field_gap_closure_scenario()</code>, which compute the flag/gap
-            and pass the already-computed value in as a plain argument
-            (<code>client_institution_scenario(..., flag)</code>,
-            <code>estimate_uplift_from_field_gap_closure(..., gap)</code>) — this
-            module now imports nothing from any other task's analysis module.
+            <b><code>src/p36/analysis/scenario_analysis.py</code> decoupled from
+            <code>go8_benchmarking</code> on 2026-09-13</b> — it used to import it
+            directly for two functions (<b>institution_partner_flag()</b>,
+            <b>field_gap_vs_peers()</b>), the codebase's one module-to-module import
+            that skipped the lib layer. Both now take the already-computed value as a
+            plain argument (<code>client_institution_scenario(..., flag)</code>,
+            <code>estimate_uplift_from_field_gap_closure(..., gap)</code>) — <b>the
+            analysis module itself imports nothing from any other task's analysis
+            module.</b> The dependency didn't disappear, it moved one layer up: this
+            task's own <code>app/lib/scenario_analysis.py</code> imports
+            <code>go8_benchmarking</code> (for the two flag functions above) and
+            <code>journal_tier</code> (for <b>source_performance_flag()</b>) directly —
+            an honest exception, called out in that file's own docstring, because
+            Scenario Analysis is inherently a "combine other analyses' outputs" feature
+            (see <code>docs/methodology.md</code>). <b>Currently withdrawn from the
+            platform nav</b> — see <code>app/pages_disabled/README.md</code>.
           </span>
           <span lang="zh">
-            <b>2026-09-13跟 <code>go8_benchmarking</code> 解耦了。</b>以前为了两个函数
+            <b><code>src/p36/analysis/scenario_analysis.py</code> 于2026-09-13跟
+            <code>go8_benchmarking</code> 解耦了</b>——以前为了两个函数
             （<b>institution_partner_flag()</b>、<b>field_gap_vs_peers()</b>）直接
-            import 它——是整个代码库里唯一一处绕开 <code>app/lib.py</code> 的模块间
-            import。两个函数都挪到了 <code>app/lib.py</code> 的
-            <code>get_client_institution_scenario()</code> 和
-            <code>get_field_gap_closure_scenario()</code> 里，算好之后把值当普通参数
-            传进来（<code>client_institution_scenario(..., flag)</code>、
-            <code>estimate_uplift_from_field_gap_closure(..., gap)</code>）——这个模块
-            现在不再 import 任何其它任务的 analysis 模块。
+            import 它，是整个代码库里唯一一处绕开lib层的模块间 import。两个函数现在都
+            改成把算好的值当普通参数传进来（<code>client_institution_scenario(..., flag)</code>、
+            <code>estimate_uplift_from_field_gap_closure(..., gap)</code>）——<b>这个
+            analysis 模块本身现在不再 import 任何其它任务的 analysis 模块。</b>依赖没有
+            消失，只是挪高了一层：这个任务自己的 <code>app/lib/scenario_analysis.py</code>
+            直接 import 了 <code>go8_benchmarking</code>（为了上面两个flag函数）和
+            <code>journal_tier</code>（为了 <b>source_performance_flag()</b>）——这是一个
+            坦白说明的例外，写在那个文件自己的docstring里，因为Scenario Analysis本质上
+            就是"整合其它分析的产出"这个功能（见 <code>docs/methodology.md</code>）。
+            <b>目前已从平台导航下线</b>——见 <code>app/pages_disabled/README.md</code>。
           </span>
         </div>
       </div>
@@ -476,36 +530,46 @@
           <span class="own-tag"><span lang="en">Owns</span><span lang="zh">专属</span></span>
           <span class="mono">app/theme.py</span>
           <span class="mono">app/Home.py</span>
+          <span class="mono">app/lib/home.py</span>
           <span class="mono">app/generate_favicon.py</span>
           <span class="mono">app/static/favicon.png</span>
           <span class="mono">.streamlit/config.toml</span>
         </div>
         <div class="chips">
           <span class="chip off">Config</span><span class="chip off">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip partial">Lib*</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
           <code class="none"><span lang="en"># theme.py: from pathlib import Path; import altair as alt; import streamlit as st —
-# zero p36.* imports, the only file besides config.py itself that touches none of the four</span><span lang="zh"># theme.py：from pathlib import Path；import altair as alt；import streamlit as st——
-# 一个 p36.* 的 import 都没有，是除了 config.py 自己之外唯一一个四个公共文件都不碰的文件</span></code>
-          <code>from lib import (CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat,
+# zero p36.* imports, the only file besides config.py itself that touches none of the three</span><span lang="zh"># theme.py：from pathlib import Path；import altair as alt；import streamlit as st——
+# 一个 p36.* 的 import 都没有，是除了 config.py 自己之外唯一一个三个公共文件都不碰的文件</span></code>
+          <code>from lib.home import (CLIENT_UNIVERSITY, GO8_UNIVERSITIES, caveat,
     get_overlap_by_university, load_deduplicated, load_raw)  <span lang="en"># Home.py only</span><span lang="zh"># 只有 Home.py 有这行</span></code>
+          <code>from p36.analysis import prepare
+from p36.config import CLIENT_UNIVERSITY, GO8_UNIVERSITIES  <span lang="en"># lib/home.py itself</span><span lang="zh"># lib/home.py 内部</span></code>
         </div>
         <div class="task-note">
           <span lang="en">
             <code>theme.py</code> imports nothing from <code>p36</code> at all — pure
-            Streamlit/Altair styling every one of the other 7 pages calls.
+            Streamlit/Altair styling every one of the other 5 active pages calls.
             <code>.streamlit/config.toml</code> mirrors the same red/cream/black
-            palette at the Streamlit-server level. Only <code>Home.py</code> reaches
-            into <code>lib.py</code>, for its own KPI tiles.
+            palette at the Streamlit-server level. <code>app/lib/home.py</code> is
+            Home.py's own, independent data layer (added 2026-09-13, replacing a
+            dependency on the old shared <code>lib.py</code> that pulled in every
+            analysis task's code just for three simple functions) — it imports only
+            <code>p36.analysis.prepare</code> and <code>p36.config</code>, none of the
+            six analysis modules.
           </span>
           <span lang="zh">
             <code>theme.py</code> 完全不 import <code>p36</code> 下任何东西——纯
-            Streamlit/Altair 样式,另外 7 个页面全都调它。
+            Streamlit/Altair 样式,另外 5 个在用的页面全都调它。
             <code>.streamlit/config.toml</code> 在 Streamlit 服务端层面复刻了同一套
-            红/米白/黑配色。只有 <code>Home.py</code> 会用到 <code>lib.py</code>,为了
-            首页自己的 KPI 卡片。
+            红/米白/黑配色。<code>app/lib/home.py</code> 是 Home.py 自己独立的数据层
+            （2026-09-13新增，取代了以前依赖共用 <code>lib.py</code> 的做法——那样只为了
+            三个简单函数就会把六个分析任务的代码全部带进来）——它只 import
+            <code>p36.analysis.prepare</code> 和 <code>p36.config</code>，六个分析模块
+            一个都不碰。
           </span>
         </div>
       </div>
@@ -524,7 +588,7 @@
         </div>
         <div class="chips">
           <span class="chip off">Config**</span><span class="chip off">Metrics</span>
-          <span class="chip off">Prepare</span><span class="chip off">Lib</span>
+          <span class="chip off">Prepare</span>
         </div>
         <div class="imports">
           <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
@@ -561,15 +625,17 @@
     </div>
     <p class="section-note">
       <span lang="en">
-        Four files no single task owns outright — change one, and every task with a
+        Three files no single task owns outright — change one, and every task with a
         lit chip above needs a look before merging. Each item's <b>Imports</b> line
         is what that shared file itself pulls in — not who calls it, but what it
-        depends on.
+        depends on. <code>lib.py</code> used to be a fourth — see the task cards above
+        and the callout below for where it went on 2026-09-13.
       </span>
       <span lang="zh">
-        没有任何一个任务能独占的四个文件——改动其中一个,上面 chip 亮着的每个任务合并
+        没有任何一个任务能独占的三个文件——改动其中一个,上面 chip 亮着的每个任务合并
         前都得看一眼。每一项的<b>Imports</b>是这个公共文件自己依赖了什么——不是谁
-        调用它,而是它自己依赖谁。
+        调用它,而是它自己依赖谁。<code>lib.py</code> 以前是第四个——去哪了见上面的
+        任务卡片和下面的说明（2026-09-13）。
       </span>
     </p>
     <div class="core-band">
@@ -621,28 +687,41 @@
           <code>from p36 import dataset</code>
           <code>from p36.metrics import add_derived_flags, exclude_out_of_scope</code>
         </div>
-        <div class="fact"><span lang="en">1 importer in the whole repo: lib.py</span><span lang="zh">全仓库只有 1 个调用者</span></div>
-      </div>
-      <div class="core-item">
-        <div class="path">lib.py</div>
-        <div class="owner"><span lang="en">Read by Layout</span><span lang="zh">排版任务读取</span></div>
-        <p>
-          <span lang="en">One <code>@st.cache_data</code> wrapper per analysis output
-          — the only thing every page is allowed to call directly.</span>
-          <span lang="zh">每个 analysis 输出配一个 <code>@st.cache_data</code> 包装函数
-          ——每个页面唯一被允许直接调用的东西。</span>
-        </p>
-        <div class="imports">
-          <div class="imports-h"><span lang="en">Imports</span><span lang="zh">Imports</span></div>
-          <code>from p36.analysis import (field_analysis, go8_benchmarking, journal_tier,
-    prepare, scenario_analysis)</code>
-          <code>from p36.analysis import international_collaboration as intl</code>
-          <code>from p36.config import CLIENT_UNIVERSITY, GO8_UNIVERSITIES, MAIN_YEAR_RANGE</code>
-        </div>
-        <div class="fact"><span lang="en">6 of 7 pages, direct + 1 partial</span><span lang="zh">6/7 页面直接调用 + 1 个部分调用</span></div>
+        <div class="fact"><span lang="en">0 direct from any task — imported by all 7 app/lib/*.py files instead</span><span lang="zh">没有任何任务直接调用——改由全部7个 app/lib/*.py 文件调用</span></div>
       </div>
     </div>
   </section>
+
+  <div class="callout">
+    <p>
+      <span lang="en">
+        <b>Where <code>lib.py</code> went (2026-09-13):</b> it was never really a
+        "shared core" file the way <code>config.py</code>/<code>metrics.py</code>/
+        <code>prepare.py</code> are — those three are stable definitions every task
+        reads; <code>lib.py</code> was one big file every page's own caching code
+        happened to live inside, which meant depending on it for one function pulled
+        in all six analysis modules' imports too. It's now
+        <code>app/lib/&lt;task&gt;.py</code> — seven independent files (one per active
+        task, one per withdrawn one, plus Home's), each importing only the
+        <code>p36.analysis</code> module(s) its own page actually needs. See each task
+        card above for its own file, and <code>app/lib/scenario_analysis.py</code>'s
+        own docstring for the one place a lib file still legitimately imports two
+        other tasks' analysis modules.
+      </span>
+      <span lang="zh">
+        <b><code>lib.py</code> 去哪了（2026-09-13）：</b>它其实从来不是真正意义上的
+        "公共文件"，不像 <code>config.py</code>/<code>metrics.py</code>/<code>prepare.py</code>
+        这三个——那三个是每个任务都会读取的稳定定义；<code>lib.py</code> 只是恰好每个
+        页面自己的缓存代码都写在同一个大文件里，这意味着只依赖其中一个函数，也会把
+        六个分析模块的import全部带进来。现在它变成了
+        <code>app/lib/&lt;任务&gt;.py</code>——七个各自独立的文件（在用的每个任务一个、
+        下线的每个任务也一个、外加Home自己的），每个只import自己页面真正需要的那个
+        (或那些) <code>p36.analysis</code> 模块。每个任务自己的文件见上面对应的任务
+        卡片，唯一一处lib文件仍然合理地跨两个任务import的地方，见
+        <code>app/lib/scenario_analysis.py</code> 自己的docstring。
+      </span>
+    </p>
+  </div>
 
   <section>
     <div class="section-head">
@@ -655,7 +734,7 @@
       间接依赖,或者值得回去看一眼任务卡片说明的例外情况。</span>
     </p>
     <figure class="fig-frame">
-      <svg viewBox="0 0 760 520" role="img" aria-label="Bipartite diagram: eight tasks on the left connect to the shared files they import on the right — config.py, metrics.py, prepare.py, lib.py. Config and metrics are touched by five analysis tasks each; lib.py by six pages directly and one partially; prepare.py has zero direct callers, only lib.py reaches it; the database task has no connections to any of the four. 双语说明: 左侧八个任务连向右侧它们导入的公共文件；config.py 和 metrics.py 各被五个分析任务触及；lib.py 被六个页面直接调用、一个部分调用；prepare.py 没有任何任务直接调用，只有 lib.py 触达它；数据库任务与四个公共文件都没有连线。">
+      <svg viewBox="0 0 760 520" role="img" aria-label="Bipartite diagram: eight tasks on the left connect to the shared files they import on the right — config.py, metrics.py, prepare.py. Config and metrics are touched by five analysis tasks each; prepare.py has zero direct callers from any task — only each task's own app/lib/ file reaches it; the layout and database tasks have no connections to any of the three. 双语说明: 左侧八个任务连向右侧它们导入的公共文件；config.py 和 metrics.py 各被五个分析任务触及；prepare.py 没有任何任务直接调用，只有每个任务各自的 app/lib/ 文件触达它；排版和数据库两个任务与三个公共文件都没有连线。">
         <defs>
           <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path>
@@ -664,22 +743,15 @@
         <g stroke="currentColor" stroke-opacity="0.5" fill="none">
           <line x1="240" y1="33" x2="500" y2="47" marker-end="url(#arrow)"></line>
           <line x1="240" y1="33" x2="500" y2="177" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="33" x2="500" y2="440" marker-end="url(#arrow)"></line>
           <line x1="240" y1="97" x2="500" y2="47" marker-end="url(#arrow)"></line>
           <line x1="240" y1="97" x2="500" y2="177" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="97" x2="500" y2="440" marker-end="url(#arrow)"></line>
           <line x1="240" y1="161" x2="500" y2="47" marker-end="url(#arrow)"></line>
           <line x1="240" y1="161" x2="500" y2="177" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="161" x2="500" y2="440" marker-end="url(#arrow)"></line>
           <line x1="240" y1="225" x2="500" y2="47" marker-end="url(#arrow)"></line>
           <line x1="240" y1="225" x2="500" y2="177" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="225" x2="500" y2="440" marker-end="url(#arrow)"></line>
           <line x1="240" y1="289" x2="500" y2="177" marker-end="url(#arrow)"></line>
           <line x1="240" y1="289" x2="500" y2="47" stroke-dasharray="4 3" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="289" x2="500" y2="440" stroke-dasharray="4 3" marker-end="url(#arrow)"></line>
           <line x1="240" y1="353" x2="500" y2="47" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="353" x2="500" y2="440" marker-end="url(#arrow)"></line>
-          <line x1="240" y1="417" x2="500" y2="440" marker-end="url(#arrow)"></line>
         </g>
         <g font-family="'Space Grotesk', sans-serif" font-size="12">
           <rect x="20" y="16" width="220" height="34" fill="var(--surface)" stroke="currentColor" stroke-width="2"></rect>
@@ -716,10 +788,7 @@
           <text x="516" y="190" font-size="10" fill="var(--core-ink)" opacity="0.75">5 of 6 analysis tasks</text>
           <rect x="500" y="280" width="200" height="54" fill="var(--core-fill)"></rect>
           <text x="516" y="302" font-size="13" font-weight="700" fill="var(--core-ink)">prepare.py</text>
-          <text x="516" y="320" font-size="10" fill="var(--core-ink)" opacity="0.75">0 direct — only lib.py</text>
-          <rect x="500" y="410" width="200" height="60" fill="var(--core-fill)"></rect>
-          <text x="516" y="432" font-size="13" font-weight="700" fill="var(--core-ink)">lib.py</text>
-          <text x="516" y="450" font-size="10" fill="var(--core-ink)" opacity="0.75">6 direct + 2 partial</text>
+          <text x="516" y="320" font-size="10" fill="var(--core-ink)" opacity="0.75">0 direct — via app/lib/*.py</text>
         </g>
       </svg>
     </figure>
@@ -729,17 +798,22 @@
     </div>
     <figcaption>
       <span lang="en">
-        Config and metrics fan out to almost every analysis task; lib.py fans in from
-        almost every page. Prepare.py sits isolated on purpose — one caller in the
-        whole repo. Database has no lines at all: the foundation the other four are
-        built on, not a peer that imports them (see README.md's "Analysis pipeline"
-        section for that lower layer).
+        Config and metrics fan out to almost every analysis task. Prepare.py sits
+        isolated on purpose — no task imports it directly; every one of the seven
+        <code>app/lib/*.py</code> files does instead (that layer isn't drawn here — see
+        README.md's "Analysis pipeline" section for where it sits in the full
+        raw-data-to-page flow). Layout and Database have no lines at all: Layout's own
+        data need (<code>app/lib/home.py</code>) doesn't touch this shared core, and
+        Database is the foundation the other three are built on, not a peer that
+        imports them.
       </span>
       <span lang="zh">
-        config 和 metrics 几乎扇出到每个 analysis 任务;lib.py 几乎从每个页面扇入。
-        prepare.py 故意孤立——全仓库只有一个调用者。database 完全没有连线:它是另外
-        四个文件立足的地基,不是反过来 import 它们的同级任务(那一层在 README.md 的
-        "Analysis pipeline" 一节里)。
+        config 和 metrics 几乎扇出到每个 analysis 任务。prepare.py 故意孤立——没有任何
+        任务直接 import 它，而是七个 <code>app/lib/*.py</code> 文件各自去调（这一层没有
+        画在这张图里——它在完整"原始数据 → 页面"流程里的位置见 README.md 的
+        "Analysis pipeline" 一节）。排版和数据库都没有连线：排版自己的数据需求
+        （<code>app/lib/home.py</code>）不碰这个公共核心，数据库则是另外三个文件立足的
+        地基，不是反过来 import 它们的同级任务。
       </span>
     </figcaption>
   </section>
@@ -750,15 +824,21 @@
     </div>
     <p class="section-note">
       <span lang="en">Until 2026-09-12 there were four — one task's module reaching
-      directly into another's — plus one value passed cleanly through
-      <code>app/lib.py</code>. Every one of the four is now gone: each was closed either
-      by moving the shared thing into an actual shared-core file, or by having
-      <code>app/lib.py</code> compute it and pass the result in as a plain function
-      argument, the same pattern the fifth one already used.</span>
+      directly into another's — plus one value passed cleanly through the shared lib
+      layer (at the time, still one file, <code>app/lib.py</code>). Every one of the
+      four is now gone: each was closed either by moving the shared thing into an
+      actual shared-core file, or by having the lib layer compute it and pass the
+      result in as a plain function argument, the same pattern the fifth one already
+      used. That lib layer was itself split into <code>app/lib/&lt;task&gt;.py</code>
+      later the same day — the table below already names the current file,
+      <code>app/lib/scenario_analysis.py</code>.</span>
       <span lang="zh">直到2026-09-12为止，这里还有四条——一个任务的模块直接伸进另一个
-      任务的模块——外加一条是干净地经由 <code>app/lib.py</code> 传值的。现在这四条全部
-      关闭了：要么把共用的东西挪进了真正的公共文件，要么让 <code>app/lib.py</code> 自己
-      算好、把结果当普通函数参数传进去——用的正是第五条本来就在用的那种模式。</span>
+      任务的模块——外加一条是干净地经由共用的lib层传值的（当时还是一个文件，
+      <code>app/lib.py</code>）。现在这四条全部关闭了：要么把共用的东西挪进了真正的
+      公共文件，要么让lib层自己算好、把结果当普通函数参数传进去——用的正是第五条本来
+      就在用的那种模式。这个lib层本身在同一天晚些时候又被拆成了
+      <code>app/lib/&lt;任务&gt;.py</code>——下表里已经写的是现在的文件名
+      <code>app/lib/scenario_analysis.py</code>。</span>
     </p>
     <table style="width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:10px;">
       <thead>
@@ -786,25 +866,28 @@
         </tr>
         <tr style="border-bottom:1px solid var(--hair);">
           <td style="padding:8px 10px 8px 0;">Scenario Analysis → Go8 Benchmarking</td>
-          <td style="padding:8px 10px;"><code>from p36.analysis import go8_benchmarking</code> <span lang="en">(2 functions)</span><span lang="zh">（2个函数）</span></td>
-          <td style="padding:8px 0 8px 10px;"><code>app/lib.py</code> <span lang="en">computes both, passes the value as an argument</span><span lang="zh">两个都在这里算好，把值当参数传进去</span></td>
+          <td style="padding:8px 10px;"><code>from p36.analysis import go8_benchmarking</code> <span lang="en">(2 functions, inside <code>src/p36/analysis/scenario_analysis.py</code>)</span><span lang="zh">（2个函数，在 <code>src/p36/analysis/scenario_analysis.py</code> 内部）</span></td>
+          <td style="padding:8px 0 8px 10px;"><code>app/lib/scenario_analysis.py</code> <span lang="en">computes both, passes the value as an argument</span><span lang="zh">两个都在这里算好，把值当参数传进去</span></td>
         </tr>
         <tr>
           <td style="padding:8px 10px 8px 0;"><span lang="en">Scenario Analysis ← Journal Tier</span><span lang="zh">Scenario Analysis ← Journal Tier</span> <span lang="en">(unchanged)</span><span lang="zh">（没变）</span></td>
-          <td style="padding:8px 10px;" colspan="2"><code>source_performance_flag()</code> <span lang="en">merged in by <code>app/lib.py</code>'s <code>get_scenario_table()</code> — this was always the pattern, never a direct import</span><span lang="zh">由 <code>app/lib.py</code> 的 <code>get_scenario_table()</code> 合并进去——这一条本来就是这种模式，从来不是直接 import</span></td>
+          <td style="padding:8px 10px;" colspan="2"><code>source_performance_flag()</code> <span lang="en">merged in by <code>app/lib/scenario_analysis.py</code>'s <code>get_scenario_table()</code> — this was always the pattern, never a direct import</span><span lang="zh">由 <code>app/lib/scenario_analysis.py</code> 的 <code>get_scenario_table()</code> 合并进去——这一条本来就是这种模式，从来不是直接 import</span></td>
         </tr>
       </tbody>
     </table>
     <p class="section-note" style="margin-top:14px;">
-      <span lang="en">No <code>p36.analysis.*</code> module imports another one any more —
-      the only files any of them reach into now are <code>p36.config</code> and
+      <span lang="en">No <code>src/p36/analysis/*.py</code> module imports another one any
+      more — the only files any of them reach into now are <code>p36.config</code> and
       <code>p36.metrics</code>, both already part of the shared core above.
-      <code>app/lib.py</code> is the one place still allowed to know about more than
-      one task at a time, which is exactly its job.</span>
-      <span lang="zh"><code>p36.analysis.*</code> 里没有任何一个模块还在 import 另一个了——
-      现在它们能伸进去的只剩 <code>p36.config</code> 和 <code>p36.metrics</code>，都已经是
-      上面公共文件的一部分。唯一还被允许同时知道多个任务的地方是 <code>app/lib.py</code>，
-      而这正是它本来该做的事。</span>
+      <code>app/lib/scenario_analysis.py</code> is the one file still allowed to know
+      about more than one task's analysis module at a time, which is exactly its job —
+      see its own docstring for why that's an honest exception, not incidental
+      coupling.</span>
+      <span lang="zh"><code>src/p36/analysis/*.py</code> 里没有任何一个模块还在 import
+      另一个了——现在它们能伸进去的只剩 <code>p36.config</code> 和 <code>p36.metrics</code>，
+      都已经是上面公共文件的一部分。唯一还被允许同时知道多个任务的analysis模块的文件是
+      <code>app/lib/scenario_analysis.py</code>，而这正是它本来该做的事——为什么这是一个
+      坦白的例外而不是意外的耦合，见它自己的docstring。</span>
     </p>
   </section>
 
@@ -812,35 +895,41 @@
     <p>
       <span lang="en">
         <b>Practical read for splitting the work, updated for the 2026-09-13
-        decoupling:</b> no analysis task is a build-order dependency for another one
-        any more — none of them import each other, so all 6 can genuinely be built in
-        parallel. The one coordination point that's left is a shared-core one, same
-        category as any other <code>config.py</code> constant: <code>FIELD_COLUMN_EXPLODED</code>'s
-        shape should still be agreed early, since Go8, Journal Tier, International
-        Collaboration and Scenario all consume data shaped by it — but that's a
-        conversation about a config value, not a code dependency on Field Analysis's
-        module. Whoever builds <code>app/lib.py</code>'s integration layer (not a task
-        of its own) is the one place that does still need every task's functions to
-        exist first — <code>get_client_institution_scenario()</code> and
-        <code>get_field_gap_closure_scenario()</code> can't be wired up until both Go8
-        Benchmarking and Scenario Analysis's own pieces are done. Database has no
-        upward callers to coordinate with — its risk is entirely in the four
-        <code>config.py</code>/<code>metrics.py</code> consumers below it moving
-        before its schema settles.
+        decoupling and lib split:</b> no analysis task is a build-order dependency for
+        another one any more — none of them import each other, so all 6 can genuinely
+        be built in parallel, right down to each task's own
+        <code>app/lib/&lt;task&gt;.py</code> file. The one coordination point that's
+        left is a shared-core one, same category as any other <code>config.py</code>
+        constant: <code>FIELD_COLUMN_EXPLODED</code>'s shape should still be agreed
+        early, since Go8, Journal Tier, International Collaboration and Scenario all
+        consume data shaped by it — but that's a conversation about a config value,
+        not a code dependency on Field Analysis's module. Whoever builds Scenario
+        Analysis is the one exception that still needs another task's pieces to exist
+        first — <code>app/lib/scenario_analysis.py</code>'s
+        <code>get_client_institution_scenario()</code> and
+        <code>get_field_gap_closure_scenario()</code> can't be wired up until Go8
+        Benchmarking's <code>institution_partner_flag()</code> and
+        <code>field_gap_vs_peers()</code> exist. Database has no upward callers to
+        coordinate with — its risk is entirely in the three
+        <code>config.py</code>/<code>metrics.py</code>/<code>prepare.py</code>
+        consumers below it moving before its schema settles.
       </span>
       <span lang="zh">
-        <b>分工时的实操提示，2026-09-13解耦之后更新：</b>现在没有哪个分析任务是另一个
-        任务的构建顺序依赖了——它们互相都不 import，6个可以真正并行开工。剩下唯一要协调
-        的是一个公共文件层面的问题，跟任何其它 <code>config.py</code> 常量性质一样：
+        <b>分工时的实操提示，2026-09-13解耦+lib拆分之后更新：</b>现在没有哪个分析任务是
+        另一个任务的构建顺序依赖了——它们互相都不 import，6个可以真正并行开工，连各自的
+        <code>app/lib/&lt;任务&gt;.py</code> 文件都可以独立开工。剩下唯一要协调的是一个
+        公共文件层面的问题，跟任何其它 <code>config.py</code> 常量性质一样：
         <code>FIELD_COLUMN_EXPLODED</code> 的形状还是应该尽早定下来，因为 Go8、Journal
         Tier、International Collaboration 和 Scenario 都要用到按它整理出来的数据——但这是
-        在谈一个配置值，不是对 Field Analysis 模块的代码依赖。唯一还需要"等所有任务的
-        函数都写好"的地方是负责搭 <code>app/lib.py</code> 集成层的人（这不是一个独立任务）
-        ——<code>get_client_institution_scenario()</code> 和
-        <code>get_field_gap_closure_scenario()</code> 得等 Go8 Benchmarking 和 Scenario
-        Analysis 各自的部分都写完才能接起来。数据库任务没有上游要协调——它的风险全在于
-        下面四个 <code>config.py</code>/<code>metrics.py</code> 的消费者会不会在它的
-        schema 定稳之前就先动了。
+        在谈一个配置值，不是对 Field Analysis 模块的代码依赖。唯一还需要"等另一个任务的
+        东西先写好"的例外是负责 Scenario Analysis 的人——
+        <code>app/lib/scenario_analysis.py</code> 的
+        <code>get_client_institution_scenario()</code> 和
+        <code>get_field_gap_closure_scenario()</code> 得等 Go8 Benchmarking 的
+        <code>institution_partner_flag()</code> 和 <code>field_gap_vs_peers()</code>
+        先存在才能接起来。数据库任务没有上游要协调——它的风险全在于下面三个
+        <code>config.py</code>/<code>metrics.py</code>/<code>prepare.py</code>
+        的消费者会不会在它的schema定稳之前就先动了。
       </span>
     </p>
   </div>
@@ -859,6 +948,7 @@
       <code>docs/deployment-azure.md</code><code>docs/methodology.md</code>
       <code>docs/meeting-notes/</code><code>src/p36/__init__.py</code>
       <code>src/p36/analysis/__init__.py</code><code>src/p36/metrics/__init__.py</code>
+      <code>app/lib/__init__.py</code><code>app/pages_disabled/README.md</code>
     </div>
   </div>
 
