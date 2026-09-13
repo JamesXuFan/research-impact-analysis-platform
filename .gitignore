@@ -20,10 +20,8 @@ venv/
 # tooling, not project deliverable content
 .claude/
 
-# Azure deployment content — this repo now supports local deployment only;
-# kept on disk for personal reference, not tracked or documented here.
-.github/workflows/azure-deploy.yml
-docs/deployment-azure.md
+# Build artifact for the Azure deploy step — regenerated on every deploy,
+# far too large for git (400MB+).
 deploy.zip
 
 # Team working agreement — not for the public/shared repo.

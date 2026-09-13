@@ -155,7 +155,7 @@ comp3888/
 │   ├── dictionary/               data_dictionary.md（已追踪）
 │   ├── *.xlsx                    原始各大学导出（git已忽略——见上）
 │   └── processed/                 构建出的parquet文件（git已忽略——见上）
-├── docs/                      methodology.md、meeting-notes/
+├── docs/                      methodology.md、deployment-azure.md、meeting-notes/
 ├── .streamlit/config.toml     主题+工具栏配置
 └── requirements.txt
 ```
@@ -217,7 +217,7 @@ flowchart TD
 | **数据** | pandas、pyarrow（parquet）、openpyxl（读取原始QS/Scopus导出） |
 | **统计** | statsmodels（OLS，HC3稳健标准误）、scipy |
 | **平台** | Streamlit、Altair（Vega-Lite）——不用Plotly，不写JavaScript |
-| **部署** | 仅本地——见[快速开始](#快速开始) |
+| **部署** | 本地（见[快速开始](#快速开始)）+ Azure App Service，push后自动部署（见[部署](#部署)） |
 
 ## 数据与治理
 
@@ -242,14 +242,14 @@ flowchart TD
 
 ## 部署
 
-本仓库自己的部署步骤**仅限本地**——见上面的[快速开始](#快速开始)；
-`streamlit run app/Home.py` 就是全部的部署步骤。仓库里没有任何会把它部署到
-别处的CI/CD工作流。
+本地开发只需要 `streamlit run app/Home.py`（见上面的[快速开始](#快速开始)）。
 
-另外单独维护了一份线上实例，托管在
+另外还有一份线上实例，跑在
 **[data-platform.azurewebsites.net](https://data-platform.azurewebsites.net)**，
-是手动更新的，不是由被追踪的工作流自动部署——把它当作一个方便访问的镜像，
-不是权威来源；仓库本身和 `docs/methodology.md` 才是。
+由 [`.github/workflows/azure-deploy.yml`](.github/workflows/azure-deploy.yml)
+在每次push到 `main` 时自动重新部署——App Service的配置、处理后数据集存放的
+`P36_DATA_DIR` 持久存储路径、以及为什么启动命令是直接设在资源上而不是仓库里的
+脚本，见 [`docs/deployment-azure.md`](docs/deployment-azure.md)。
 
 ## 团队
 

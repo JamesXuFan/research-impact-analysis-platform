@@ -161,7 +161,7 @@ comp3888/
 │   ├── dictionary/               data_dictionary.md (tracked)
 │   ├── *.xlsx                    raw per-university exports (git-ignored — see above)
 │   └── processed/                 built parquet files (git-ignored — see above)
-├── docs/                      methodology.md, meeting-notes/
+├── docs/                      methodology.md, deployment-azure.md, meeting-notes/
 ├── .streamlit/config.toml     theme + toolbar config
 └── requirements.txt
 ```
@@ -223,7 +223,7 @@ flowchart TD
 | **Data** | pandas, pyarrow (parquet), openpyxl (reading the raw QS/Scopus exports) |
 | **Statistics** | statsmodels (OLS, HC3 robust SE), scipy |
 | **Platform** | Streamlit, Altair (Vega-Lite) — no Plotly, no JavaScript |
-| **Deployment** | Local only — see [Getting started](#getting-started) |
+| **Deployment** | Local (see [Getting started](#getting-started)) + Azure App Service, auto-deployed on push (see [Deployment](#deployment)) |
 
 ## Data & governance
 
@@ -255,14 +255,16 @@ concerns, not an afterthought:
 
 ## Deployment
 
-This repo's own deploy step is **local only** — see [Getting started](#getting-started)
-above; `streamlit run app/Home.py` is the entire thing. There is no CI/CD workflow in
-this repository that deploys anywhere.
+For local development, `streamlit run app/Home.py` (see [Getting started](#getting-started)
+above) is all you need.
 
-A live instance is separately hosted at
-**[data-platform.azurewebsites.net](https://data-platform.azurewebsites.net)**,
-updated by hand rather than by a tracked workflow — treat it as a convenience mirror,
-not the source of truth; the repository and `docs/methodology.md` are that.
+A live instance also runs at
+**[data-platform.azurewebsites.net](https://data-platform.azurewebsites.net)**, redeployed
+automatically by [`.github/workflows/azure-deploy.yml`](.github/workflows/azure-deploy.yml)
+on every push to `main` — see [`docs/deployment-azure.md`](docs/deployment-azure.md) for
+the App Service setup, the `P36_DATA_DIR` persistent-storage path the processed dataset
+lives at, and why the startup command is set directly on the resource rather than a
+script in this repo.
 
 ## Team
 
