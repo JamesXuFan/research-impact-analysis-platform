@@ -55,7 +55,6 @@
   .chip{ font-family:var(--font-mono); font-weight:700; font-size:0.72rem; width:24px; height:24px; flex:none; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--line); color:#fff; }
   .chip.done{ background:var(--blue); }
   .chip.partial{ background:var(--yellow); color:var(--ink); }
-  .chip.elsewhere{ background:var(--muted); }
   .chip.open{ background:var(--paper); color:var(--ink); }
 
   .allclear{ display:flex; align-items:center; gap:14px; background:var(--blue-tint); border:2px solid var(--line); border-left:8px solid var(--blue); padding:16px 18px; margin:22px 0 0; font-size:0.9rem; }
@@ -145,20 +144,20 @@
   <div class="legend">
     <span class="lgitem"><span class="chip done">✓</span><span class="en">answered directly, on this page</span><span class="zh">本页直接回答</span></span>
     <span class="lgitem"><span class="chip partial">~</span><span class="en">answered, aggregate / qualitative only</span><span class="zh">已回答，但只是聚合或定性层面</span></span>
-    <span class="lgitem"><span class="chip elsewhere">→</span><span class="en">answered on a different page</span><span class="zh">在其它页面回答</span></span>
     <span class="lgitem"><span class="chip open">?</span><span class="en">not yet built anywhere in the platform</span><span class="zh">平台目前尚未实现</span></span>
   </div>
   <p class="prose" style="margin-top:14px;">
-    <span class="en">This legend is not decorative — it's the same four states the live
+    <span class="en">This legend is not decorative — it's the same three states the live
     platform itself shows, at the top of every analysis page, as a "Sub-questions this
     page answers" panel, which is itself now clickable: each question links straight to
-    its chart, on the same page for a same-page answer, across pages for an "answered
-    elsewhere" one. This document is that panel's content, written out in full with the
-    reasoning behind every status and every chart choice.</span>
+    its chart, on the same page — every sub-question is answered on the page that asks
+    it, so there's no cross-page jump left to make. This document is that panel's
+    content, written out in full with the reasoning behind every status and every chart
+    choice.</span>
     <span class="zh">这套图例不是装饰——它跟平台每个分析页面顶部实际显示的"本页回答的子问题"面板，
-    用的是同一套四种状态，而且那个面板现在本身也是可以点击跳转的：本页能回答的问题直接跳到本页对应
-    图表，"在其它页面回答"的问题跳到对应的另一个页面。这份文档就是把那个面板的内容完整写出来，
-    并且给每一个判定、每一次图表选择都补上背后的理由。</span>
+    用的是同一套三种状态，而且那个面板现在本身也是可以点击跳转的：每一条问题都直接跳到本页
+    对应图表——每一条子问题都在提出它的那个页面上被回答，不再需要跳到别的页面。这份文档就是
+    把那个面板的内容完整写出来，并且给每一个判定、每一次图表选择都补上背后的理由。</span>
   </p>
 
   <div class="allclear">
@@ -195,6 +194,9 @@
   <ul class="impl">
     <li><span class="en">Q1 share by university (bar) and by year (line), <code>MAIN_YEAR_RANGE</code>-scoped.</span><span class="zh">按大学（柱状图）和按年份（折线图，限定在 <code>MAIN_YEAR_RANGE</code> 内）的Q1份额。</span></li>
     <li><span class="en">Citation performance across all four CiteScore quartiles (Q1–Q4) — mean FWCI, highly-cited share, uncited share, side by side.</span><span class="zh">CiteScore四个分位（Q1–Q4）的引用表现对比——平均FWCI、高被引占比、零引用占比并排展示。</span></li>
+    <li><span class="en">Q1 share by field, level and trend, side by side — <code>field_summary.q1_share</code> for the current level, and a new <code>q1_share_change_by_field()</code> for the percentage-point change between the first and second half of <code>MAIN_YEAR_RANGE</code>.</span><span class="zh">按学科拆分的Q1份额——现状和变化趋势并排展示：现状用<code>field_summary.q1_share</code>，
+    趋势用新增的<code>q1_share_change_by_field()</code>，算的是<code>MAIN_YEAR_RANGE</code>
+    前后两段之间的百分点变化。</span></li>
     <li><span class="en">Q1-minus-non-Q1 FWCI gap, computed separately per field — is the advantage the same everywhere, or concentrated?</span><span class="zh">按学科分别计算的Q1减非Q1的FWCI差距——这个优势是到处都一样，还是集中在少数学科？</span></li>
     <li><span class="en">Over/under-performing journals within their own tier — per-source mean FWCI vs. its quartile average, floor-filtered by publication count, top/bottom 12 in two tabs.</span><span class="zh">在自己所在档位内跑赢/跑输的期刊——按来源的平均FWCI对比该分位的均值，
     按发文量设下限过滤，前12/后12分两个标签页展示。</span></li>
@@ -220,11 +222,11 @@
       （<code>mean_fwci</code>、<code>top_decile_share</code>、<code>uncited_share</code>三列
       都在Q1→Q4之间单调下降），而不是把"有多大"这个问题留给读者自己在图上目测。</span></span>
     </span></div>
-    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
-      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-q1-share"><span class="en">Which faculties/fields have the highest success rates in Q1 publishing?</span><span class="zh">哪些院系/学科的Q1成功率最高？</span></a>
-      <span class="qwhy"><span class="en">This is a field-level ranking question, not a tier-level one — it belongs to the Field Analysis page's <code>field_summary</code> table's <code>q1_share</code> column (also charted as its own bar), sorted by exactly this number, rather than being duplicated here.</span><span class="zh">这是一个学科层面的排名问题，不是档位层面的——它属于Field Analysis页面
-      <code>field_summary</code> 表格的<code>q1_share</code>列（也单独画了一张条形图），
-      按这个数字排序，所以没有在这里重复。</span></span>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-field-q1"><span class="en">Which faculties/fields have the highest success rates in Q1 publishing?</span><span class="zh">哪些院系/学科的Q1成功率最高？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> <code>field_summary[["q1_share"]]</code> (the same table Field Analysis uses), one bar per field sorted by <code>q1_share</code> — kept on this page too, next to the tier-level view, rather than requiring a trip to Field Analysis for a field-level cut of the same Q1 flag.</span><span class="zh"><b>用的数据：</b><code>field_summary[["q1_share"]]</code>（跟Field Analysis用的是
+      同一张表格），按<code>q1_share</code>排序，一个学科一根柱子——这一页也留了一份，跟
+      按档位的视角并排放在一起，不用为了同一个Q1标记的学科切面专门跑一趟Field Analysis页面。</span></span>
     </span></div>
     <div class="qrow"><span class="chip done">✓</span><span class="qtext">
       <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-consistency"><span class="en">Is the Q1 citation advantage consistent across disciplines, or concentrated in a few?</span><span class="zh">Q1的优势在各学科之间是否一致，还是集中在少数学科？</span></a>
@@ -252,12 +254,12 @@
       简单对比：三列在全部四档之间都是Q1→Q2→Q3→Q4单调下降，这正好排除了"Q1是断崖式的，
       Q2/Q3/Q4其实都差不多"这种可能，支持"是的，而且这是一条持续延伸的梯度"这个结论。</span></span>
     </span></div>
-    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
-      <a class="qjump" href="https://data-platform.azurewebsites.net/Field_Analysis#fa-q1-share"><span class="en">Which fields have the highest / improving / declining Q1 share?</span><span class="zh">哪些学科的Q1份额最高/上升最快/下降最快？</span></a>
-      <span class="qwhy"><span class="en">Field Analysis page's <code>field_summary.q1_share</code> column for the "highest" half, and its separate <code>growth_df.growth</code> column (<code>field_growth()</code>'s <code>period_growth</code> per field) for the "improving/declining" half — again a field-level ranking, not something this tier-focused page computes.</span><span class="zh">Field Analysis页面<code>field_summary</code>表格的<code>q1_share</code>列对应
-      "最高"这一半，独立的<code>growth_df</code>表格的<code>growth</code>列（<code>field_growth()</code>
-      按学科算的<code>period_growth</code>）对应"上升/下降最快"这一半——同样是
-      学科层面的排名，不是这个聚焦档位的页面该算的东西。</span></span>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-field-q1"><span class="en">Which fields have the highest / improving / declining Q1 share?</span><span class="zh">哪些学科的Q1份额最高/上升最快/下降最快？</span></a>
+      <span class="qwhy"><span class="en">"Highest" is the same <code>field_summary.q1_share</code> bar as above. "Improving/declining" is the new <code>q1_share_change_by_field()</code>: <code>MAIN_YEAR_RANGE</code> split at its midpoint, <code>q1_share</code> computed separately for each half per field, plotted as the late-minus-early percentage-point change — a rate's own trend, not the publication-volume growth <code>field_growth()</code> measures.</span><span class="zh">"最高"用的还是上面那根<code>field_summary.q1_share</code>柱子。"上升/下降最快"用的是
+      新增的<code>q1_share_change_by_field()</code>：把<code>MAIN_YEAR_RANGE</code>从中点拆成
+      两段，每个学科分别算两段各自的<code>q1_share</code>，画出后段减前段的百分点变化——算的是
+      这个比例本身的趋势，不是<code>field_growth()</code>那种发文量的增长。</span></span>
     </span></div>
     <div class="qrow"><span class="chip done">✓</span><span class="qtext">
       <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-overperform"><span class="en">Are there journals/publications within a tier that receive more citations than expected for that tier?</span><span class="zh">同一档位内是否存在引用表现超出预期的期刊/论文？</span></a>
@@ -461,13 +463,26 @@
     <span class="lbl"><span class="en">Closed since 2026-09-04</span><span class="zh">2026-09-04之后补上的</span></span>
     <span class="en">Two sub-questions previously marked open now have dedicated analysis:
     a second regression with an explicit <code>is_q1 : is_international</code> interaction
-    term, and a descriptive factor-combination cross-tab. A third — "field-specific
-    importance" — is now explicitly routed to the closest thing this platform actually
-    computes, rather than left open.</span>
+    term, and a descriptive factor-combination cross-tab.</span>
     <span class="zh">两个之前标为"尚未实现"的子问题现在有了专门的分析：一个带显式
     <code>is_q1 : is_international</code> 交互项的第二个回归模型，以及一张描述性的
-    因素组合交叉表。第三个——"某些因素是否只在特定学科重要"——现在明确指向了这个平台
-    实际算出来的最接近的答案，而不是继续留空。</span>
+    因素组合交叉表。</span>
+  </div>
+
+  <div class="new">
+    <span class="lbl"><span class="en">Closed since 2026-09-13</span><span class="zh">2026-09-13之后补上的</span></span>
+    <span class="en">The mediation chart is now embedded directly on this page instead of
+    pointing to International Collaboration, and "field-specific importance" moved from
+    "routed to the closest existing table" to an actual dedicated model: a new
+    <code>driver × C(primary_field)</code> interaction term, fit once for
+    <code>is_international</code> and once for <code>is_q1</code> (the two predictors people
+    actually ask this about) — cheap to fit precisely, since the QS field column resolves to
+    only 5 broad categories, each with tens of thousands of rows.</span>
+    <span class="zh">中介效应那张图现在直接嵌在本页里，不再指向International Collaboration；
+    "某些因素是否只在特定学科重要"也从"指向平台里最接近的现成表格"变成了真正专门的模型：
+    新增一个<code>driver × C(primary_field)</code>交互项，分别对<code>is_international</code>
+    和<code>is_q1</code>（这两个是实际最常被问到的预测变量）各拟合一次——之所以能精确拟合
+    且成本很低，是因为QS学科列本身只有5个大类，每一类都有几万行数据。</span>
   </div>
 
   <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
@@ -528,11 +543,12 @@
       <i>正</i>的，即便FWCI理论上已经被SciVal按文献类型归一化过了。</span></span>
     </span></div>
     <div class="qrow"><span class="chip partial">~</span><span class="qtext">
-      <a class="qjump" href="https://data-platform.azurewebsites.net/International_Collaboration#ic-breadth"><span class="en">Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?</span><span class="zh">国际合作是否通过提高Q1发表概率间接提升了影响力？</span></a>
-      <span class="qwhy"><span class="en">This regression's <code>table</code> includes <code>is_international</code> and <code>is_q1</code> as two separate direct-predictor rows, not a formal mediation model — a proper answer needs a fitted indirect-effect estimate, which isn't built. The closest available reasoning uses the International Collaboration page's <code>breadth_df</code> table instead: its <code>q1_share</code> column climbs alongside the <code>countries</code> bins (1→2→3→4+), consistent with (not proof of) part of the effect running through Q1 placement.</span><span class="zh">这个回归模型的<code>table</code>把 <code>is_international</code> 和 <code>is_q1</code>
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-mediation"><span class="en">Does international collaboration indirectly improve impact by increasing the likelihood of Q1 publishing?</span><span class="zh">国际合作是否通过提高Q1发表概率间接提升了影响力？</span></a>
+      <span class="qwhy"><span class="en">This regression's <code>table</code> includes <code>is_international</code> and <code>is_q1</code> as two separate direct-predictor rows, not a formal mediation model — a proper answer needs a fitted indirect-effect estimate, which isn't built. The closest available reasoning is the same <code>breadth_df</code> table International Collaboration uses (<code>get_impact_by_collaboration_breadth()</code>), now embedded directly on this page next to the regression it's being read against: its <code>q1_share</code> column climbs alongside the <code>countries</code> bins (1→2→3→4+), consistent with (not proof of) part of the effect running through Q1 placement.</span><span class="zh">这个回归模型的<code>table</code>把 <code>is_international</code> 和 <code>is_q1</code>
       作为两个独立的直接预测变量行放进去，不是一个正式的中介效应模型——真正的答案需要一个
-      拟合出来的间接效应估计值，目前没有做。现有能提供的最接近的推理换用了International
-      Collaboration页面的<code>breadth_df</code>表格：它的<code>q1_share</code>列随
+      拟合出来的间接效应估计值，目前没有做。现有能提供的最接近的推理，用的是跟International
+      Collaboration页面同一张<code>breadth_df</code>表格（<code>get_impact_by_collaboration_breadth()</code>），
+      现在直接嵌在本页里、紧挨着要对照的回归模型：它的<code>q1_share</code>列随
       <code>countries</code>分箱（1→2→3→4+）一起上升，这跟"部分效应是通过Q1这条路径传导"
       这个说法一致，但不能证明它。</span></span>
     </span></div>
@@ -564,14 +580,16 @@
       交叉表，不是一个系数。特意在完整数据集上计算、不控制任何变量，作为上面回归模型的
       "原始模式"对照版本，而不是替代它。</span></span>
     </span></div>
-    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
-      <a class="qjump" href="https://data-platform.azurewebsites.net/Journal_Tier#jt-consistency"><span class="en">Are some drivers particularly important only in particular disciplines?</span><span class="zh">某些驱动因素是否只在特定学科特别重要？</span></a>
-      <span class="qwhy"><span class="en">This model's <code>table</code> fits one global linear effect per predictor across all fields at once — a true answer would need a full interaction term per predictor per field, which needs far more rows per field than most fields have to estimate reliably. The closest thing this platform actually computes is the Journal Tier page's <code>q1_advantage_by_field()</code> table (one predictor's effect broken out by field), best read alongside the International Collaboration page's <code>impact_gap_by_field()</code> table for a second predictor's version of the same idea.</span><span class="zh">这个模型的<code>table</code>对每个预测变量只在全部学科上拟合一个全局线性效应——
-      真正的答案需要给每个预测变量、每个学科都加一个交互项，而这需要比大多数学科现有数据量
-      多得多的样本才能可靠估计。这个平台实际算出来、最接近的答案是Journal Tier页面的
-      <code>q1_advantage_by_field()</code>表格（一个预测变量按学科拆开的效应），最好再配合
-      International Collaboration页面的<code>impact_gap_by_field()</code>表格（另一个预测
-      变量的同类拆分）一起看。</span></span>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Impact_Drivers#id-field-interaction"><span class="en">Are some drivers particularly important only in particular disciplines?</span><span class="zh">某些驱动因素是否只在特定学科特别重要？</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> <code>field_interaction_summary_table(fit, driver)</code> — a separate model per predictor, each adding one <code>driver × C(primary_field)</code> interaction to the main model (not the field fixed effects already in the main model above, which only let each field have a different baseline FWCI, not a different <code>is_q1</code>/<code>is_international</code> coefficient). A <code>st.selectbox</code> switches between <code>is_international</code> and <code>is_q1</code>; each renders as a per-field effect ± 95% CI, the same forest-plot shape as the main coefficient chart. Only fit for these two predictors, and only feasible because the QS field column resolves to just 5 broad categories (not "dozens") — fitting it for every predictor in the main model at once, across every field, is still not done.</span><span class="zh"><b>用的数据：</b><code>field_interaction_summary_table(fit, driver)</code>——每个预测
+      变量单独拟合一个模型，各自加一个<code>driver × C(primary_field)</code>交互项（不是主模型
+      已有的学科固定效应，那个只能让每个学科有不同的基线FWCI，不能让<code>is_q1</code>/
+      <code>is_international</code>的系数本身因学科而不同）。页面上用一个<code>st.selectbox</code>
+      在<code>is_international</code>和<code>is_q1</code>之间切换，每种画成按学科拆开的
+      效应±95%置信区间，跟上面主系数图是同一种森林图形状。只对这两个预测变量拟合，而且之所以
+      可行，是因为QS学科列本身只有5个大类（不是"几十个"）——给主模型里每一个预测变量、对每个
+      学科都加交互项，目前仍然没有做。</span></span>
     </span></div>
   </div>
 </div>
@@ -681,6 +699,20 @@
     地方处理多值字段的同一套方法拆开、按合作机构/按期刊来源分别匹配就行。</span>
   </div>
 
+  <div class="new">
+    <span class="lbl"><span class="en">Closed since 2026-09-13</span><span class="zh">2026-09-13之后补上的</span></span>
+    <span class="en">"Improve publication performance within selected research areas" moved
+    from "the input data exists on another page, not turned into a projection here" to its
+    own dedicated scenario: a new <code>estimate_uplift_from_field_gap_closure()</code>
+    reuses Go8 Benchmarking's <code>field_gap_vs_peers()</code> numbers directly, letting you
+    pick a field and a fraction of its peer gap to close, then projects the resulting shift
+    in Sydney's overall mean FWCI — see the dedicated section below.</span>
+    <span class="zh">"提升特定研究领域的发表表现"从"所需数据在另一个页面，但没有在这里做成
+    预测"变成了一个专门的情景：新增的<code>estimate_uplift_from_field_gap_closure()</code>
+    直接复用Go8 Benchmarking的<code>field_gap_vs_peers()</code>数据，让你选一个学科和要
+    关闭多大比例的同行差距，然后预测悉尼整体平均FWCI会怎么变化——见下方专门的小节。</span>
+  </div>
+
   <h4 class="h4"><span class="en">Sub-question coverage</span><span class="zh">子问题覆盖情况</span></h4>
   <div class="qlist">
     <div class="qrow"><span class="chip done">✓</span><span class="qtext">
@@ -713,12 +745,14 @@
       客户没有给出定义，跟"零引用"不是一回事：一篇论文可能影响力低但不为零，这一行
       对它是不起作用的。</span></span>
     </span></div>
-    <div class="qrow"><span class="chip elsewhere">→</span><span class="qtext">
-      <a class="qjump" href="https://data-platform.azurewebsites.net/Go8_Benchmarking#go8-fields"><span class="en">Improve publication performance within selected research areas.</span><span class="zh">提升特定研究领域的发表表现。</span></a>
-      <span class="qwhy"><span class="en">The Go8 Benchmarking page's <code>gap_df.gap</code> column already identifies exactly where Sydney trails, by field — that's the "selected research areas" input a scenario like this would need, but it isn't turned into its own row in this page's <code>table</code>; doing so would mean picking which fields' publications get reassigned a target FWCI, a scope decision this page doesn't make on its own.</span><span class="zh">Go8 Benchmarking页面的<code>gap_df.gap</code>列已经按学科明确指出了悉尼落后在
-      哪里——这正是这类情景需要的"特定研究领域"输入，但这里没有把它转成这个页面
-      <code>table</code>里独立的一行；要做到这一点，需要决定挑选哪些学科的论文去赋予一个
-      目标FWCI，这是一个这个页面自己无法单方面决定的范围界定问题。</span></span>
+    <div class="qrow"><span class="chip done">✓</span><span class="qtext">
+      <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-fields"><span class="en">Improve publication performance within selected research areas.</span><span class="zh">提升特定研究领域的发表表现。</span></a>
+      <span class="qwhy"><span class="en"><b>Data:</b> <code>estimate_uplift_from_field_gap_closure()</code> — reuses the Go8 Benchmarking page's <code>field_gap_vs_peers()</code> table directly rather than recomputing it. Pick a field (a <code>st.selectbox</code>, defaulted to the field with the most negative gap) and a fraction of its gap to close; the target field mean moves that fraction of the way from its current mean toward the Go8 peer average, and the resulting shift is weighted by that field's share of Sydney's own publication count to get a projected overall mean FWCI. A field where Sydney already leads has a positive gap, so "closing" it projects a decline, not an improvement — picking an underperforming field is what makes this an improvement scenario, stated on the page itself.</span><span class="zh"><b>用的数据：</b><code>estimate_uplift_from_field_gap_closure()</code>——直接复用
+      Go8 Benchmarking页面的<code>field_gap_vs_peers()</code>表格，不重新计算一遍。选一个
+      学科（<code>st.selectbox</code>，默认选中差距最负的那个）和要关闭的差距比例；目标学科
+      均值朝着Go8同行平均值移动这个比例，再按该学科占悉尼自身发文量的比例加权，得到预测的
+      整体平均FWCI。如果悉尼在某个学科已经领先同行，这个学科的差距是正的，"关闭"它意味着
+      预测下降而不是提升——选一个落后的学科才能看到真正的提升情景，这一点页面上也写明了。</span></span>
     </span></div>
     <div class="qrow"><span class="chip done">✓</span><span class="qtext">
       <a class="qjump" href="https://data-platform.azurewebsites.net/Scenario_Analysis#sc-institutions"><span class="en">Increase collaboration with selected high-performing institutions.</span><span class="zh">增加与特定高绩效机构的合作。</span></a>

@@ -149,7 +149,7 @@
   <div class="diagram-card">
     <pre class="mermaid en">
 flowchart TD
-  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>registers the Altair theme + injects CSS + mounts the cross-page scroll bridge"]
+  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>registers the Altair theme + injects CSS"]
   B --> C["theme.header(title, caption, shape, color)"]
   C --> D["theme.question_panel([...])<br/>sub-question checklist, click to jump"]
   D --> E["lib.get_xxx()<br/>@st.cache_data-wrapped data function"]
@@ -161,7 +161,7 @@ flowchart TD
     </pre>
     <pre class="mermaid zh">
 flowchart TD
-  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>注册Altair主题 + 注入CSS + 挂载跨页跳转桥"]
+  A["st.set_page_config(page_icon=theme.FAVICON)"] --> B["theme.inject()<br/>注册Altair主题 + 注入CSS"]
   B --> C["theme.header(title, caption, shape, color)"]
   C --> D["theme.question_panel([...])<br/>子问题清单，可点击跳转"]
   D --> E["lib.get_xxx()<br/>@st.cache_data 包装的数据函数"]
@@ -210,7 +210,7 @@ flowchart TD
     5_Impact_Drivers.py
     6_Scenario_Analysis.py</pre>
     <ul class="syntax">
-      <li><span class="en"><b>The numeric prefix in filenames</b> (<code>1_</code>, <code>2_</code>...): only controls the sidebar ordering, never shown in the title — when Streamlit reads the <code>pages/</code> folder, it sorts by filename, then strips the number and underscore and swaps remaining underscores for spaces to auto-generate the nav text and URL path. This is also why <code>question_panel()</code>'s cross-page links can be written as <code>"/Field_Analysis#fa-q1-share"</code> — <code>Field_Analysis</code> is exactly what filename <code>3_Field_Analysis.py</code> looks like with the numeric prefix stripped.</span><span class="zh"><b>文件名里的数字前缀</b>(<code>1_</code>、<code>2_</code>...)：只控制侧边栏里的排列顺序，不会显示在标题上——Streamlit读取<code>pages/</code>文件夹时，按文件名排序，再把数字和下划线去掉、下划线换成空格，自动生成导航文字和URL路径。这也是为什么 <code>question_panel()</code> 里的跨页链接能写成 <code>"/Field_Analysis#fa-q1-share"</code>——<code>Field_Analysis</code>就是文件名<code>3_Field_Analysis.py</code>去掉数字前缀后的样子。</span></li>
+      <li><span class="en"><b>The numeric prefix in filenames</b> (<code>1_</code>, <code>2_</code>...): only controls the sidebar ordering, never shown in the title — when Streamlit reads the <code>pages/</code> folder, it sorts by filename, then strips the number and underscore and swaps remaining underscores for spaces to auto-generate the nav text and URL path. This is also why <code>question_panel()</code>'s cross-page links, back when they existed, could be written as <code>"/Field_Analysis#fa-q1-share"</code> — <code>Field_Analysis</code> is exactly what filename <code>3_Field_Analysis.py</code> looks like with the numeric prefix stripped. (No sub-question links off-page any more since 2026-09-13, but the same filename → URL path rule is still what makes Streamlit's own page-switcher work.)</span><span class="zh"><b>文件名里的数字前缀</b>(<code>1_</code>、<code>2_</code>...)：只控制侧边栏里的排列顺序，不会显示在标题上——Streamlit读取<code>pages/</code>文件夹时，按文件名排序，再把数字和下划线去掉、下划线换成空格，自动生成导航文字和URL路径。这也是为什么 <code>question_panel()</code> 里的跨页链接（在它还存在的时候）能写成 <code>"/Field_Analysis#fa-q1-share"</code>——<code>Field_Analysis</code>就是文件名<code>3_Field_Analysis.py</code>去掉数字前缀后的样子。（2026-09-13起子问题已经没有跳到别的页面的链接了，但同一条"文件名→URL路径"的规则依然是Streamlit自己的页面切换器能工作的原因。）</span></li>
       <li><span class="en"><b>How shared code reaches the sub-pages</b>: <code>lib.py</code> opens with these lines —
 <pre class="code">SRC = Path(__file__).resolve().parents[1] / <span class="st">"src"</span>
 <span class="kw">if</span> str(SRC) <span class="kw">not</span> <span class="kw">in</span> sys.path:
@@ -294,7 +294,7 @@ flowchart TD
 
     <div class="fn" id="fn-inject">
       <div class="fn-head"><code class="name">theme.inject()</code></div>
-      <p class="fn-what"><span class="en">The first function every page calls, doing three things: registering the global Altair theme, injecting one whole block of CSS, and mounting the cross-page-jump "bridge."</span><span class="zh">每页最先调用的函数，做三件事：注册Altair全局主题、注入一整块CSS、挂载跨页跳转的"桥"。</span></p>
+      <p class="fn-what"><span class="en">The first function every page calls, doing two things today: registering the global Altair theme and injecting one whole block of CSS. (Until 2026-09-13 it also mounted a cross-page-jump "bridge" — see the note below.)</span><span class="zh">每页最先调用的函数，今天做两件事：注册Altair全局主题、注入一整块CSS。（2026-09-13之前还会挂载一个跨页跳转的"桥"——见下面的说明。）</span></p>
 <pre class="code">st.markdown(
     <span class="st">f"""&lt;style&gt; ... &lt;/style&gt;"""</span>,
     unsafe_allow_html=<span class="kw">True</span>,
@@ -304,30 +304,30 @@ flowchart TD
         <li><span class="en">CSS selectors heavily use the pattern <code>div[data-testid="stMetric"]</code>: <code>data-testid</code> is an attribute Streamlit's rendered HTML elements carry themselves, specifically designed so external CSS/test code can target a component precisely — far more stable than guessing at class names.</span><span class="zh">CSS选择器大量用<code>div[data-testid="stMetric"]</code>这种写法：<code>data-testid</code>是Streamlit渲染出的HTML元素自带的属性，专门为了"外部CSS/测试代码能精确定位到某个组件"设计的，比瞎猜class名字稳定得多。</span></li>
       </ul>
       <div class="caution">
-        <span class="lbl"><span class="en">A detail with genuine technical weight: cross-page anchor jumps</span><span class="zh">一个真正有技术含量的细节：跨页面锚点跳转</span></span>
-        <span class="en">The "answered on another page" questions in <code>question_panel()</code> need to jump
-        to a location on <b>a different</b> page when clicked — plain
-        <code>st.markdown(..., unsafe_allow_html=True)</code> can't do this, because
-        Streamlit's frontend doesn't execute injected <code>&lt;script&gt;</code> tags.
-        <code>inject()</code> ends by calling <code>_cross_page_scroll_bridge()</code>, which
-        uses <code>st.iframe()</code> to render a snippet of inline HTML/JS that genuinely
-        executes — the iframe shares an origin with the main page, so it can reach back and
-        manipulate the real page via <code>window.parent</code>: reading the
-        <code>#anchor</code> in the URL, polling for the target element to appear (after
-        Streamlit switches pages, the new page's elements "stream" in over the websocket
-        rather than being present all at once), and calling <code>scrollIntoView</code> once
-        found. It also records "the hash already handled" on <code>window.parent</code>, so
-        the user interacting with some other widget and triggering a rerun elsewhere on the
-        page doesn't get yanked back to the same anchor a second time.</span>
-        <span class="zh"><code>question_panel()</code>里"answered on another page"的问题，点击后要跳到<b>另一个</b>
-        页面的指定位置——单纯的<code>st.markdown(..., unsafe_allow_html=True)</code>做不到这件事，
-        因为Streamlit的前端不会执行插进去的<code>&lt;script&gt;</code>标签。<code>inject()</code>
-        最后调用了<code>_cross_page_scroll_bridge()</code>，用<code>st.iframe()</code>渲染一段
-        真正会执行的内联HTML/JS——iframe跟主页面同源，能通过<code>window.parent</code>反过来操作
-        真正的页面：读URL里的<code>#锚点</code>，轮询等目标元素出现（Streamlit切换页面后，新页面的
-        元素是通过websocket陆续"流"进来的，不是瞬间全部就位），找到了就<code>scrollIntoView</code>。
-        还在<code>window.parent</code>上记了一个"上次处理过的hash"，防止用户在页面上点别的控件、
-        触发页面重跑时，被同一个锚点再拽回去一次。</span>
+        <span class="lbl"><span class="en">Historical — removed 2026-09-13: cross-page anchor jumps</span><span class="zh">历史记录——2026-09-13已移除：跨页面锚点跳转</span></span>
+        <span class="en">Until 2026-09-13, "answered on another page" questions in
+        <code>question_panel()</code> needed to jump to a location on <b>a different</b>
+        page when clicked — plain <code>st.markdown(..., unsafe_allow_html=True)</code>
+        couldn't do this, because Streamlit's frontend doesn't execute injected
+        <code>&lt;script&gt;</code> tags. <code>inject()</code> used to end by calling
+        <code>_cross_page_scroll_bridge()</code>, which used <code>st.iframe()</code> to
+        render a snippet of inline HTML/JS that genuinely executed — reading the
+        <code>#anchor</code> in the URL via <code>window.parent</code>, polling for the
+        target element to appear, and calling <code>scrollIntoView</code> once found. Once
+        every sub-question became answerable on the page that asks it, there was nothing
+        left for a cross-page link to point at, so this function and its call site were
+        deleted along with the "elsewhere" status. See the <a href="navigation.html">Sub-Question
+        Navigation Close-Reading</a> for the full technique, kept there as history.</span>
+        <span class="zh">2026-09-13之前，<code>question_panel()</code>里"answered on another
+        page"的问题，点击后要跳到<b>另一个</b>页面的指定位置——单纯的
+        <code>st.markdown(..., unsafe_allow_html=True)</code>做不到这件事，因为Streamlit的
+        前端不会执行插进去的<code>&lt;script&gt;</code>标签。<code>inject()</code>以前最后
+        会调用<code>_cross_page_scroll_bridge()</code>，用<code>st.iframe()</code>渲染一段
+        真正会执行的内联HTML/JS——通过<code>window.parent</code>读URL里的<code>#锚点</code>，
+        轮询等目标元素出现，找到了就<code>scrollIntoView</code>。等到每一条子问题都能在
+        提出它的那一页里直接回答之后，跨页链接就没有什么可指向的了，这个函数连同它的调用
+        点、以及"elsewhere"状态一起被删掉了。完整技巧见<a href="navigation.html">子问题
+        跳转机制精读</a>，那边作为历史记录保留着。</span>
       </div>
     </div>
 
@@ -349,14 +349,30 @@ flowchart TD
       <p class="fn-what"><span class="en">The "which sub-questions does this page answer" checklist, where each item may be a clickable jump link.</span><span class="zh">"本页回答哪些子问题"清单，每一项可能是可点击的跳转链接。</span></p>
 <pre class="code">question, status, anchor_id = (*item, <span class="kw">None</span>)[:3]
 <span class="kw">if</span> anchor_id:
-    href = anchor_id <span class="kw">if</span> anchor_id.startswith(<span class="st">"/"</span>) <span class="kw">else</span> <span class="st">f"#{anchor_id}"</span>
-    question_html = <span class="st">f'&lt;a href="{href}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
+    question_html = <span class="st">f'&lt;a href="#{anchor_id}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
 <span class="kw">else</span>:
     question_html = question</pre>
+      <div class="note">
+        <span class="lbl"><span class="en">Simplified 2026-09-13</span><span class="zh">2026-09-13简化过</span></span>
+        <span class="en">Until then, this built an <code>href</code> variable first —
+        <code>anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code> — a leading
+        <code>/</code> meaning "jump to another page." Once every sub-question became
+        answerable on the page that asks it, cross-page links (and the "elsewhere" status
+        below) had nothing left to point at, so that branch was removed along with
+        <code>theme._cross_page_scroll_bridge()</code> — see the <a href="navigation.html">Sub-Question
+        Navigation Close-Reading</a> for the full history. The href is now always
+        <code>f"#{anchor_id}"</code>.</span>
+        <span class="zh">在那之前，这里会先拼出一个<code>href</code>变量——
+        <code>anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>——带前导
+        <code>/</code>代表"跳到另一个页面"。等到每一条子问题都能在提出它的那一页里直接
+        回答之后，跨页链接（以及下面的"elsewhere"状态）就没有什么可指向的了，这个分支连同
+        <code>theme._cross_page_scroll_bridge()</code>一起被移除了——完整历史见
+        <a href="navigation.html">子问题跳转机制精读</a>。href现在永远就是
+        <code>f"#{anchor_id}"</code>。</span>
+      </div>
       <ul class="syntax">
         <li><span class="en"><code>(*item, None)[:3]</code>: compact but worth unpacking. <code>item</code> may be a 2-tuple (question, status) or a 3-tuple (question, status, anchor). <code>*item</code> first "spreads" the tuple into individual elements, appends one <code>None</code>, forming a new tuple of at least 3 elements, then <code>[:3]</code> takes only the first 3 — so whether the caller passed 2 or 3 elements, the unpacked <code>anchor_id</code> is either a real anchor id or <code>None</code>, without writing an <code>if len(item) == 3</code> check.</span><span class="zh"><code>(*item, None)[:3]</code>：一个紧凑但值得拆开看的写法。<code>item</code>可能是2元组(问题, 状态)或3元组(问题, 状态, 锚点)。<code>*item</code>先把元组"展开"成单个元素，后面补一个<code>None</code>，拼成至少3个元素的新元组，再用<code>[:3]</code>只取前3个——这样不管调用方传了2个还是3个元素，解包出来的<code>anchor_id</code>要么是真的锚点id，要么就是<code>None</code>，不用写<code>if len(item) == 3</code>这种判断。</span></li>
-        <li><span class="en"><b>Two shapes of href</b>: if <code>anchor_id</code> starts with <code>/</code> (e.g. <code>/Field_Analysis#fa-q1-share</code>), it's used as-is as a URL — this is "jump to another page"; otherwise it's assembled into <code>#anchor_id</code> — "jump somewhere within this page," relying purely on the browser's native anchor jump, no JS required.</span><span class="zh"><b>href的两种形态</b>：如果<code>anchor_id</code>以<code>/</code>开头(比如<code>/Field_Analysis#fa-q1-share</code>)，原样当URL用——这是"跳到另一个页面"；否则拼成<code>#锚点id</code>——这是"跳到本页面内的某处"，纯靠浏览器原生的锚点跳转，不需要任何JS。</span></li>
-        <li><span class="en"><code>_STATUS_STYLE</code> is a dict whose keys are status strings (<code>"done"</code>/<code>"partial"</code>/<code>"elsewhere"</code>/<code>"open"</code>) and whose values are a 3-tuple <code>(icon, background, foreground)</code> — each item just looks up the corresponding visual style from the dict, instead of a long if/elif chain.</span><span class="zh"><code>_STATUS_STYLE</code>是一个字典，key是状态字符串(<code>"done"</code>/<code>"partial"</code>/<code>"elsewhere"</code>/<code>"open"</code>)，value是一个三元组<code>(图标, 背景色, 前景色)</code>——每一项直接查字典拿到对应的视觉样式，不用写一长串if/elif。</span></li>
+        <li><span class="en"><code>_STATUS_STYLE</code> is a dict whose keys are the 3 status strings today (<code>"done"</code>/<code>"partial"</code>/<code>"open"</code> — a 4th, <code>"elsewhere"</code>, existed until 2026-09-13) and whose values are a 3-tuple <code>(icon, background, foreground)</code> — each item just looks up the corresponding visual style from the dict, instead of a long if/elif chain.</span><span class="zh"><code>_STATUS_STYLE</code>是一个字典，key是今天的3个状态字符串(<code>"done"</code>/<code>"partial"</code>/<code>"open"</code>——第4个<code>"elsewhere"</code>存在到2026-09-13为止)，value是一个三元组<code>(图标, 背景色, 前景色)</code>——每一项直接查字典拿到对应的视觉样式，不用写一长串if/elif。</span></li>
       </ul>
     </div>
 

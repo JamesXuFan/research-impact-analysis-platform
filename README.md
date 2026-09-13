@@ -52,11 +52,11 @@ answers.
 
 | Document | What it's for |
 | --- | --- |
-| [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the 5 direct task-to-task imports that don't route through the shared core — for splitting work without two people colliding on the same file |
+| [Task Map](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | Which files each of the 8 build tasks (6 analyses + layout + database) owns exclusively, which 4 files are shared by all of them, and the history of the 4 direct task-to-task imports that used to bypass the shared core — closed 2026-09-13, so no analysis task depends on another one's code any more — for splitting work without two people colliding on the same file |
 | [Coverage Manual](https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html) | What the platform actually implements, and exactly which brief sub-question each part answers (✓/~/→/? per item), with a "why this chart" line under every one |
 | [Data Pipeline Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html) | Function-by-function walkthrough of `ingest.py` → `metrics.py` — for learning the pandas patterns this codebase leans on, not just citing a number |
 | [Dashboard & Charting Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html) | Same treatment for `theme.py`'s section components and Altair's grammar of graphics — the radar chart's polar-coordinate trick worked in full |
-| [Sub-Question Navigation Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html) | How a sub-question becomes a click-to-jump link — the same-page anchor jump and the `st.iframe`-based cross-page scroll bridge, taken apart in full with a traced worked example |
+| [Sub-Question Navigation Close-Reading](https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html) | How a sub-question becomes a click-to-jump link — the same-page anchor jump (current), plus a historical, fully-traced walkthrough of the `st.iframe`-based cross-page scroll bridge it used to need before every sub-question became answerable on its own page (removed 2026-09-13) |
 | [`docs/methodology.md`](docs/methodology.md) | The canonical, git-tracked metric definitions and PROVISIONAL flags — source of truth over the docs site above if they ever drift |
 | [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | Every raw and derived column, with data-quality notes |
 

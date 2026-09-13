@@ -54,11 +54,11 @@
 
 | 文档 | 用途 |
 | --- | --- |
-| [任务地图](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | 8个建设任务（6个分析 + 排版 + 数据库）各自专属哪些文件、哪4个文件是所有任务共用的、以及不经过公共核心的5条任务间直接import关系——方便分工时不会两个人同时改一个文件 |
+| [任务地图](https://jamesxufan.github.io/research-impact-analysis-platform/task-map.html) | 8个建设任务（6个分析 + 排版 + 数据库）各自专属哪些文件、哪4个文件是所有任务共用的、以及曾经绕开公共核心的4条任务间直接import关系的历史——2026-09-13已清零，现在没有任何一个分析任务依赖另一个的代码——方便分工时不会两个人同时改一个文件 |
 | [覆盖手册](https://jamesxufan.github.io/research-impact-analysis-platform/coverage-manual.html) | 平台到底实现了什么，以及每一部分具体回答了任务书里的哪一个子问题（每项标✓/~/→/?），每一条下面还有一行"为什么选这张图" |
 | [数据管道精读](https://jamesxufan.github.io/research-impact-analysis-platform/data-pipeline.html) | 从 `ingest.py` 到 `metrics.py` 的逐函数讲解——用来学习这个代码库依赖的pandas写法，而不只是引用一个数字 |
 | [看板与图表精读](https://jamesxufan.github.io/research-impact-analysis-platform/dashboard-charting.html) | 同样的处理方式用在 `theme.py` 的板块组件和Altair图形语法上——雷达图的极坐标技巧完整拆解 |
-| [子问题跳转机制精读](https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html) | 一个子问题是怎么变成一个可点击跳转链接的——同页锚点跳转，以及基于 `st.iframe` 的跨页跳转桥，配一个完整追踪的实例 |
+| [子问题跳转机制精读](https://jamesxufan.github.io/research-impact-analysis-platform/navigation.html) | 一个子问题是怎么变成一个可点击跳转链接的——同页锚点跳转（现役），外加一份完整追踪、带实例的历史记录：基于 `st.iframe` 的跨页跳转桥，在每条子问题都能在本页直接回答之后就不再需要了（2026-09-13已移除）|
 | [`docs/methodology.md`](docs/methodology.md) | 权威的、git追踪的指标定义与PROVISIONAL标记——如果和上面的文档站有出入，以这份为准 |
 | [`data/dictionary/data_dictionary.md`](data/dictionary/data_dictionary.md) | 每一列原始/派生字段的说明，附数据质量注记 |
 

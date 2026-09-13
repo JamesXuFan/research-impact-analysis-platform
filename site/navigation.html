@@ -161,6 +161,28 @@
 
 <main>
 
+  <div class="caution" style="max-width:none;">
+    <span class="lbl"><span class="en">Removed from the codebase, 2026-09-13</span><span class="zh">2026-09-13已从代码库移除</span></span>
+    <span class="en">Once every sub-question on every page became answerable on the page
+    that asks it, there was nothing left for a cross-page link to point at, and
+    <code>theme._cross_page_scroll_bridge()</code> — everything sections <a href="#crosspage">04</a>
+    and <a href="#trace">05</a> below describe — was deleted along with the "elsewhere"
+    status and the leading-<code>/</code> branch in <code>question_panel()</code>'s href
+    logic. Sections 01–03 below have been updated to describe the current, same-page-only
+    code; sections 04–07 are kept as a historical technique write-up — the <code>st.iframe</code>
+    sandbox-escape trick is still worth understanding, it just isn't live in this codebase
+    any more. Nothing below matches <code>app/theme.py</code> as it stands today except
+    <code>question_panel()</code> and <code>anchor()</code> themselves.</span>
+    <span class="zh">等到每一页的每一条子问题都能在提出它的那一页里直接回答之后，跨页链接
+    就没有什么可指向的目标了，<code>theme._cross_page_scroll_bridge()</code>——下面第
+    <a href="#crosspage">04</a>、<a href="#trace">05</a>节讲的全部内容——连同"elsewhere"
+    状态、以及<code>question_panel()</code>里href逻辑中判断前导<code>/</code>的那个分支，
+    一起被删掉了。下面第01–03节已经更新成描述现在这份只有同页跳转的代码；第04–07节保留
+    下来作为一份历史技术笔记——<code>st.iframe</code>逃出沙箱这个技巧依然值得理解，只是
+    在这个代码库里已经不是活代码了。除了<code>question_panel()</code>和<code>anchor()</code>
+    本身，下面没有任何一处还跟今天的<code>app/theme.py</code>对得上。</span>
+  </div>
+
   <div class="diagram-card">
     <pre class="mermaid en">
 sequenceDiagram
@@ -201,8 +223,8 @@ sequenceDiagram
     IF->>B: window.parent.__qjumpLastHash = hash
     </pre>
     <div class="cap">
-      <span class="en">A cross-page click, start to finish — the part pure browser navigation can't do on its own is everything from "Streamlit loads the new page" onward.</span>
-      <span class="zh">一次跨页点击的完整过程——纯浏览器导航机制自己做不到的部分，是"Streamlit加载新页面"往后的所有步骤。</span>
+      <span class="en"><b>Historical — this no longer happens.</b> A cross-page click, start to finish, back when one existed — the part pure browser navigation can't do on its own is everything from "Streamlit loads the new page" onward.</span>
+      <span class="zh"><b>历史记录——这个流程已经不会再发生了。</b>一次跨页点击（在它还存在的时候）的完整过程——纯浏览器导航机制自己做不到的部分，是"Streamlit加载新页面"往后的所有步骤。</span>
     </div>
   </div>
 
@@ -212,8 +234,8 @@ sequenceDiagram
       <li><span class="idx">01</span><a href="#twolayer"><span class="en">Two layers: brief items → pages, sub-questions → charts</span><span class="zh">两层结构：大问题→页面，子问题→图表</span></a></li>
       <li><span class="idx">02</span><a href="#panel"><span class="en">question_panel() taken apart</span><span class="zh">question_panel() 拆解</span></a></li>
       <li><span class="idx">03</span><a href="#samepage"><span class="en">anchor() and the same-page jump</span><span class="zh">anchor() 与同页跳转</span></a></li>
-      <li><span class="idx">04</span><a href="#crosspage"><span class="en">The cross-page bridge, in full</span><span class="zh">跨页跳转桥完整拆解</span></a></li>
-      <li><span class="idx">05</span><a href="#trace"><span class="en">Worked example: one click, traced end to end</span><span class="zh">完整实例：一次点击的全过程追踪</span></a></li>
+      <li><span class="idx">04</span><a href="#crosspage"><span class="en">The cross-page bridge, in full (historical)</span><span class="zh">跨页跳转桥完整拆解（历史记录）</span></a></li>
+      <li><span class="idx">05</span><a href="#trace"><span class="en">Worked example: one click, traced end to end (historical)</span><span class="zh">完整实例：一次点击的全过程追踪（历史记录）</span></a></li>
       <li><span class="idx">06</span><a href="#glossary"><span class="en">Technique cheat sheet</span><span class="zh">技术点速查表</span></a></li>
       <li><span class="idx">07</span><a href="#try"><span class="en">Try it yourself</span><span class="zh">动手试一遍</span></a></li>
     </ol>
@@ -242,25 +264,27 @@ sequenceDiagram
       <div class="schip elsewhere">
         <span class="ico">2</span>
         <span class="txt"><b><span class="en">Sub-question → chart</span><span class="zh">子问题 → 图表</span></b>
-          <span class="en">Dynamic, many-to-one or many-to-many, and this is the layer with actual click-to-jump behaviour — built entirely by <code>theme.question_panel()</code>, <code>theme.anchor()</code>, and <code>theme._cross_page_scroll_bridge()</code>, the subject of the rest of this note.</span>
-          <span class="zh">动态的、多对一或多对多，也是真正带"点击跳转"行为的一层——完全由
-          <code>theme.question_panel()</code>、<code>theme.anchor()</code>、
-          <code>theme._cross_page_scroll_bridge()</code>三个函数搭起来的，是这份笔记
-          接下来全部内容的主题。</span>
+          <span class="en">Dynamic, many-to-one or many-to-many, and this is the layer with actual click-to-jump behaviour — built by <code>theme.question_panel()</code> and <code>theme.anchor()</code>, the subject of the rest of this note. (A third function, <code>theme._cross_page_scroll_bridge()</code>, used to be part of this layer too — removed 2026-09-13, see the banner above.)</span>
+          <span class="zh">动态的、多对一或多对多，也是真正带"点击跳转"行为的一层——由
+          <code>theme.question_panel()</code>和<code>theme.anchor()</code>搭起来的，是
+          这份笔记接下来全部内容的主题。（曾经还有第三个函数
+          <code>theme._cross_page_scroll_bridge()</code>也属于这一层——2026-09-13已移除，
+          见上方说明。）</span>
         </span>
       </div>
     </div>
     <p class="module-role" style="margin-top:6px;">
-      <span class="en">The four states a sub-question can be in — and only the first two ever
-      carry a link that goes somewhere on <i>this platform</i>, "elsewhere" links off to a
-      different page, "open" has nowhere to go at all:</span>
-      <span class="zh">子问题可能处于的四种状态——只有前两种会带一个真正指向<i>这个平台内部</i>
-      某处的链接，"elsewhere"是链接到另一个页面，"open"则完全没有地方可跳：</span>
+      <span class="en">The three states a sub-question can be in today — the first two
+      carry a link, always to somewhere on the same page; "open" has nowhere to go at all.
+      (A fourth state, "elsewhere" — a link to a different page — existed until
+      2026-09-13; see the banner above.)</span>
+      <span class="zh">子问题今天可能处于的三种状态——前两种会带一个链接，永远指向本页
+      内的某处；"open"则完全没有地方可跳。（曾经还有第四种状态"elsewhere"——链接到另一个
+      页面——存在到2026-09-13为止；见上方说明。）</span>
     </p>
     <div class="statusgrid">
       <div class="schip done"><span class="ico">✓</span><span class="txt"><b>done</b><span class="en">answered directly below — same-page link</span><span class="zh">本页直接回答——同页链接</span></span></div>
       <div class="schip partial"><span class="ico">~</span><span class="txt"><b>partial</b><span class="en">aggregate/qualitative only — usually still same-page</span><span class="zh">只是聚合/定性层面——通常也是同页链接</span></span></div>
-      <div class="schip elsewhere"><span class="ico">→</span><span class="txt"><b>elsewhere</b><span class="en">answered on a different page — cross-page link</span><span class="zh">在其它页面回答——跨页链接</span></span></div>
       <div class="schip open"><span class="ico">?</span><span class="txt"><b>open</b><span class="en">not built anywhere — plain text, no link</span><span class="zh">平台尚未实现——纯文字，没有链接</span></span></div>
     </div>
   </section>
@@ -277,17 +301,17 @@ sequenceDiagram
       <div class="fn-head"><code class="name"><span class="en">Input shape</span><span class="zh">输入的数据形状</span></code></div>
 <pre class="code">theme.question_panel([
     (<span class="st">"Do Q1 publications receive more citations than Q2, Q3 or Q4?"</span>, <span class="st">"done"</span>, <span class="st">"jt-quartile"</span>),
-    (<span class="st">"Which faculties/fields have the highest success rates in Q1 publishing?"</span>,
-     <span class="st">"elsewhere"</span>, <span class="st">"/Field_Analysis#fa-q1-share"</span>),
-    (<span class="st">"Are particular publication strategies more successful in some fields?"</span>, <span class="st">"open"</span>),  <span class="cm"># <span class="en">2-tuple: no anchor</span><span class="zh">2元组：没有锚点</span></span>
+    (<span class="st">"Which fields have the highest / improving / declining Q1 share?"</span>, <span class="st">"done"</span>, <span class="st">"jt-field-q1"</span>),
+    (<span class="st">"Institutional Collaboration → Journal Choice → Citation Impact"</span>, <span class="st">"partial"</span>),  <span class="cm"># <span class="en">2-tuple: no anchor</span><span class="zh">2元组：没有锚点</span></span>
 ])</pre>
       <ul class="syntax">
-        <li><span class="en">A list of tuples, each 2 or 3 elements: <code>(question_text, status)</code> or <code>(question_text, status, anchor_id)</code>. The third element decides everything about click behaviour — omit it (a bare 2-tuple, typically an "open" item, or a "partial" answered by a synthesis of several sections) and the question renders as plain, non-clickable text.</span><span class="zh">一份元组列表，每个元组2个或3个元素：<code>(问题文字, 状态)</code>或
+        <li><span class="en">A list of tuples, each 2 or 3 elements: <code>(question_text, status)</code> or <code>(question_text, status, anchor_id)</code>. The third element decides everything about click behaviour — omit it (a bare 2-tuple — an "open" item with nowhere to go, or a "partial" one answered only by a synthesis of several sections, not one specific chart) and the question renders as plain, non-clickable text.</span><span class="zh">一份元组列表，每个元组2个或3个元素：<code>(问题文字, 状态)</code>或
         <code>(问题文字, 状态, 锚点id)</code>。第三个元素决定了点击行为的一切——省略它
-        （2元组，通常是"open"状态，或者是靠综合几个部分回答的"partial"），问题就渲染成
-        普通、不可点的文字。</span></li>
-        <li><span class="en"><code>"jt-quartile"</code> — a bare id, no leading slash: same-page jump.</span><span class="zh"><code>"jt-quartile"</code>——不带斜杠的裸id：同页跳转。</span></li>
-        <li><span class="en"><code>"/Field_Analysis#fa-q1-share"</code> — starts with <code>/</code>: cross-page jump, to another page's own anchor.</span><span class="zh"><code>"/Field_Analysis#fa-q1-share"</code>——以<code>/</code>开头：跨页跳转，跳到另一个页面自己的锚点。</span></li>
+        （2元组——要么是完全没地方去的"open"状态，要么是靠综合几个部分回答、而不是某一张
+        具体图表的"partial"），问题就渲染成普通、不可点的文字。</span></li>
+        <li><span class="en"><code>"jt-field-q1"</code> — a bare id: same-page jump, the only kind there is. (Until 2026-09-13 a leading <code>/</code>, e.g. <code>"/Field_Analysis#fa-q1-share"</code>, meant a cross-page jump instead — see the banner at the top of this page.)</span><span class="zh"><code>"jt-field-q1"</code>——一个裸id：同页跳转，现在唯一的一种。（2026-09-13之前，
+        以<code>/</code>开头，比如<code>"/Field_Analysis#fa-q1-share"</code>，代表的是跨页
+        跳转——见本页顶部的说明。）</span></li>
       </ul>
     </div>
 
@@ -297,26 +321,38 @@ sequenceDiagram
     question, status, anchor_id = (*item, <span class="kw">None</span>)[:3]
     icon, bg, fg = _STATUS_STYLE[status]
     <span class="kw">if</span> anchor_id:
-        href = anchor_id <span class="kw">if</span> anchor_id.startswith(<span class="st">"/"</span>) <span class="kw">else</span> <span class="st">f"#{anchor_id}"</span>
-        question_html = <span class="st">f'&lt;a href="{href}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
+        question_html = <span class="st">f'&lt;a href="#{anchor_id}" class="qjump"&gt;{question}&lt;/a&gt;'</span>
     <span class="kw">else</span>:
         question_html = question</pre>
+      <div class="note">
+        <span class="lbl"><span class="en">Simplified 2026-09-13</span><span class="zh">2026-09-13简化过</span></span>
+        <span class="en">Until then, the third line built an <code>href</code> variable first:
+        <code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code> — a
+        leading <code>/</code> meant "treat this as a real URL, jump to another page,"
+        anything else got an <code>#</code> prepended for a same-page fragment. With no
+        cross-page links left to build, that branch — and the concept of an anchor id that
+        isn't just a bare same-page id — went away, and the href is always just
+        <code>f"#{anchor_id}"</code>.</span>
+        <span class="zh">在那之前，第三行会先拼出一个<code>href</code>变量：
+        <code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>——
+        带前导<code>/</code>代表"当成真正的URL处理，跳到另一个页面"，其它情况前面补一个
+        <code>#</code>变成同页片段。既然已经没有跨页链接要拼了，这个分支——以及"锚点id
+        不只是一个裸的同页id"这个概念本身——也就一起消失了，href现在永远就是
+        <code>f"#{anchor_id}"</code>。</span>
+      </div>
       <ul class="syntax">
-        <li><span class="en"><code>(*item, None)[:3]</code>: worth unpacking slowly. <code>*item</code> spreads the tuple (2 or 3 elements) into individual values; appending one <code>None</code> guarantees at least 3 values are now available; <code>[:3]</code> keeps only the first 3. Whether the caller wrote 2 or 3 elements, <code>anchor_id</code> ends up either the real anchor string or <code>None</code> — no <code>if len(item) == 3</code> branch needed anywhere.</span><span class="zh"><code>(*item, None)[:3]</code>：值得慢慢拆开看。<code>*item</code>把元组
+        <li><span class="en"><code>(*item, None)[:3]</code>: worth unpacking slowly. <code>*item</code> spreads the tuple (2 or 3 elements) into individual values; appending one <code>None</code> guarantees at least 3 values are now available; <code>[:3]</code> keeps only the first 3. Whether the caller wrote 2 or 3 elements, <code>anchor_id</code> ends up either the real anchor string or <code>None</code> — no <code>if len(item) == 3</code> branch needed anywhere. This part is unchanged, still exactly how the current code works.</span><span class="zh"><code>(*item, None)[:3]</code>：值得慢慢拆开看。<code>*item</code>把元组
         （2或3个元素）展开成单个值；后面补一个<code>None</code>，保证至少有3个值可用；
         <code>[:3]</code>只保留前3个。不管调用方写的是2个还是3个元素，
         <code>anchor_id</code>最后要么是真的锚点字符串，要么是<code>None</code>——
-        任何地方都不需要写<code>if len(item) == 3</code>这种判断。</span></li>
-        <li><span class="en"><code>_STATUS_STYLE[status]</code>: a plain dict lookup — keys are the 4 status strings, values a 3-tuple <code>(icon, background, foreground)</code> — swapping a long if/elif chain for one dict access.</span><span class="zh"><code>_STATUS_STYLE[status]</code>：一次普通的字典查找——key是4个状态字符串，
-        value是三元组<code>(图标, 背景色, 前景色)</code>——用一次字典访问代替了一长串
-        if/elif。</span></li>
-        <li><span class="en"><code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>: the entire routing decision for "same page or different page" is this one line — a leading <code>/</code> is treated as a real URL path (Streamlit's own page routing understands it), anything else gets an <code>#</code> prepended and becomes a same-page fragment.</span><span class="zh"><code>href = anchor_id if anchor_id.startswith("/") else f"#{anchor_id}"</code>：
-        "跳本页还是跳别的页"这整个路由判断就是这一行——带前导<code>/</code>的当成真正的URL
-        路径处理（Streamlit自己的页面路由认得），其它情况前面补一个<code>#</code>变成同页
-        片段。</span></li>
-        <li><span class="en">The generated <code>&lt;a href="..." class="qjump"&gt;</code> is a completely ordinary anchor tag — every bit of the click behaviour that follows is the browser and (for cross-page links) the bridge component reacting to a normal link, not any special widget or callback.</span><span class="zh">生成出来的<code>&lt;a href="..." class="qjump"&gt;</code>是一个完全普通的
-        锚点标签——接下来所有的点击行为，都是浏览器（以及跨页链接情况下的桥接组件）对一个
-        普通链接做出的反应，不是什么特殊组件或回调函数。</span></li>
+        任何地方都不需要写<code>if len(item) == 3</code>这种判断。这部分没有变过，现在的
+        代码依然是这么写的。</span></li>
+        <li><span class="en"><code>_STATUS_STYLE[status]</code>: a plain dict lookup — keys are the 3 status strings today (4 before 2026-09-13, "elsewhere" included), values a 3-tuple <code>(icon, background, foreground)</code> — swapping a long if/elif chain for one dict access.</span><span class="zh"><code>_STATUS_STYLE[status]</code>：一次普通的字典查找——key是今天的3个状态字符串
+        （2026-09-13之前是4个，包含"elsewhere"），value是三元组
+        <code>(图标, 背景色, 前景色)</code>——用一次字典访问代替了一长串if/elif。</span></li>
+        <li><span class="en">The generated <code>&lt;a href="..." class="qjump"&gt;</code> is a completely ordinary anchor tag — every bit of the click behaviour that follows is the browser reacting to a normal link, not any special widget or callback.</span><span class="zh">生成出来的<code>&lt;a href="..." class="qjump"&gt;</code>是一个完全普通的
+        锚点标签——接下来所有的点击行为，都是浏览器对一个普通链接做出的反应，不是什么特殊
+        组件或回调函数。</span></li>
       </ul>
       <div class="note">
         <span class="lbl"><span class="en">Styling, not routing</span><span class="zh">这是样式，不是路由</span></span>
@@ -361,11 +397,12 @@ sequenceDiagram
 
   <section class="module" id="crosspage">
     <div class="module-head"><span class="stage">04</span><h2><span class="en">The Cross-Page Bridge, in Full</span><span class="zh">跨页跳转桥完整拆解</span></h2></div>
-    <div class="module-file">app/theme.py — <code>_cross_page_scroll_bridge()</code></div>
+    <div class="module-file"><span class="en">app/theme.py — <code>_cross_page_scroll_bridge()</code> · removed 2026-09-13, historical from here on</span><span class="zh">app/theme.py —— <code>_cross_page_scroll_bridge()</code> · 2026-09-13已移除，从这里开始都是历史记录</span></div>
     <p class="module-role">
-      <span class="en">The part of this feature that's genuinely non-trivial — same-page anchors are a browser default; making a click land on a specific chart on a <i>different</i> Streamlit page needed solving from scratch.</span>
-      <span class="zh">这个功能里真正有技术含量的部分——同页锚点是浏览器自带的默认行为；让点击落在
-      <i>另一个</i>Streamlit页面的具体某张图上，是需要从头解决的问题。</span>
+      <span class="en">The part of this feature that was genuinely non-trivial while it existed — same-page anchors are a browser default; making a click land on a specific chart on a <i>different</i> Streamlit page needed solving from scratch. Kept below for the technique itself, not because any of it still runs.</span>
+      <span class="zh">这个功能存在的时候，里面真正有技术含量的部分——同页锚点是浏览器自带的默认行为；
+      让点击落在<i>另一个</i>Streamlit页面的具体某张图上，是需要从头解决的问题。下面保留
+      这部分内容是因为这个技巧本身值得学，不是因为它还在运行。</span>
     </p>
 
     <div class="fn" id="fn-why-fails">
@@ -401,8 +438,9 @@ sequenceDiagram
 
     <div class="fn" id="fn-bridge-code">
       <div class="fn-head"><code class="name">_cross_page_scroll_bridge()</code></div>
-      <p class="fn-what"><span class="en">Called once, unconditionally, at the end of every page's <code>inject()</code> — because any page might be the target of a cross-page link, every page needs to be ready to receive one.</span><span class="zh">在每个页面的<code>inject()</code>末尾无条件调用一次——因为任何页面都可能是
-      跨页链接的目标，所以每个页面都得随时准备好接收一次跳转。</span></p>
+      <p class="fn-what"><span class="en">Was called once, unconditionally, at the end of every page's <code>inject()</code> — because any page could be the target of a cross-page link, every page had to be ready to receive one. That call site is gone from <code>inject()</code> now, and so is this function.</span><span class="zh">曾经在每个页面的<code>inject()</code>末尾无条件调用一次——因为任何页面都可能是
+      跨页链接的目标，所以每个页面都得随时准备好接收一次跳转。这个调用点现在已经不在
+      <code>inject()</code>里了，这个函数本身也一起没了。</span></p>
 <pre class="code">st.iframe(
     <span class="st">"""</span>
     &lt;script&gt;
@@ -456,14 +494,20 @@ sequenceDiagram
 
   <section class="module" id="trace">
     <div class="module-head"><span class="stage">05</span><h2><span class="en">Worked Example: One Click, Traced End to End</span><span class="zh">完整实例：一次点击的全过程追踪</span></h2></div>
+    <div class="module-file"><span class="en">Historical — traces a click that can no longer happen</span><span class="zh">历史记录——追踪的是一次现在已经不会发生的点击</span></div>
     <p class="module-role">
-      <span class="en">On the Journal Tier page, "Which faculties/fields have the highest
-      success rates in Q1 publishing?" is marked <code>elsewhere</code>, pointing at
-      <code>"/Field_Analysis#fa-q1-share"</code>. Here's exactly what happens between the
-      click and the screen settling on the right chart.</span>
-      <span class="zh">在Journal Tier页面，"哪些院系/学科的Q1成功率最高？"这个问题标的是
-      <code>elsewhere</code>，指向<code>"/Field_Analysis#fa-q1-share"</code>。下面是从
-      点击到画面最终停在正确图表上，中间具体发生的每一步。</span>
+      <span class="en">Until 2026-09-13, the Journal Tier page had a question, "Which
+      faculties/fields have the highest success rates in Q1 publishing?", marked
+      <code>elsewhere</code> and pointing at <code>"/Field_Analysis#fa-q1-share"</code>.
+      Here's exactly what used to happen between the click and the screen settling on the
+      right chart. (That same question text is still on the Journal Tier page today, but
+      it's a <code>done</code> item pointing at a same-page anchor now — the trace below
+      is not what clicking it does any more.)</span>
+      <span class="zh">2026-09-13之前，Journal Tier页面有一个问题"哪些院系/学科的Q1成功率
+      最高？"，标的是<code>elsewhere</code>，指向<code>"/Field_Analysis#fa-q1-share"</code>。
+      下面是当时从点击到画面最终停在正确图表上，中间具体发生的每一步。（同样的问题文字今天
+      还在Journal Tier页面上，但现在是一个<code>done</code>状态、指向本页锚点的条目——下面
+      追踪的已经不是现在点它会发生的事了。）</span>
     </p>
     <ol class="trace">
       <li><span class="en"><b>Render:</b> <code>question_panel()</code> on the Journal Tier page sees a 3-tuple whose anchor starts with <code>/</code>, so it builds <code>&lt;a href="/Field_Analysis#fa-q1-share" class="qjump"&gt;...&lt;/a&gt;</code> — an ordinary link, styled with a dashed underline.</span><span class="zh"><b>渲染：</b>Journal Tier页面的<code>question_panel()</code>看到一个锚点以
@@ -499,13 +543,13 @@ sequenceDiagram
       <div class="gterm"><dt><span class="en">Native anchor jump <code>#id</code></span><span class="zh">原生锚点跳转 <code>#id</code></span></dt><dd><span class="en">Built into HTML itself — any link to <code>#some-id</code> makes the browser scroll to the element with that id, no JS required. Only works reliably when the target already exists in the DOM.</span><span class="zh">HTML自带的功能——任何指向<code>#some-id</code>的链接，都会让浏览器滚动到那个id的元素，不需要JS。只有目标已经存在于DOM里时才能可靠工作。</span></dd></div>
       <div class="gterm"><dt><code>scroll-behavior: smooth</code></dt><dd><span class="en">A one-line, page-wide CSS switch turning every native jump (anchor click or JS <code>scrollIntoView</code>) from an instant snap into an animated scroll.</span><span class="zh">一行全页生效的CSS开关，把每一次原生跳转（点锚点链接或JS调用<code>scrollIntoView</code>）从瞬间跳变改成带动画的平滑滚动。</span></dd></div>
       <div class="gterm"><dt><code>scroll-margin-top</code></dt><dd><span class="en">Reserves space above an anchor target so a page's own sticky header doesn't cover it after a jump — the CSS-only fix for "landed exactly under the toolbar."</span><span class="zh">在锚点目标上方预留空间，避免跳转后被页面自己的粘性顶栏挡住——纯CSS修复"正好落在工具栏下面"的问题。</span></dd></div>
-      <div class="gterm"><dt>st.markdown(html, unsafe_allow_html=True)</dt><dd><span class="en">Injects arbitrary HTML/CSS into a Streamlit page — but not <code>&lt;script&gt;</code> execution, which is exactly why this path alone can't build a cross-page jump.</span><span class="zh">往Streamlit页面里注入任意HTML/CSS——但不会执行<code>&lt;script&gt;</code>，这正是单靠这条路径没法实现跨页跳转的原因。</span></dd></div>
-      <div class="gterm"><dt>st.iframe(html, height=n)</dt><dd><span class="en">Renders a real, script-executing <code>&lt;iframe&gt;</code>, same-origin with the main app — the escape hatch that lets injected JS actually run.</span><span class="zh">渲染一个真正会执行脚本的<code>&lt;iframe&gt;</code>，跟主应用同源——让注入的JS真正能跑起来的逃生舱口。</span></dd></div>
-      <div class="gterm"><dt>window.parent</dt><dd><span class="en">From inside a same-origin iframe, a reference to the actual outer page — the difference between manipulating the invisible iframe itself and manipulating the real, visible document.</span><span class="zh">在同源iframe内部，指向外层真正页面的引用——是操作那个看不见的iframe自己、还是操作真正可见文档，这两者的差别就在这一个引用上。</span></dd></div>
-      <div class="gterm"><dt>Polling with setTimeout</dt><dd><span class="en">Repeatedly checking for a condition (here, "does this element exist yet") on a timer, with a maximum attempt count — a standard pattern for "wait for something that will eventually appear, but might not be ready right now."</span><span class="zh">用定时器反复检查某个条件（这里是"这个元素出现了没有"），并设一个最多尝试次数——是"等待一个终将出现、但现在可能还没准备好的东西"的标准写法。</span></dd></div>
-      <div class="gterm"><dt><span class="en">De-dupe guard via a persisted flag</span><span class="zh">用一个持续存在的标记做去重</span></dt><dd><span class="en">Stashing "the last hash already handled" on an object that survives across Streamlit reruns (<code>window.parent</code>), even though the component writing to it gets torn down and rebuilt every rerun.</span><span class="zh">把"上一次已经处理过的hash"存在一个跨Streamlit重跑依然存在的对象上（<code>window.parent</code>），哪怕写入它的那个组件每次重跑都会被拆掉重建。</span></dd></div>
-      <div class="gterm"><dt><span class="en">Tuple unpacking with a spread + slice</span><span class="zh">展开+切片的元组解包</span></dt><dd><span class="en"><code>(*item, None)[:3]</code> — pads a variable-length tuple out to a fixed length before unpacking, avoiding a manual length check.</span><span class="zh"><code>(*item, None)[:3]</code>——在解包前把一个长度不固定的元组补齐到固定长度，避免手写长度判断。</span></dd></div>
-      <div class="gterm"><dt>el.scrollIntoView(options)</dt><dd><span class="en">The JS/DOM method equivalent of a native anchor jump — <code>{behavior:"smooth", block:"start"}</code> animates the scroll and aligns the element to the top of the viewport.</span><span class="zh">JS/DOM方法版本的原生锚点跳转——<code>{behavior:"smooth", block:"start"}</code>让滚动带动画，并把元素对齐到视口顶部。</span></dd></div>
+      <div class="gterm"><dt>st.markdown(html, unsafe_allow_html=True)</dt><dd><span class="en">Injects arbitrary HTML/CSS into a Streamlit page — but not <code>&lt;script&gt;</code> execution, which was exactly why this path alone couldn't build the (now-removed) cross-page jump on its own.</span><span class="zh">往Streamlit页面里注入任意HTML/CSS——但不会执行<code>&lt;script&gt;</code>，这正是单靠这条路径没法实现（已移除的）跨页跳转的原因。</span></dd></div>
+      <div class="gterm"><dt>st.iframe(html, height=n) <span class="en">(historical)</span><span class="zh">（历史记录）</span></dt><dd><span class="en">Renders a real, script-executing <code>&lt;iframe&gt;</code>, same-origin with the main app — the escape hatch that let the removed bridge's injected JS actually run. Still a real technique, just not one this codebase uses any more.</span><span class="zh">渲染一个真正会执行脚本的<code>&lt;iframe&gt;</code>，跟主应用同源——是当年那座已被移除的跳转桥能让注入的JS真正跑起来的逃生舱口。依然是个真实的技巧，只是这个代码库里已经不用了。</span></dd></div>
+      <div class="gterm"><dt>window.parent <span class="en">(historical)</span><span class="zh">（历史记录）</span></dt><dd><span class="en">From inside a same-origin iframe, a reference to the actual outer page — the difference between manipulating the invisible iframe itself and manipulating the real, visible document.</span><span class="zh">在同源iframe内部，指向外层真正页面的引用——是操作那个看不见的iframe自己、还是操作真正可见文档，这两者的差别就在这一个引用上。</span></dd></div>
+      <div class="gterm"><dt><span class="en">Polling with setTimeout (historical)</span><span class="zh">用setTimeout轮询（历史记录）</span></dt><dd><span class="en">Repeatedly checking for a condition (here, "does this element exist yet") on a timer, with a maximum attempt count — a standard pattern for "wait for something that will eventually appear, but might not be ready right now."</span><span class="zh">用定时器反复检查某个条件（这里是"这个元素出现了没有"），并设一个最多尝试次数——是"等待一个终将出现、但现在可能还没准备好的东西"的标准写法。</span></dd></div>
+      <div class="gterm"><dt><span class="en">De-dupe guard via a persisted flag (historical)</span><span class="zh">用一个持续存在的标记做去重（历史记录）</span></dt><dd><span class="en">Stashing "the last hash already handled" on an object that survives across Streamlit reruns (<code>window.parent</code>), even though the component writing to it gets torn down and rebuilt every rerun.</span><span class="zh">把"上一次已经处理过的hash"存在一个跨Streamlit重跑依然存在的对象上（<code>window.parent</code>），哪怕写入它的那个组件每次重跑都会被拆掉重建。</span></dd></div>
+      <div class="gterm"><dt><span class="en">Tuple unpacking with a spread + slice</span><span class="zh">展开+切片的元组解包</span></dt><dd><span class="en"><code>(*item, None)[:3]</code> — pads a variable-length tuple out to a fixed length before unpacking, avoiding a manual length check. Still exactly how <code>question_panel()</code> works today.</span><span class="zh"><code>(*item, None)[:3]</code>——在解包前把一个长度不固定的元组补齐到固定长度，避免手写长度判断。今天的<code>question_panel()</code>依然是这么写的。</span></dd></div>
+      <div class="gterm"><dt>el.scrollIntoView(options) <span class="en">(historical)</span><span class="zh">（历史记录）</span></dt><dd><span class="en">The JS/DOM method equivalent of a native anchor jump — <code>{behavior:"smooth", block:"start"}</code> animates the scroll and aligns the element to the top of the viewport. The same-page path achieves the same effect with pure CSS instead, and is the only path left.</span><span class="zh">JS/DOM方法版本的原生锚点跳转——<code>{behavior:"smooth", block:"start"}</code>让滚动带动画，并把元素对齐到视口顶部。同页跳转那条路径用纯CSS就能做到同样的效果，而且是现在唯一剩下的路径。</span></dd></div>
     </dl>
   </section>
 
@@ -513,16 +557,9 @@ sequenceDiagram
     <div class="module-head"><span class="stage">07</span><h2><span class="en">Try It Yourself</span><span class="zh">动手试一遍</span></h2></div>
     <p class="module-role"><span class="en">Run <code>streamlit run app/Home.py</code> and:</span><span class="zh">跑起来<code>streamlit run app/Home.py</code>，然后：</span></p>
     <ol class="try-list">
-      <li><span class="en">Open the Journal Tier page and click an <code>elsewhere</code>-status question (dashed underline). Watch the page switch and, a beat later, smooth-scroll into place — that beat is the polling loop working.</span><span class="zh">打开Journal Tier页面，点一个<code>elsewhere</code>状态的问题（虚线下划线）。
-      观察页面先切换，隔了一小拍之后再平滑滚动到位——那一小拍就是轮询循环在起作用。</span></li>
-      <li><span class="en">After it lands, click any unrelated widget (a dropdown, a slider) on the destination page. Confirm the view does <i>not</i> jump back — that's the <code>__qjumpLastHash</code> guard.</span><span class="zh">跳过去之后，在目标页面点任意一个不相关的控件（下拉框、滑块）。确认视图<i>不会</i>
-      再跳回去——这就是<code>__qjumpLastHash</code>防护在起作用。</span></li>
-      <li><span class="en">Open your browser's dev tools, throttle the network to "Slow 3G," and repeat the cross-page click — with a slower stream, you should be able to see the scroll land noticeably later, still within the 30-attempt/6-second budget. Push the throttle further and, past that budget, watch the jump silently give up.</span><span class="zh">打开浏览器开发者工具，把网络限速调成"Slow 3G"，重复一次跨页点击——在更慢的
-      流式加载下，应该能明显看到滚动落地延迟了，但仍在30次/6秒的预算之内。把限速调得更极端，
-      超出这个预算之后，观察跳转是怎么悄悄放弃的。</span></li>
-      <li><span class="en">In <code>theme.py</code>, temporarily change <code>attemptsLeft = 30</code> to <code>attemptsLeft = 1</code>, rerun, and try a cross-page click on a page whose target chart takes a moment to compute (uncached) — a good way to feel why 30 attempts, not 1, was the chosen budget.</span><span class="zh">在<code>theme.py</code>里，临时把<code>attemptsLeft = 30</code>改成
-      <code>attemptsLeft = 1</code>，重跑，试一次目标图表需要一点计算时间（未缓存）的跨页
-      点击——能直接感受到为什么选的是30次而不是1次。</span></li>
+      <li><span class="en">Open any analysis page and click a question in the "Sub-questions this page answers" panel (dashed underline — every one is a same-page link now). Watch the page smooth-scroll straight to the matching chart, no page switch, no delay to speak of.</span><span class="zh">打开任意一个分析页面，点"本页回答的子问题"面板里的一条问题（虚线下划线——现在每一条都是同页链接）。观察页面直接平滑滚动到对应图表，不切换页面，也没有什么明显延迟。</span></li>
+      <li><span class="en">Open dev tools and inspect the element it landed on — it's a <code>&lt;div id="..." class="qanchor"&gt;</code>, placed by <code>theme.anchor()</code> right above the matching <code>st.subheader()</code>. Check its computed <code>scroll-margin-top</code> and confirm it lines up with the height of Streamlit's sticky header.</span><span class="zh">打开开发者工具，检查滚动落点的元素——是一个<code>&lt;div id="..." class="qanchor"&gt;</code>，由<code>theme.anchor()</code>放在对应<code>st.subheader()</code>正上方。看看它算出来的<code>scroll-margin-top</code>，跟Streamlit粘性顶栏的高度是不是对得上。</span></li>
+      <li><span class="en">Curious what the removed cross-page version looked and felt like? Sections <a href="#crosspage">04</a> and <a href="#trace">05</a> above walk through the whole <code>st.iframe</code>/polling/de-dupe mechanism in detail — none of it is runnable any more, but the code is quoted in full there.</span><span class="zh">好奇被移除的跨页版本长什么样、用起来什么感觉？上面第<a href="#crosspage">04</a>、<a href="#trace">05</a>节详细讲了整套<code>st.iframe</code>/轮询/去重机制——已经跑不起来了，但代码在那两节里完整引用着。</span></li>
     </ol>
   </section>
 
@@ -549,12 +586,14 @@ sequenceDiagram
 
 <footer>
   <span class="en">COMP3888_W11_02_P36 · close-reading series 03 · personal study notes
-  covering theme.py's question_panel(), anchor(), and _cross_page_scroll_bridge() in full —
-  code snippets taken from the current version of the repo, the source files are
-  authoritative.</span>
+  covering theme.py's question_panel() and anchor() in full, plus a historical write-up of
+  _cross_page_scroll_bridge() (removed 2026-09-13) — question_panel()/anchor() code
+  snippets are current, the bridge ones are quoted from before removal; app/theme.py as it
+  stands today is authoritative either way.</span>
   <span class="zh">COMP3888_W11_02_P36 · 精读系列03 · 个人学习笔记，完整覆盖theme.py的
-  question_panel()、anchor()、_cross_page_scroll_bridge()三个函数 · 代码片段摘自仓库
-  当前版本，完整实现以源文件为准。</span>
+  question_panel()和anchor()两个函数，外加一份_cross_page_scroll_bridge()
+  （2026-09-13已移除）的历史记录 · question_panel()/anchor()的代码片段是当前版本，
+  跳转桥那部分摘自移除之前的版本——不管哪种情况，都以今天的app/theme.py为准。</span>
 </footer>
 
 </div>
