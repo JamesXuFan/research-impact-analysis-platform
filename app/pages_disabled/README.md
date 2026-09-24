@@ -11,5 +11,5 @@ To bring a page back: `git mv app/pages_disabled/<file>.py app/pages/<file>.py`.
 
 Currently withdrawn:
 
-- `5_Impact_Drivers.py` (README item 14)
-- `6_Scenario_Analysis.py` (README item 17)
+- `5_Impact_Drivers.py` (Analysis item 14)
+- `6_Scenario_Analysis.py` (Analysis item 17)

@@ -17,7 +17,7 @@ st.set_page_config(page_title="P36 · Scenario Analysis", page_icon=theme.FAVICO
 theme.inject()
 theme.header(
     "Scenario Analysis",
-    "README Analysis item 17 — what would mean impact look like under a hypothetical "
+    "Analysis item 17 — what would mean impact look like under a hypothetical "
     "shift in Q1 share, international collaboration, open access, or the uncited share?",
     shape="triangle",
     color=theme.YELLOW,
@@ -54,9 +54,8 @@ st.error(
     "**These are not predictions.** Every scenario assumes newly-shifted "
     "publications behave like the historical average of the group they'd join. "
     "Present these as potential implications of a historical relationship, "
-    "never as a guaranteed outcome — per the README's own instruction for this "
+    "never as a guaranteed outcome — per the client's own instruction for this "
     "item. See docs/methodology.md and finding-checker.md.",
-    icon="🚫",
 )
 
 delta_pp = st.slider(

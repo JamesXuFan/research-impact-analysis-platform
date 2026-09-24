@@ -58,4 +58,4 @@ def get_overlap_by_university():
 
 
 def caveat(text: str) -> None:
-    st.info(text, icon="⚠️")
+    st.info(text)

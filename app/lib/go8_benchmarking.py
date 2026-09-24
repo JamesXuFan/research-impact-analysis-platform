@@ -1,4 +1,4 @@
-"""Go8 Benchmarking's own data layer (README item 16, app/pages/1_Go8_Benchmarking.py).
+"""Go8 Benchmarking's own data layer (Analysis item 16, app/pages/1_Go8_Benchmarking.py).
 
 Split out of the old lib.py so this page depends only on the modules it
 actually needs (p36.analysis.go8_benchmarking, .prepare, .field_analysis for
@@ -36,7 +36,7 @@ __all__ = [
 
 
 def caveat(text: str) -> None:
-    st.info(text, icon="⚠️")
+    st.info(text)
 
 
 @st.cache_data(show_spinner="Loading publication data (per-university)…")

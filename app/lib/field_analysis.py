@@ -1,4 +1,4 @@
-"""Field Analysis's own data layer (README item 6, app/pages/3_Field_Analysis.py).
+"""Field Analysis's own data layer (Analysis item 6, app/pages/3_Field_Analysis.py).
 
 Split out of the old lib.py — depends only on p36.analysis.field_analysis and
 .prepare, not on go8_benchmarking, journal_tier, international_collaboration,
@@ -29,7 +29,7 @@ __all__ = [
 
 
 def caveat(text: str) -> None:
-    st.info(text, icon="⚠️")
+    st.info(text)
 
 
 @st.cache_data(show_spinner="Loading publication data (deduplicated)…")

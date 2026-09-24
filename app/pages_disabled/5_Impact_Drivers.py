@@ -10,7 +10,7 @@ st.set_page_config(page_title="P36 · Impact Drivers", page_icon=theme.FAVICON, 
 theme.inject()
 theme.header(
     "Integrated Research Impact Driver Analysis",
-    "README Analysis item 14 — holding the other factors constant, which of Q1 status, "
+    "Analysis item 14 — holding the other factors constant, which of Q1 status, "
     "international collaboration, institutional collaboration, and open access is "
     "actually associated with impact?",
     shape="square",
@@ -52,7 +52,6 @@ st.error(
     "**Still an observational, cross-sectional regression, not an experiment.** "
     "A significant coefficient is an association conditional on the other included "
     "predictors, not a causal effect. See docs/methodology.md and finding-checker.md.",
-    icon="🚫",
 )
 
 @st.cache_resource(show_spinner="Fitting the impact-driver model…")
@@ -92,7 +91,6 @@ if fit.rsquared < 0.1:
         "the variance in any single publication's impact. State this plainly "
         "alongside any coefficient, not just the coefficients that are "
         "statistically significant.",
-        icon="📉",
     )
 
 theme.rule(theme.YELLOW)

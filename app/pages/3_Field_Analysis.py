@@ -15,11 +15,13 @@ from p36.analysis import field_analysis
 from p36.analysis.field_analysis import FIELD_COLUMN_EXPLODED
 from p36.config import FRACTIONAL_FIELD_COUNTING
 
+COLS = {"publications": "Publications", "mean_fwci": "Citation impact (FWCI)", "q1_share": "Share in Q1 journals", "top_decile_share": "Share highly cited", "uncited_share": "Share never cited"}
+
 st.set_page_config(page_title="P36 · Field Analysis", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "Research Field / Faculty Analysis",
-    "README Analysis item 6 — which fields are strongest, improving, or under-performing?",
+    "Analysis item 6 — which fields are strongest, improving, or under-performing?",
     shape="triangle",
     color=theme.YELLOW,
 )
@@ -39,29 +41,24 @@ theme.question_panel(
     ]
 )
 st.caption(
-    "'Strengths / potential' links to the volume-vs-impact quadrant below — its four "
-    "quadrants are the closest single chart to an answer (high-volume/high-impact reads "
-    "as an existing strength, low-volume/high-impact as potential upside) — but the full "
-    "answer is a synthesis with the Q1-share and growth sections too, not that chart alone. "
-    "'Publication strategy' has no client-confirmed definition — answered below via the "
-    "closest concrete stand-in this dataset supports (domestic-single-institution / "
-    "domestic-multi-institution / international), not a broader notion of strategy (venue "
-    "choice, career stage, etc.) this data can't speak to."
+    "Existing strengths and scope for improvement are addressed most directly by the volume–impact "
+    "chart below: high volume with high impact indicates an established strength, whereas low "
+    "volume with high impact indicates potential for growth. A complete assessment also draws on "
+    "the Q1 and growth sections. 'Publication strategy' is operationalised as the type of "
+    "authorship: single institution, multiple Australian institutions, or international."
 )
 
 _, dropped = load_exploded_deduplicated()
 if dropped:
     st.caption(
-        f"{dropped:,} publications have no field classification and are excluded "
-        "below — see data_dictionary.md."
+        f"{dropped:,} publications have no recorded field classification and are excluded from the analyses below."
     )
 if FRACTIONAL_FIELD_COUNTING:
-    st.caption("Fractional field counting is on.")
+    st.caption("Fractional counting is applied: a publication assigned to several fields is divided among them.")
 else:
     st.caption(
-        "Whole counting (FRACTIONAL_FIELD_COUNTING=False, PROVISIONAL): a paper in "
-        "N fields counts fully toward each — field totals below sum to more than "
-        "the true publication count."
+        "Whole counting is applied: a publication assigned to several fields is counted in each, "
+        "so field totals below exceed the number of distinct publications."
     )
 
 field_summary = get_field_summary()
@@ -70,21 +67,19 @@ theme.anchor("fa-summary")
 st.subheader("Field summary")
 col_table, col_donut = st.columns([3, 2])
 with col_table:
-    st.dataframe(
-        field_summary.style.format(
+    st.table(
+        field_summary.rename(columns=COLS).style.format(
             {
-                "publications": "{:,.0f}",
-                "mean_fwci": "{:.3f}",
-                "q1_share": "{:.1%}",
-                "top_decile_share": "{:.1%}",
-                "uncited_share": "{:.1%}",
+                "Publications": "{:,.0f}",
+                "Citation impact (FWCI)": "{:.3f}",
+                "Share in Q1 journals": "{:.1%}",
+                "Share highly cited": "{:.1%}",
+                "Share never cited": "{:.1%}",
             }
         ),
-        width="stretch",
-        height=380,
     )
 with col_donut:
-    st.caption("Share of publications by field (donut).")
+    st.caption("Distribution of publications by field.")
     tree_df = field_summary.reset_index(names="field")
     donut = (
         alt.Chart(tree_df)
@@ -102,15 +97,15 @@ theme.rule(theme.YELLOW)
 theme.anchor("fa-quadrant")
 col_scatter, col_box = st.columns(2)
 with col_scatter:
-    st.subheader("Volume vs. impact")
-    st.caption("Median split — a relative statement about this dataset, not a universal 'high' threshold.")
+    st.subheader("Volume and impact by field")
+    st.caption("Fields are partitioned at the median; 'high' and 'low' are therefore relative to the fields analysed.")
     quadrant = field_analysis.volume_vs_impact_quadrant(field_summary).reset_index(names="field")
     scatter = (
         alt.Chart(quadrant)
         .mark_circle(size=200)
         .encode(
             x=alt.X("publications:Q", title="Publications"),
-            y=alt.Y("mean_fwci:Q", title="Mean FWCI"),
+            y=alt.Y("mean_fwci:Q", title="Citation impact (FWCI)"),
             color=alt.Color("quadrant:N", title="", scale=alt.Scale(range=theme.PALETTE)),
             tooltip=["field", "publications", alt.Tooltip("mean_fwci:Q", format=".3f"), "quadrant"],
         )
@@ -123,8 +118,8 @@ with col_scatter:
 with col_box:
     st.subheader("Impact spread by field")
     st.caption(
-        "The mean alone hides this: FWCI is heavy-tailed, so two fields with the "
-        "same mean can have very different spreads."
+        "FWCI is heavy-tailed, so the mean alone is insufficient: fields with similar means "
+        "may differ substantially in dispersion."
     )
     fwci_field = get_fwci_by_field()
     order_by_median = (
@@ -148,14 +143,14 @@ theme.rule(theme.YELLOW)
 
 theme.anchor("fa-q1-share")
 st.subheader("Q1 share by field")
-st.caption("Same PROVISIONAL Q1 definition as the Journal Tier page, broken out by field.")
+st.caption("Proportion of each field's publications in Q1 sources, using the classification applied in the Journal Tier analysis.")
 q1_field_df = field_summary[["q1_share"]].reset_index(names="field")
 q1_field_chart = (
     alt.Chart(q1_field_df)
     .mark_bar(color=theme.BLUE)
     .encode(
         y=alt.Y("field:N", title="", sort="-x"),
-        x=alt.X("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+        x=alt.X("q1_share:Q", title="Share in Q1 journals", axis=alt.Axis(format="%")),
         tooltip=["field", alt.Tooltip("q1_share:Q", format=".1%")],
     )
 )
@@ -166,10 +161,8 @@ theme.rule(theme.YELLOW)
 theme.anchor("fa-highly-cited")
 st.subheader("Highly cited publications by field")
 st.caption(
-    "top_decile_share above is a *rate* — this is the count it implies "
-    "(publications × top_decile_share, rounded), for 'which fields produce the largest "
-    "number of highly cited publications' as distinct from 'which fields have the "
-    "highest highly-cited *rate*' (a small field can have a high rate but few papers)."
+    "Absolute number of highly cited (top decile) publications. Because a small field may have "
+    "a high rate but few publications, counts and rates can yield different rankings."
 )
 highly_cited_df = field_summary.reset_index(names="field").assign(
     highly_cited_count=lambda d: (d["publications"] * d["top_decile_share"]).round().astype(int)
@@ -190,8 +183,8 @@ theme.rule(theme.YELLOW)
 theme.anchor("fa-growth")
 col_a, col_b = st.columns(2)
 with col_a:
-    st.subheader("Field growth (total-period)")
-    st.caption("Not year-over-year — see docs/methodology.md, Total-period growth.")
+    st.subheader("Growth in output by field")
+    st.caption("Cumulative change over the full period; this is not an annual growth rate.")
     growth = get_field_growth()
     growth_df = growth.rename_axis("field").reset_index(name="growth")
     growth_bar = (
@@ -199,7 +192,7 @@ with col_a:
         .mark_bar()
         .encode(
             y=alt.Y("field:N", title="", sort="-x"),
-            x=alt.X("growth:Q", title="Total-period growth", axis=alt.Axis(format="%")),
+            x=alt.X("growth:Q", title="Growth over the period", axis=alt.Axis(format="%")),
             color=alt.Color("growth:Q", legend=None, scale=theme.diverging_scale(growth_df["growth"].min(), growth_df["growth"].max())),
             tooltip=["field", alt.Tooltip("growth:Q", format=".1%")],
         )
@@ -235,14 +228,12 @@ with col_b:
 theme.rule(theme.YELLOW)
 
 theme.anchor("fa-approach")
-st.subheader("Are particular collaboration approaches more successful in some fields?")
+st.subheader("Citation impact by authorship type and field")
 st.caption(
-    "'Publication strategy' has no client-confirmed definition, so this uses the closest "
-    "concrete stand-in this dataset supports — domestic/single-institution vs. "
-    "domestic/multi-institution vs. international authorship — crossed with field. "
-    "Descriptive group means, not a regression: a field where international shows the "
-    "highest mean FWCI is consistent with, not proof of, international collaboration being "
-    "the more effective approach specifically in that field."
+    "'Publication strategy' is operationalised as three authorship types within each field: "
+    "single Australian institution, multiple Australian institutions, and international. "
+    "Values are group means. A higher mean FWCI for international authorship in a given field "
+    "is consistent with, but does not establish, a benefit of international collaboration."
 )
 approach_df = get_collaboration_approach_by_field().reset_index()
 approach_chart = (
@@ -250,7 +241,7 @@ approach_chart = (
     .mark_bar()
     .encode(
         y=alt.Y(f"{FIELD_COLUMN_EXPLODED}:N", title="", sort="-x"),
-        x=alt.X("mean_fwci:Q", title="Mean FWCI"),
+        x=alt.X("mean_fwci:Q", title="Citation impact (FWCI)"),
         color=alt.Color(
             "collaboration_approach:N", title="",
             scale=alt.Scale(
@@ -269,15 +260,14 @@ gap_by_field = (
     .sort_values("intl_gap", ascending=False)
 )
 st.caption(
-    f"International's advantage over the two domestic approaches (averaged) is largest in "
-    f"**{gap_by_field.index[0]}** (+{gap_by_field['intl_gap'].iloc[0]:.2f} FWCI) and smallest in "
-    f"**{gap_by_field.index[-1]}** ({gap_by_field['intl_gap'].iloc[-1]:+.2f} FWCI) — international "
-    "shows the highest mean FWCI in every field here, but by a very different margin field to field."
+    f"The international advantage over the two domestic types (averaged) is largest in "
+    f"**{gap_by_field.index[0]}** (+{gap_by_field['intl_gap'].iloc[0]:.2f}) and smallest in "
+    f"**{gap_by_field.index[-1]}** ({gap_by_field['intl_gap'].iloc[-1]:+.2f}). International "
+    "authorship yields the highest mean FWCI in every field, but the margin varies considerably."
 )
 
 caveat(
-    "Cross-field comparisons above use Field-Weighted Citation Impact and SciVal's "
-    "own citation-percentile columns, never raw Citations — clinical medicine can "
-    "average 5–10× the citations of mathematics for citation-culture reasons alone, "
-    "not quality. See docs/methodology.md, Cross-field / cross-year comparison."
+    "Comparisons across fields use FWCI and citation percentiles rather than raw citation "
+    "counts. Clinical medicine publications may accrue five to ten times as many citations as "
+    "mathematics publications owing to differences in citation practice rather than quality."
 )

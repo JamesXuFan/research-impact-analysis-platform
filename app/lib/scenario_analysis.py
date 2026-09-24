@@ -1,4 +1,4 @@
-"""Scenario Analysis's own data layer (README item 17,
+"""Scenario Analysis's own data layer (Analysis item 17,
 app/pages_disabled/6_Scenario_Analysis.py — currently withdrawn from the
 platform nav, see that folder's README.md).
 

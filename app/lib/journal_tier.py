@@ -1,4 +1,4 @@
-"""Journal Tier's own data layer (README item 3, app/pages/2_Journal_Tier.py).
+"""Journal Tier's own data layer (Analysis item 3, app/pages/2_Journal_Tier.py).
 
 Split out of the old lib.py — depends only on p36.analysis.journal_tier,
 .prepare, and .field_analysis (for the exploded dataset), not on
@@ -37,7 +37,7 @@ __all__ = [
 
 
 def provisional(text: str) -> None:
-    st.warning(text, icon="🚧")
+    st.warning(text)
 
 
 @st.cache_data(show_spinner="Loading publication data (deduplicated)…")

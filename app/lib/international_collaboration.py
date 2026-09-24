@@ -1,4 +1,4 @@
-"""International Collaboration's own data layer (README item 9,
+"""International Collaboration's own data layer (Analysis item 9,
 app/pages/4_International_Collaboration.py).
 
 Split out of the old lib.py — depends only on
@@ -37,7 +37,7 @@ __all__ = [
 
 
 def caveat(text: str) -> None:
-    st.info(text, icon="⚠️")
+    st.info(text)
 
 
 @st.cache_data(show_spinner="Loading publication data (per-university)…")

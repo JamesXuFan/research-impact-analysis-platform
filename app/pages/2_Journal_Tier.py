@@ -23,7 +23,7 @@ st.set_page_config(page_title="P36 · Journal Tier / Q1", page_icon=theme.FAVICO
 theme.inject()
 theme.header(
     "Journal Tier and Q1 Analysis",
-    "README Analysis item 3 — what share of output is in Q1 journals, and how does that vary?",
+    "Analysis item 3 — what share of output is in Q1 journals, and how does that vary?",
     shape="circle",
     color=theme.BLUE,
 )
@@ -42,16 +42,13 @@ theme.question_panel(
     ]
 )
 st.caption(
-    "Field-level Q1 share (highest, and rising/falling) is broken out below, next to the "
-    "tier-level view — 'faculty/field' and 'tier' are different cuts of the same Q1 flag, "
-    "shown next to each other rather than requiring a trip to the Field Analysis page."
+    "Q1 shares by field are reported further below, alongside the analysis by journal tier."
 )
 
 provisional(
-    f"Q1 = source `CiteScore percentile <= {Q1_CITESCORE_PERCENTILE_MAX}`. The direction "
-    "(lower percentile = better) is verified against Field-Weighted Citation Impact, not "
-    "assumed — but the exact cutoff, and whether Q1 should instead use SJR percentile, "
-    "has not been confirmed by the client. See docs/methodology.md."
+    f"A publication is classified as Q1 when its source lies within the top {Q1_CITESCORE_PERCENTILE_MAX}% "
+    "of its field by CiteScore percentile. The final section compares this classification "
+    "with one based on the SJR percentile to assess its sensitivity."
 )
 
 st.subheader("Q1 share by university")
@@ -63,7 +60,7 @@ q1_bar = (
     .mark_bar()
     .encode(
         y=alt.Y("university:N", title="", sort="-x"),
-        x=alt.X("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+        x=alt.X("q1_share:Q", title="Share in Q1 journals", axis=alt.Axis(format="%")),
         color=alt.Color(
             "is_client:N", legend=None,
             scale=alt.Scale(domain=[True, False], range=[theme.RED, theme.BLUE]),
@@ -75,7 +72,7 @@ st.altair_chart(theme.style(q1_bar, height=280), use_container_width=True)
 
 theme.rule(theme.YELLOW)
 
-st.subheader(f"Q1 share trend ({MAIN_YEAR_RANGE[0]}–{MAIN_YEAR_RANGE[1]})")
+st.subheader(f"Q1 share over time ({MAIN_YEAR_RANGE[0]}–{MAIN_YEAR_RANGE[1]})")
 q1_year = get_q1_share_by_year()
 q1_year_df = q1_year.rename_axis("year").reset_index(name="q1_share")
 q1_line = (
@@ -83,7 +80,7 @@ q1_line = (
     .mark_line(color=theme.BLUE, point=alt.OverlayMarkDef(color=theme.RED, size=100))
     .encode(
         x=alt.X("year:O", title="Year"),
-        y=alt.Y("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+        y=alt.Y("q1_share:Q", title="Share in Q1 journals", axis=alt.Axis(format="%")),
         tooltip=["year", alt.Tooltip("q1_share:Q", format=".1%")],
     )
 )
@@ -94,9 +91,8 @@ theme.rule(theme.YELLOW)
 theme.anchor("jt-quartile")
 st.subheader("Citation performance across Q1–Q4")
 st.caption(
-    "The binary Q1 flag above collapses Q2, Q3 and Q4 into a single 'not Q1' bucket — "
-    "this breaks the same CiteScore-percentile column into all four tiers, for 'compare "
-    "citation performance across Q1, Q2, Q3, Q4' and 'measure how large the difference is'."
+    "The binary Q1 indicator above pools Q2, Q3 and Q4 as 'not Q1'; the four quartiles "
+    "are disaggregated here."
 )
 quartile = get_impact_by_citescore_quartile()
 quartile_df = quartile.rename_axis("quartile").reset_index()
@@ -108,25 +104,25 @@ with col_q_fwci:
         .mark_bar()
         .encode(
             x=alt.X("quartile:N", title="", sort=["Q1", "Q2", "Q3", "Q4"]),
-            y=alt.Y("mean_fwci:Q", title="Mean FWCI"),
+            y=alt.Y("mean_fwci:Q", title="Citation impact (FWCI)"),
             color=alt.Color("quartile:N", legend=None, scale=alt.Scale(domain=["Q1", "Q2", "Q3", "Q4"], range=[theme.BLUE, theme.YELLOW, theme.RED, theme.BLACK])),
             tooltip=["quartile", "publications", alt.Tooltip("mean_fwci:Q", format=".3f")],
         )
     )
     st.altair_chart(theme.style(q_bar, height=300), use_container_width=True)
 with col_q_shares:
-    st.caption("Highly-cited (top-decile) and uncited shares, same four tiers.")
+    st.caption("Proportions of highly cited (top decile) and uncited publications, by quartile.")
     shares_long = quartile_df.melt(
         id_vars="quartile", value_vars=["top_decile_share", "uncited_share"], var_name="metric", value_name="share"
     )
-    shares_long["metric"] = shares_long["metric"].map({"top_decile_share": "Highly cited", "uncited_share": "Uncited"})
+    shares_long["metric"] = shares_long["metric"].map({"top_decile_share": "Highly cited", "uncited_share": "Never cited"})
     shares_chart = (
         alt.Chart(shares_long)
         .mark_bar()
         .encode(
             x=alt.X("quartile:N", title="", sort=["Q1", "Q2", "Q3", "Q4"]),
             y=alt.Y("share:Q", title="Share of publications", axis=alt.Axis(format="%")),
-            color=alt.Color("metric:N", title="", scale=alt.Scale(domain=["Highly cited", "Uncited"], range=[theme.BLUE, theme.RED])),
+            color=alt.Color("metric:N", title="", scale=alt.Scale(domain=["Highly cited", "Never cited"], range=[theme.BLUE, theme.RED])),
             xOffset="metric:N",
             tooltip=["quartile", "metric", alt.Tooltip("share:Q", format=".1%")],
         )
@@ -134,22 +130,21 @@ with col_q_shares:
     st.altair_chart(theme.style(shares_chart, height=300), use_container_width=True)
 
 st.markdown(
-    f"**Q1 → Q4**, mean FWCI falls **{quartile.loc['Q1', 'mean_fwci']:.2f} → {quartile.loc['Q4', 'mean_fwci']:.2f}**, "
-    f"highly-cited share **{quartile.loc['Q1', 'top_decile_share']:.1%} → {quartile.loc['Q4', 'top_decile_share']:.1%}**, "
-    f"uncited share **{quartile.loc['Q1', 'uncited_share']:.1%} → {quartile.loc['Q4', 'uncited_share']:.1%}** — "
-    "monotonic across all three metrics, not just a Q1-vs-the-rest step. That answers "
-    "'does publishing in Q1 increase the probability of becoming highly cited' directly: "
-    "yes, and the same gradient continues through Q2/Q3/Q4, it isn't a Q1-only cliff edge."
+    f"From Q1 to Q4, mean FWCI declines from **{quartile.loc['Q1', 'mean_fwci']:.2f}** to **{quartile.loc['Q4', 'mean_fwci']:.2f}**, "
+    f"the highly cited share changes from **{quartile.loc['Q1', 'top_decile_share']:.1%}** to **{quartile.loc['Q4', 'top_decile_share']:.1%}**, "
+    f"and the uncited share changes from **{quartile.loc['Q1', 'uncited_share']:.1%}** to **{quartile.loc['Q4', 'uncited_share']:.1%}**. "
+    "All three indicators vary monotonically across quartiles, so the advantage is not confined "
+    "to a Q1 versus non-Q1 contrast. Publication in a Q1 source is associated with a higher "
+    "probability of being highly cited."
 )
 
 theme.rule(theme.YELLOW)
 
 theme.anchor("jt-field-q1")
-st.subheader("Q1 share by field: level and trend")
+st.subheader("Q1 share by field")
 st.caption(
-    "Same PROVISIONAL Q1 definition as above, broken out by field instead of by tier — "
-    f"'level' is the current Q1 share per field; 'trend' splits {MAIN_YEAR_RANGE} in half "
-    "and shows the percentage-point change in Q1 share, second half minus first."
+    "The left panel reports the Q1 share by field. The right panel reports the change in that "
+    "share between the first and second half of the period, in percentage points."
 )
 field_summary = get_field_summary()
 col_field_level, col_field_trend = st.columns(2)
@@ -160,7 +155,7 @@ with col_field_level:
         .mark_bar(color=theme.BLUE)
         .encode(
             y=alt.Y("field:N", title="", sort="-x"),
-            x=alt.X("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+            x=alt.X("q1_share:Q", title="Share in Q1 journals", axis=alt.Axis(format="%")),
             tooltip=["field", alt.Tooltip("q1_share:Q", format=".1%")],
         )
     )
@@ -172,7 +167,7 @@ with col_field_trend:
         .mark_bar()
         .encode(
             y=alt.Y("field:N", title="", sort="-x"),
-            x=alt.X("change:Q", title="Q1 share change (pp), second half minus first", axis=alt.Axis(format="+.0%")),
+            x=alt.X("change:Q", title="Change in Q1 share (percentage points)", axis=alt.Axis(format="+.0%")),
             color=alt.Color(
                 "change:Q", legend=None,
                 scale=theme.diverging_scale(field_q1_change["change"].min(), field_q1_change["change"].max()),
@@ -187,10 +182,9 @@ theme.rule(theme.YELLOW)
 theme.anchor("jt-consistency")
 st.subheader("Is the Q1 advantage consistent across disciplines?")
 st.caption(
-    "Q1-minus-non-Q1 mean-FWCI gap, computed separately within each field — the same "
-    "stratification check used on the International Collaboration page, applied here to "
-    "'is the Q1 advantage consistent across disciplines' rather than assumed from the "
-    "aggregate gap alone."
+    "The difference in mean FWCI between Q1 and non-Q1 publications, estimated within each "
+    "field, to test whether the advantage is consistent across disciplines rather than "
+    "concentrated in a few."
 )
 advantage = get_q1_advantage_by_field().reset_index(names="field")
 advantage_chart = (
@@ -198,27 +192,25 @@ advantage_chart = (
     .mark_bar(color=theme.BLUE)
     .encode(
         y=alt.Y("field:N", title="", sort="-x"),
-        x=alt.X("gap:Q", title="Q1 − non-Q1 mean FWCI gap"),
+        x=alt.X("gap:Q", title="Citation impact gap (Q1 minus non-Q1)"),
         tooltip=["field", alt.Tooltip("gap:Q", format=".3f")],
     )
 )
 st.altair_chart(theme.style(advantage_chart, height=max(240, 24 * len(advantage))), use_container_width=True)
 st.caption(
-    f"Every field shows a positive gap (range {advantage['gap'].min():.2f}–{advantage['gap'].max():.2f}) "
-    "— the Q1 advantage holds in every field in this dataset, though its *size* varies "
-    f"{advantage['gap'].max() / advantage['gap'].min():.1f}× between the strongest and weakest field."
+    f"The gap is positive in every field (range {advantage['gap'].min():.2f}–{advantage['gap'].max():.2f}), "
+    "indicating that the Q1 advantage is present across all fields, although its magnitude varies "
+    f"by a factor of approximately {advantage['gap'].max() / advantage['gap'].min():.1f} between the largest and smallest."
     if (advantage["gap"] > 0).all()
-    else "Not every field shows the same direction — see the chart for which fields are the exception."
+    else "The direction of the gap is not uniform across fields; exceptions are visible in the chart."
 )
 
 theme.rule(theme.YELLOW)
 
-st.subheader("CiteScore percentile distribution")
+st.subheader("Distribution of CiteScore percentile")
 st.caption(
-    "Remember: lower is better. The right-skew here — most publications cluster "
-    "toward 1 — is exactly what confirmed the percentile direction in the first "
-    "place (see docs/methodology.md): it means Go8 output disproportionately sits "
-    "in high-CiteScore journals, not that percentiles are uniformly spread."
+    "Lower values indicate a higher ranking (1 = top). The distribution is concentrated near 1, "
+    "indicating that Go8 output is disproportionately published in highly ranked sources."
 )
 series = get_citescore_percentile_series()
 hist_df = series.to_frame("citescore_percentile")
@@ -236,24 +228,23 @@ threshold_rule = (
     .encode(x="x:Q")
 )
 st.altair_chart(theme.style(histogram + threshold_rule, height=320), use_container_width=True)
-st.caption(f"Dashed red line: Q1 threshold ({Q1_CITESCORE_PERCENTILE_MAX}).")
+st.caption(f"The dashed red line marks the Q1 threshold (percentile {Q1_CITESCORE_PERCENTILE_MAX}).")
 
 desc = get_citescore_percentile_distribution()
-st.dataframe(desc.to_frame("CiteScore percentile").T, width="stretch")
+st.table(desc.to_frame("CiteScore percentile").T)
 
 theme.rule(theme.YELLOW)
 
 theme.anchor("jt-overperform")
-st.subheader("Do individual journals over- or under-perform their own tier?")
+st.subheader("Sources deviating from their tier average")
 st.caption(
-    "The previously-unaddressed sub-question: a tier average can hide individual sources "
-    "that punch well above or below it. Per-source (Scopus source title) mean FWCI minus "
-    f"its own quartile's mean FWCI, restricted to sources with at least "
-    f"{OVERPERFORMING_SOURCE_MIN_PUBLICATIONS} publications in that quartile so a single "
-    "highly-cited paper can't make a small source look like an outlier."
+    "A tier mean can conceal sources that perform well above or below it. Each source's mean "
+    "FWCI is compared with the mean of its own quartile. To limit the influence of individual "
+    f"papers, only sources with at least {OVERPERFORMING_SOURCE_MIN_PUBLICATIONS} publications "
+    "in the quartile are included."
 )
 sources = get_overperforming_sources()
-tab_over, tab_under = st.tabs(["Strongest over-performers", "Strongest under-performers"])
+tab_over, tab_under = st.tabs(["Positive deviation", "Negative deviation"])
 with tab_over:
     top_sources = sources.nlargest(12, "gap")
     over_chart = (
@@ -261,7 +252,7 @@ with tab_over:
         .mark_bar(color=theme.BLUE)
         .encode(
             y=alt.Y("source:N", title="", sort="-x"),
-            x=alt.X("gap:Q", title="Source mean FWCI − its quartile's mean FWCI"),
+            x=alt.X("gap:Q", title="Citation impact gap versus own tier"),
             tooltip=["source", "quartile", "publications", alt.Tooltip("mean_fwci:Q", format=".2f"), alt.Tooltip("gap:Q", format=".2f")],
         )
     )
@@ -273,38 +264,35 @@ with tab_under:
         .mark_bar(color=theme.RED)
         .encode(
             y=alt.Y("source:N", title="", sort="x"),
-            x=alt.X("gap:Q", title="Source mean FWCI − its quartile's mean FWCI"),
+            x=alt.X("gap:Q", title="Citation impact gap versus own tier"),
             tooltip=["source", "quartile", "publications", alt.Tooltip("mean_fwci:Q", format=".2f"), alt.Tooltip("gap:Q", format=".2f")],
         )
     )
     st.altair_chart(theme.style(under_chart, height=360), use_container_width=True)
 st.caption(
-    f"{len(sources):,} (quartile, source) pairs clear the {OVERPERFORMING_SOURCE_MIN_PUBLICATIONS}-publication "
-    "floor. This is descriptive, not a recommendation — a source's gap here can reflect genuine "
-    "editorial quality, a narrow high-citation-culture sub-field, or a handful of outlier papers "
-    "even past the publication floor; treat it as a shortlist to investigate, not a verdict."
+    f"{len(sources):,} source–quartile combinations meet the minimum of {OVERPERFORMING_SOURCE_MIN_PUBLICATIONS} publications. "
+    "The results are descriptive. A deviation may reflect editorial quality, the citation "
+    "practices of a specific sub-field, or a small number of outlying papers, and should be "
+    "interpreted as a basis for further investigation rather than as a conclusion."
 )
 
 theme.rule(theme.YELLOW)
 
-st.subheader("Does the Q1 basis actually matter? CiteScore vs. SJR")
+st.subheader("Sensitivity of Q1 classification: CiteScore and SJR")
 st.caption(
-    "The open question flagged above, answered with actual numbers instead of "
-    "left abstract: restricted to publications with both percentiles present, "
-    "how often would classifying Q1 by SJR percentile instead of CiteScore "
-    "percentile change the answer?"
+    "For publications with both percentiles available, the table reports the frequency with "
+    "which the two classification bases agree on Q1 status."
 )
 agreement = get_q1_definition_agreement()
 a1, a2, a3, a4 = st.columns(4)
 a1.metric("Both call it Q1", f"{agreement['both_q1']:,}")
-a2.metric("CiteScore Q1 only", f"{agreement['citescore_only']:,}")
-a3.metric("SJR Q1 only", f"{agreement['sjr_only']:,}")
+a2.metric("Q1 by CiteScore only", f"{agreement['citescore_only']:,}")
+a3.metric("Q1 by SJR only", f"{agreement['sjr_only']:,}")
 a4.metric("Neither", f"{agreement['neither']:,}")
 disagreement_n = agreement["citescore_only"] + agreement["sjr_only"]
 st.markdown(
-    f"**{agreement['agreement_rate']:.1%} agreement** across {agreement['n']:,} publications with both "
-    f"percentiles present — {disagreement_n:,} publications ({disagreement_n / agreement['n']:.1%}) would "
-    "flip Q1 status depending on which basis is used. That's the size of the "
-    "uncertainty behind every Q1 share on this page until the client confirms "
-    "which basis to use."
+    f"**The two bases agree for {agreement['agreement_rate']:.1%}** of the {agreement['n']:,} publications "
+    f"with both percentiles available. {disagreement_n:,} publications ({disagreement_n / agreement['n']:.1%}) "
+    "would change Q1 status depending on the basis used, which indicates the sensitivity of the "
+    "Q1 figures on this page to the choice of classification."
 )

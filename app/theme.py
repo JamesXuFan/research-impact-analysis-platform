@@ -18,8 +18,9 @@ PALETTE = [BLUE, RED, YELLOW, BLACK, GREY]
 SEQUENTIAL_RANGE = [WHITE, BLUE]
 DIVERGING_RANGE = [BLUE, CREAM, RED]
 
-FONT_DISPLAY = "'Archivo Black', sans-serif"
-FONT_BODY = "'Space Grotesk', sans-serif"
+FONT_DISPLAY = "'Source Serif 4', Georgia, 'Times New Roman', serif"
+FONT_BODY = "'Source Sans 3', 'Segoe UI', Arial, sans-serif"
+NOTE = "#262626"
 
 def diverging_scale(min_val: float, max_val: float) -> alt.Scale:
     bound = max(abs(min_val), abs(max_val))
@@ -40,6 +41,7 @@ def _register_altair_theme() -> None:
                     "labelFont": FONT_BODY,
                     "labelColor": BLACK,
                     "labelFontSize": 11,
+                    "labelLimit": 260,
                     "titleFont": FONT_BODY,
                     "titleColor": BLACK,
                     "titleFontWeight": "bold",
@@ -76,11 +78,33 @@ def inject() -> None:
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap');
 
-        html, body, [class*="css"], .stMarkdown, p, li, label {{
+        /* Typographic hierarchy, one role per style:
+         *   page title      serif, bold, sentence case
+         *   section heading sans, bold, ruled underneath
+         *   body            sans, regular, generous line height
+         *   note / caption  smaller, darker grey, ruled on the left
+         *   figures         serif numerals, small uppercase labels */
+        html, body, [class*="css"], .stMarkdown, p, li, label, div[data-testid="stAlert"] {{
             font-family: {FONT_BODY};
         }}
+        .stMarkdown p, .stMarkdown li {{
+            font-size: 1.02rem;
+            line-height: 1.65;
+        }}
+        .stMarkdown strong {{ font-weight: 700; }}
+        div[data-testid="stCaptionContainer"] {{
+            font-family: {FONT_BODY};
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: {NOTE};
+            opacity: 1 !important;
+            border-left: 3px solid #1A1A1A;
+            padding-left: 10px;
+            margin: 2px 0 10px 0;
+        }}
+        div[data-testid="stCaptionContainer"] * {{ color: {NOTE} !important; opacity: 1 !important; }}
 
         /* In-page jump targets for question_panel()'s clickable questions
          * (theme.anchor()) — scroll-margin-top keeps the landing spot from
@@ -96,10 +120,27 @@ def inject() -> None:
         }}
         a.qjump:hover {{ color: {BLUE}; border-bottom-color: {BLUE}; }}
         a.qjump:focus-visible {{ outline: 2px solid {BLUE}; outline-offset: 2px; }}
-        h1, h2, h3 {{
+        h1 {{
             font-family: {FONT_DISPLAY} !important;
-            text-transform: uppercase;
+            font-weight: 700 !important;
+            text-transform: none;
             letter-spacing: -0.01em;
+            color: {BLACK} !important;
+        }}
+        h2, h3 {{
+            font-family: {FONT_BODY} !important;
+            font-weight: 700 !important;
+            font-size: 1.3rem !important;
+            text-transform: none;
+            letter-spacing: 0;
+            color: {BLACK} !important;
+            border-bottom: 2px solid {BLACK};
+            padding-bottom: 0.3rem !important;
+            margin-bottom: 0.6rem;
+        }}
+        h4, h5, h6 {{
+            font-family: {FONT_BODY} !important;
+            font-weight: 600 !important;
             color: {BLACK} !important;
         }}
 
@@ -153,12 +194,22 @@ def inject() -> None:
         div[data-testid="stMetricLabel"] {{
             font-family: {FONT_BODY};
             text-transform: uppercase;
-            font-weight: 700;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            color: {NOTE};
+        }}
+        div[data-testid="stMetricLabel"] *, div[data-testid="stMetricValue"] * {{
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
         }}
         div[data-testid="stMetricValue"] {{
+            font-size: 1.75rem;
+            line-height: 1.25;
             font-family: {FONT_DISPLAY};
+            font-weight: 700;
+            font-variant-numeric: lining-nums tabular-nums;
             color: {BLACK};
         }}
 
@@ -179,6 +230,7 @@ def inject() -> None:
             font-weight: 700;
             border-left: 4px solid {WHITE};
         }}
+        section[data-testid="stSidebar"] a {{ font-weight: 600; }}
         section[data-testid="stSidebar"] a:hover {{
             background: {YELLOW} !important;
             color: {BLACK} !important;
@@ -195,6 +247,9 @@ def inject() -> None:
         }}
         div[data-testid="stAlert"]:has(div[data-testid="stAlertContentInfo"]) {{
             background: {BLUE}; border: none;
+        }}
+        div[data-testid="stAlertContentWarning"], div[data-testid="stAlertContentWarning"] * {{
+            color: {BLACK} !important;
         }}
         div[data-testid="stAlertContentInfo"], div[data-testid="stAlertContentInfo"] * {{
             color: {WHITE} !important;
@@ -246,6 +301,42 @@ def inject() -> None:
         div[data-testid="stSlider"] > div > div > div {{
             background: {BLACK} !important;
         }}
+
+        /* Static tables: dark text, bold header, ruled rows (replaces the
+         * canvas dataframe, whose grey text cannot be restyled) */
+        div[data-testid="stTable"] table {{
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid {BLACK};
+            background: {WHITE};
+            font-family: {FONT_BODY};
+            font-size: 0.92rem;
+            color: {BLACK};
+        }}
+        div[data-testid="stTable"] th {{
+            background: {BLACK};
+            color: {WHITE};
+            font-weight: 700;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+        }}
+        div[data-testid="stTable"] td {{
+            color: {BLACK};
+            padding: 7px 12px;
+            border-top: 1px solid #C9C4B8;
+            font-variant-numeric: tabular-nums;
+        }}
+        div[data-testid="stTable"] tbody th {{
+            background: {WHITE};
+            color: {BLACK};
+            font-weight: 600;
+            border-top: 1px solid #C9C4B8;
+            border-right: 1px solid #C9C4B8;
+        }}
+        div[data-testid="stTable"] td:not(:first-child) {{ text-align: right; }}
+        div[data-testid="stTable"] tbody tr:hover td {{ background: {YELLOW}33; }}
+        div[data-testid="stTable"] {{ overflow-x: auto; }}
 
         /* DataFrame: highlight the row under the cursor */
         div[data-testid="stDataFrame"] {{
@@ -324,18 +415,18 @@ def header(title: str, caption: str, shape: str = "square", color: str = RED) ->
         f"""
         <div style="display:flex;align-items:center;">
             {_SHAPES[shape](color)}
-            <h1 style="margin:0;font-size:2.1rem;">{title}</h1>
+            <h1 style="margin:0;font-size:2.2rem;line-height:1.2;">{title}</h1>
         </div>
         <div style="height:8px;background:{BLACK};width:100%;margin:10px 0 6px 0;"></div>
-        <p style="font-size:1rem;color:{GREY};margin-bottom:1.2rem;">{caption}</p>
+        <p style="font-size:1.05rem;color:{NOTE};margin-bottom:1.2rem;font-family:{FONT_BODY};">{caption}</p>
         """,
         unsafe_allow_html=True,
     )
 
 _STATUS_STYLE = {
-    "done": ("✓", BLUE, WHITE),
-    "partial": ("~", YELLOW, BLACK),
-    "open": ("?", CREAM, BLACK),
+    "done": ("A", BLUE, WHITE),
+    "partial": ("P", YELLOW, BLACK),
+    "open": ("O", CREAM, BLACK),
 }
 
 def question_panel(
@@ -354,7 +445,7 @@ def question_panel(
             f'<div style="display:flex;gap:12px;align-items:flex-start;padding:7px 0;'
             f'border-bottom:1px solid #E5E1D8;">'
             f'<span style="flex-shrink:0;width:22px;height:22px;background:{bg};color:{fg};'
-            f'font-weight:700;font-family:{FONT_DISPLAY};display:flex;align-items:center;'
+            f'font-weight:700;font-family:{FONT_BODY};display:flex;align-items:center;'
             f'justify-content:center;font-size:0.78rem;border:1.5px solid {BLACK};">{icon}</span>'
             f'<span style="font-size:0.92rem;line-height:1.45;padding-top:1px;">{question_html}</span>'
             f"</div>"
@@ -363,14 +454,14 @@ def question_panel(
         f"""
         <div style="border:2px solid {BLACK};background:{WHITE};padding:14px 20px 6px 20px;
                     margin-bottom:1.3rem;animation:bauhausRise 0.4s ease-out;">
-            <div style="font-family:{FONT_DISPLAY};text-transform:uppercase;font-size:0.85rem;
-                        letter-spacing:0.04em;margin-bottom:6px;">{title}</div>
+            <div style="font-family:{FONT_BODY};text-transform:uppercase;font-weight:700;font-size:0.8rem;
+                        letter-spacing:0.08em;color:{NOTE};margin-bottom:6px;">{title}</div>
             {''.join(rows)}
-            <div style="font-size:0.78rem;color:{GREY};padding:8px 0 4px 0;">
-                <b style="color:{BLACK};">✓</b> answered directly below &nbsp;·&nbsp;
-                <b style="color:{BLACK};">~</b> answered, aggregate/qualitative only &nbsp;·&nbsp;
-                <b style="color:{BLACK};">?</b> not yet addressed anywhere in this platform
-                &nbsp;·&nbsp; underlined = click to jump to it below
+            <div style="font-size:0.8rem;color:{NOTE};padding:8px 0 4px 0;">
+                <b style="color:{BLACK};">A</b> answered directly below &nbsp;·&nbsp;
+                <b style="color:{BLACK};">P</b> answered, aggregate or qualitative only &nbsp;·&nbsp;
+                <b style="color:{BLACK};">O</b> not yet addressed in this platform
+                &nbsp;·&nbsp; underlined entries link to the relevant section below
             </div>
         </div>
         """,

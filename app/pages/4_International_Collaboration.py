@@ -16,11 +16,13 @@ from lib.international_collaboration import (
 )
 from p36.config import CITATION_WINDOW_TRAILING_YEARS_EXCLUDED
 
+COLS = {"publications": "Publications", "mean_fwci": "Citation impact (FWCI)", "q1_share": "Share in Q1 journals", "top_decile_share": "Share highly cited", "uncited_share": "Share never cited"}
+
 st.set_page_config(page_title="P36 · International Collaboration", page_icon=theme.FAVICON, layout="wide")
 theme.inject()
 theme.header(
     "International Collaboration Analysis",
-    "README Analysis item 9 — are internationally co-authored papers cited more frequently?",
+    "Analysis item 9 — are internationally co-authored papers cited more frequently?",
     shape="circle",
     color=theme.BLUE,
 )
@@ -39,16 +41,13 @@ theme.question_panel(
     ]
 )
 st.caption(
-    "Q1 / highly-cited / uncited likelihood come from one table (below) — three columns "
-    "of the same 'impact by collaboration status' comparison, not three separate charts."
+    "The Q1, highly cited and uncited proportions are reported together in the table below."
 )
 
 st.error(
-    "**This does not establish causation.** An observed gap is equally consistent "
-    "with international collaboration causing higher impact, or with researchers "
-    "who already produce higher-impact work finding it easier to attract "
-    "international co-authors. See docs/methodology.md and finding-checker.md.",
-    icon="🚫",
+    "**These results do not establish causation.** The observed gap is equally consistent "
+    "with international collaboration raising impact and with higher-impact researchers "
+    "being better able to attract international co-authors.",
 )
 
 theme.anchor("ic-status")
@@ -57,17 +56,16 @@ status = get_impact_by_collaboration_status()
 status.index = status.index.map({True: "International", False: "Domestic"})
 col1, col2 = st.columns([1, 2])
 with col1:
-    st.dataframe(
-        status.style.format(
+    st.table(
+        status.rename(columns=COLS).style.format(
             {
-                "publications": "{:,.0f}",
-                "mean_fwci": "{:.3f}",
-                "q1_share": "{:.1%}",
-                "top_decile_share": "{:.1%}",
-                "uncited_share": "{:.1%}",
+                "Publications": "{:,.0f}",
+                "Citation impact (FWCI)": "{:.3f}",
+                "Share in Q1 journals": "{:.1%}",
+                "Share highly cited": "{:.1%}",
+                "Share never cited": "{:.1%}",
             }
         ),
-        width="stretch",
     )
 with col2:
     status_df = status[["mean_fwci"]].reset_index(names="status")
@@ -76,7 +74,7 @@ with col2:
         .mark_bar()
         .encode(
             x=alt.X("status:N", title=""),
-            y=alt.Y("mean_fwci:Q", title="Mean FWCI"),
+            y=alt.Y("mean_fwci:Q", title="Citation impact (FWCI)"),
             color=alt.Color(
                 "status:N", legend=None,
                 scale=alt.Scale(domain=["International", "Domestic"], range=[theme.RED, theme.BLUE]),
@@ -87,8 +85,8 @@ with col2:
     st.altair_chart(theme.style(status_bar, height=280), use_container_width=True)
 
 st.caption(
-    "The bar above shows means only — FWCI is heavy-tailed, so the two "
-    "distributions overlap far more than a bar chart of means suggests:"
+    "The bar chart reports means only. Because FWCI is heavy-tailed, the two distributions "
+    "overlap considerably more than the means suggest:"
 )
 fwci_status = get_fwci_by_collaboration_status()
 fwci_status_labelled = fwci_status.assign(
@@ -115,14 +113,14 @@ theme.anchor("ic-gap")
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("Gap by field")
-    st.caption("Checks the finding 'remains after considering research field' rather than assuming it.")
+    st.caption("Tests whether the gap persists after conditioning on research field.")
     gap_field = get_impact_gap_by_field().reset_index(names="field")
     gap_chart = (
         alt.Chart(gap_field)
         .mark_bar(color=theme.BLUE)
         .encode(
             y=alt.Y("field:N", title="", sort="-x"),
-            x=alt.X("gap:Q", title="International − domestic mean FWCI"),
+            x=alt.X("gap:Q", title="Citation impact gap (international minus domestic)"),
             tooltip=["field", alt.Tooltip("gap:Q", format=".3f")],
         )
     )
@@ -131,14 +129,14 @@ with col_a:
 with col_b:
     st.subheader("Gap by year")
     st.caption(
-        f"Trailing {CITATION_WINDOW_TRAILING_YEARS_EXCLUDED} years excluded by default "
-        "(citation-window artefact — see docs/methodology.md)."
+        f"The most recent {CITATION_WINDOW_TRAILING_YEARS_EXCLUDED} years are excluded because "
+        "their citation windows are incomplete."
     )
     gap_year = get_impact_gap_by_year().reset_index(names="year")
     gap_line = (
         alt.Chart(gap_year)
         .mark_line(color=theme.RED, point=alt.OverlayMarkDef(color=theme.RED, size=100))
-        .encode(x=alt.X("year:O", title="Year"), y=alt.Y("gap:Q", title="Gap"), tooltip=["year", alt.Tooltip("gap:Q", format=".3f")])
+        .encode(x=alt.X("year:O", title="Year"), y=alt.Y("gap:Q", title="Citation impact gap"), tooltip=["year", alt.Tooltip("gap:Q", format=".3f")])
     )
     st.altair_chart(theme.style(gap_line), use_container_width=True)
 
@@ -146,7 +144,7 @@ theme.rule(theme.YELLOW)
 
 theme.anchor("ic-breadth")
 st.subheader("Does more international breadth mean more impact?")
-st.caption("Binary international flag can't answer this — bins on the actual country count.")
+st.caption("Publications grouped by the number of distinct co-author countries.")
 breadth = get_impact_by_collaboration_breadth()
 breadth_df = breadth.reset_index(names="countries")
 breadth_df["countries"] = breadth_df["countries"].astype(str)
@@ -157,8 +155,8 @@ with col_breadth_fwci:
         alt.Chart(breadth_df)
         .mark_bar(color=theme.BLUE)
         .encode(
-            x=alt.X("countries:N", title="Distinct co-author countries", sort=None),
-            y=alt.Y("mean_fwci:Q", title="Mean FWCI"),
+            x=alt.X("countries:N", title="Number of co-author countries", sort=None),
+            y=alt.Y("mean_fwci:Q", title="Citation impact (FWCI)"),
             tooltip=["countries", alt.Tooltip("mean_fwci:Q", format=".3f")],
         )
     )
@@ -168,22 +166,21 @@ with col_breadth_q1:
         alt.Chart(breadth_df)
         .mark_bar(color=theme.RED)
         .encode(
-            x=alt.X("countries:N", title="Distinct co-author countries", sort=None),
-            y=alt.Y("q1_share:Q", title="Q1 share", axis=alt.Axis(format="%")),
+            x=alt.X("countries:N", title="Number of co-author countries", sort=None),
+            y=alt.Y("q1_share:Q", title="Share in Q1 journals", axis=alt.Axis(format="%")),
             tooltip=["countries", alt.Tooltip("q1_share:Q", format=".1%")],
         )
     )
     st.altair_chart(theme.style(breadth_q1_chart, height=300), use_container_width=True)
 
 st.markdown(
-    f"Domestic-only papers: **{breadth_df.iloc[0]['mean_fwci']:.2f}** mean FWCI, "
-    f"**{breadth_df.iloc[0]['q1_share']:.1%}** Q1 share. 4+ countries: "
-    f"**{breadth_df.iloc[-1]['mean_fwci']:.2f}** mean FWCI, **{breadth_df.iloc[-1]['q1_share']:.1%}** Q1 share. "
-    "Both climb together with breadth — but see the Impact Drivers page: once Q1 "
-    "status is controlled for alongside author/institution count, the "
-    "international-collaboration effect on its own shrinks substantially, which "
-    "is consistent with much of this breadth pattern running through Q1 "
-    "placement rather than being an independent effect of breadth itself."
+    f"Publications with no international co-authors: mean FWCI **{breadth_df.iloc[0]['mean_fwci']:.2f}**, "
+    f"Q1 share **{breadth_df.iloc[0]['q1_share']:.1%}**. Publications with four or more countries: "
+    f"mean FWCI **{breadth_df.iloc[-1]['mean_fwci']:.2f}**, Q1 share **{breadth_df.iloc[-1]['q1_share']:.1%}**. "
+    "Both increase with the number of countries. However, once Q1 status is controlled for, "
+    "the independent association of international collaboration with impact diminishes "
+    "considerably, which suggests that much of this pattern operates through publication "
+    "in Q1 sources rather than through breadth of collaboration itself."
 )
 
 theme.rule(theme.YELLOW)
@@ -194,14 +191,14 @@ university = st.selectbox("University", universities, index=universities.index(C
 theme.anchor("ic-trend")
 col_trend, col_countries = st.columns(2)
 with col_trend:
-    st.subheader("Collaboration rate over time")
+    st.subheader("International collaboration rate over time")
     trend = get_collaboration_rate_trend(university).rename_axis("year").reset_index(name="share")
     trend_line = (
         alt.Chart(trend)
         .mark_line(color=theme.RED, point=alt.OverlayMarkDef(color=theme.BLUE, size=100))
         .encode(
             x=alt.X("year:O", title="Year"),
-            y=alt.Y("share:Q", title="International collaboration share", axis=alt.Axis(format="%")),
+            y=alt.Y("share:Q", title="Share with international co-authors", axis=alt.Axis(format="%")),
             tooltip=["year", alt.Tooltip("share:Q", format=".1%")],
         )
     )
@@ -223,6 +220,6 @@ with col_countries:
     st.altair_chart(theme.style(countries_chart), use_container_width=True)
 
 caveat(
-    "Every impact comparison here uses Field-Weighted Citation Impact, not raw "
-    "Citations — FWCI is already field/year/document-type normalised."
+    "Impact comparisons use FWCI rather than raw citation counts; FWCI is normalised for "
+    "field, publication year and document type."
 )
