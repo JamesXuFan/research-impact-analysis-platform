@@ -153,8 +153,7 @@ comp3888/
 │   │                            each page depends only on its own file (home.py, go8_benchmarking.py,
 │   │                            journal_tier.py, field_analysis.py, international_collaboration.py,
 │   │                            impact_drivers.py, scenario_analysis.py)
-│   ├── pages/                   one page per active analysis item (1_Go8_Benchmarking.py … 4_International_Collaboration.py)
-│   └── pages_disabled/          withdrawn-from-nav pages, code kept — see that folder's README.md
+│   └── pages/                   one page per active analysis item (1_Go8_Benchmarking.py … 6_Scenario_Analysis.py)
 ├── src/p36/                  analysis package
 │   ├── config.py                every named threshold/scope constant — PROVISIONAL ones flagged
 │   ├── ingest.py, cleaning/     raw-export loading, dtype safety, deduplication

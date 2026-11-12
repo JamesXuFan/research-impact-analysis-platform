@@ -371,7 +371,7 @@
         <div class="task-tag">Page 5 · README item 14</div>
         <h3><span lang="en">Integrated Impact Drivers</span><span lang="zh">影响力驱动因素分析</span></h3>
         <div class="task-files">
-          <span class="mono">app/pages_disabled/5_Impact_Drivers.py</span>
+          <span class="mono">app/pages/5_Impact_Drivers.py</span>
           <span class="mono">app/lib/impact_drivers.py</span>
           <span class="mono">src/p36/analysis/impact_drivers.py</span>
         </div>
@@ -389,13 +389,10 @@
           <span lang="en">
             <b>The smallest lib file in the project</b> — the page fits a statsmodels
             object with its own <code>@st.cache_resource</code> wrappers instead.
-            <b>Currently withdrawn from the nav</b> — see
-            <code>app/pages_disabled/README.md</code>.
           </span>
           <span lang="zh">
             <b>全项目最小的lib文件</b>——页面要缓存一个 statsmodels 拟合对象，直接自己
-            写了 <code>@st.cache_resource</code>。<b>目前已从导航下线</b>——见
-            <code>app/pages_disabled/README.md</code>。
+            写了 <code>@st.cache_resource</code>。
           </span>
         </div>
       </div>
@@ -404,7 +401,7 @@
         <div class="task-tag">Page 6 · README item 17</div>
         <h3><span lang="en">Scenario Analysis</span><span lang="zh">情景分析</span></h3>
         <div class="task-files">
-          <span class="mono">app/pages_disabled/6_Scenario_Analysis.py</span>
+          <span class="mono">app/pages/6_Scenario_Analysis.py</span>
           <span class="mono">app/lib/scenario_analysis.py</span>
           <span class="mono">src/p36/analysis/scenario_analysis.py</span>
         </div>
@@ -427,8 +424,7 @@
             <code>app/lib/scenario_analysis.py</code> imports <code>go8_benchmarking</code>
             and <code>journal_tier</code> directly, an honest exception documented in
             its own docstring — Scenario Analysis inherently combines other analyses'
-            outputs. <b>Currently withdrawn from the nav</b> — see
-            <code>app/pages_disabled/README.md</code>.
+            outputs.
           </span>
           <span lang="zh">
             <b>analysis 模块本身不再 import 任何其它任务</b>——2026-09-13跟
@@ -436,7 +432,6 @@
             依赖挪高了一层：<code>app/lib/scenario_analysis.py</code> 直接 import 了
             <code>go8_benchmarking</code> 和 <code>journal_tier</code>，这是一个写在它
             自己docstring里的坦白例外——Scenario Analysis本质上就是整合其它分析的产出。
-            <b>目前已从导航下线</b>——见 <code>app/pages_disabled/README.md</code>。
           </span>
         </div>
       </div>
@@ -604,8 +599,8 @@
         reads; <code>lib.py</code> was one big file every page's own caching code
         happened to live inside, which meant depending on it for one function pulled
         in all six analysis modules' imports too. It's now
-        <code>app/lib/&lt;task&gt;.py</code> — seven independent files (one per active
-        task, one per withdrawn one, plus Home's), each importing only the
+        <code>app/lib/&lt;task&gt;.py</code> — seven independent files (one per analysis
+        task, plus Home's), each importing only the
         <code>p36.analysis</code> module(s) its own page actually needs. See each task
         card above for its own file, and <code>app/lib/scenario_analysis.py</code>'s
         own docstring for the one place a lib file still legitimately imports two
@@ -617,8 +612,8 @@
         这三个——那三个是每个任务都会读取的稳定定义；<code>lib.py</code> 只是恰好每个
         页面自己的缓存代码都写在同一个大文件里，这意味着只依赖其中一个函数，也会把
         六个分析模块的import全部带进来。现在它变成了
-        <code>app/lib/&lt;任务&gt;.py</code>——七个各自独立的文件（在用的每个任务一个、
-        下线的每个任务也一个、外加Home自己的），每个只import自己页面真正需要的那个
+        <code>app/lib/&lt;任务&gt;.py</code>——七个各自独立的文件（每个分析任务一个、
+        外加Home自己的），每个只import自己页面真正需要的那个
         (或那些) <code>p36.analysis</code> 模块。每个任务自己的文件见上面对应的任务
         卡片，唯一一处lib文件仍然合理地跨两个任务import的地方，见
         <code>app/lib/scenario_analysis.py</code> 自己的docstring。
@@ -851,7 +846,7 @@
       <code>docs/deployment-azure.md</code><code>docs/methodology.md</code>
       <code>docs/meeting-notes/</code><code>src/p36/__init__.py</code>
       <code>src/p36/analysis/__init__.py</code><code>src/p36/metrics/__init__.py</code>
-      <code>app/lib/__init__.py</code><code>app/pages_disabled/README.md</code>
+      <code>app/lib/__init__.py</code>
     </div>
   </div>
 

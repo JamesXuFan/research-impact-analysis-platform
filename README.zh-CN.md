@@ -147,8 +147,7 @@ comp3888/
 │   │                            每个页面只依赖自己的那一个（home.py、go8_benchmarking.py、
 │   │                            journal_tier.py、field_analysis.py、international_collaboration.py、
 │   │                            impact_drivers.py、scenario_analysis.py）
-│   ├── pages/                   在用的分析条目页面（1_Go8_Benchmarking.py … 4_International_Collaboration.py）
-│   └── pages_disabled/          已从导航下线但代码保留的页面——见该文件夹的README.md
+│   └── pages/                   在用的分析条目页面（1_Go8_Benchmarking.py … 6_Scenario_Analysis.py）
 ├── src/p36/                  分析包
 │   ├── config.py                每一个有名字的阈值/范围常量——PROVISIONAL的会标出来
 │   ├── ingest.py, cleaning/     原始导出加载、类型安全、去重

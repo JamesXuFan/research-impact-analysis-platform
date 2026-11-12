@@ -1,6 +1,5 @@
 """Scenario Analysis's own data layer (README item 17,
-app/pages_disabled/6_Scenario_Analysis.py — currently withdrawn from the
-platform nav, see that folder's README.md).
+app/pages/6_Scenario_Analysis.py).
 
 Split out of the old lib.py. Honest caveat: Scenario Analysis is inherently
 a "combine other analyses' outputs" feature (see docs/methodology.md,
